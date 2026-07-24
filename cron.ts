@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
-export async function POST(req: Request) {
+async function handleCronPurge(req: Request) {
   const authHeader = req.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
@@ -73,4 +73,13 @@ export async function POST(req: Request) {
     console.error("Cron Purge Execution Error:", error);
     return NextResponse.json({ error: "Cron execution failed" }, { status: 500 });
   }
+}
+
+// Vercel Cron jobs use GET by default; POST allows manual testing
+export async function GET(req: Request) {
+  return handleCronPurge(req);
+}
+
+export async function POST(req: Request) {
+  return handleCronPurge(req);
 }
