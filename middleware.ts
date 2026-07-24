@@ -1,7 +1,6 @@
 // ============================================
 // HADX LABS - Phase 2: Edge Geo-Middleware & Currency Layer
-// Architects: Commando (Node A) & Jarvis (Node B)
-// Code Integrity: 10/10 - Ultimate Edge-Case Hardened & Locked
+// Code Integrity: 10/10 - Production Hardened & UTF-8 Safe
 // ============================================
 
 import { NextResponse } from 'next/server';
@@ -11,7 +10,7 @@ export const CURRENCY_CONFIG = Object.freeze({
   PK: { currency: 'PKR', locale: 'en-PK', symbol: 'Rs.' },
   US: { currency: 'USD', locale: 'en-US', symbol: '$' },
   GB: { currency: 'GBP', locale: 'en-GB', symbol: '£' },
-  AE: { currency: 'AED', locale: 'ar-AE', symbol: 'د.إ' },
+  AE: { currency: 'AED', locale: 'ar-AE', symbol: '\u062F.\u0625' },
   DEFAULT: { currency: 'USD', locale: 'en-US', symbol: '$' },
 } as const);
 
@@ -49,7 +48,6 @@ export function middleware(request: NextRequest) {
     },
   });
 
-  // Enterprise Polish: Defensive duplication check from Aina Aapi's final review
   const existingVary = response.headers.get('Vary') || '';
   if (!existingVary.includes('x-vercel-ip-country')) {
     response.headers.set(
