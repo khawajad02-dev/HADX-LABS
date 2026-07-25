@@ -1,5 +1,8 @@
+import "./globals.css";
 import { PrismaClient } from "@prisma/client";
 import Link from "next/link";
+import FeaturedShowcase, { Product } from "@/components/FeaturedShowcase";
+import CatalogGrid from "@/components/CatalogGrid";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
@@ -8,70 +11,65 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 export const revalidate = 0;
 
 export default async function HomePage() {
-  let products: any[] = [];
+  let products: Product[] = [];
   try {
-    products = await prisma.product.findMany({
+    const rawProducts = await prisma.product.findMany({
       where: { active: true },
       orderBy: { createdAt: "desc" },
     });
+
+    products = rawProducts.map((p: any) => ({
+      id: p.id,
+      title: p.title,
+      price: Number(p.price),
+      imageUrl: p.imageUrl ?? null,
+      category: p.category ?? "Collection",
+    }));
   } catch (error) {
     console.error("Database query error:", error);
   }
 
   return (
-    <main className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
-      <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-black/60 border-b border-white/10 px-8 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-200 to-neutral-500">
-          HADX LABS
-        </h1>
-        <div className="flex gap-6 text-sm tracking-wider font-light text-neutral-400">
-          <Link href="/catalog" className="hover:text-white transition-colors">COLLECTION</Link>
-          <Link href="/admin" className="hover:text-white transition-colors">ADMIN</Link>
+    <main className="min-h-screen bg-[#070707] text-zinc-100 selection:bg-white selection:text-black font-sans antialiased">
+      {/* Floating Glass Navigation */}
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-black/60 border-b border-white/10 px-6 md:px-12 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+          <h1 className="text-sm font-extrabold tracking-[0.35em] text-white uppercase">
+            HADX <span className="text-zinc-500 font-light">LABS</span>
+          </h1>
+        </div>
+        
+        <div className="flex items-center gap-8 text-[11px] font-mono tracking-[0.2em] text-zinc-400 uppercase">
+          <Link href="/catalog" className="hover:text-white transition-colors duration-300">COLLECTION</Link>
+          <Link href="/admin" className="hover:text-white transition-colors duration-300 text-zinc-500 hover:text-zinc-200">ADMIN</Link>
         </div>
       </nav>
 
-      <section className="pt-36 pb-20 px-8 text-center max-w-4xl mx-auto">
-        <span className="text-xs font-mono tracking-[0.3em] uppercase text-neutral-500 block mb-3">
-          Architecture Phase // Operational
-        </span>
-        <h2 className="text-4xl md:text-6xl font-light tracking-tight mb-6 leading-tight">
-          ARCHITECTURAL LUXURY <br /> & PRECISION ENGINEERING
-        </h2>
-      </section>
+      {/* Hero Glassmorphic Featured Showcase */}
+      {products.length > 0 ? (
+        <FeaturedShowcase products={products} />
+      ) : (
+        <section className="pt-36 pb-20 px-6 text-center max-w-4xl mx-auto">
+          <span className="text-xs font-mono tracking-[0.3em] uppercase text-zinc-500 block mb-3">
+            [ Database Connected • No Live Inventory ]
+          </span>
+          <h2 className="text-3xl md:text-5xl font-light text-zinc-300">
+            HADX ATELIER IS CURRENTLY EMPTY
+          </h2>
+          <p className="text-xs text-zinc-500 font-mono mt-4">
+            Visit <Link href="/admin" className="underline text-white">/admin</Link> to post products.
+          </p>
+        </section>
+      )}
 
-      <section className="max-w-7xl mx-auto px-8 pb-32">
-        {products.length === 0 ? (
-          <div className="border border-dashed border-neutral-800 rounded-2xl p-16 text-center">
-            <p className="text-neutral-500 tracking-wider text-sm font-mono uppercase mb-4">
-              [ Database Connected • No Live Inventory ]
-            </p>
-            <p className="text-neutral-400 text-xs">
-              Admin Dashboard (`/admin`) se pehla product post karo, wo yahan live dikhna shuru ho jayega.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {products.map((product) => (
-              <div 
-                key={product.id} 
-                className="group relative border border-neutral-800 bg-neutral-950/50 p-4 rounded-xl hover:border-neutral-600 transition-all duration-300"
-              >
-                <div className="aspect-square bg-neutral-900 rounded-lg overflow-hidden mb-4 relative">
-                  {product.imageUrl && (
-                    <img 
-                      src={product.imageUrl} 
-                      alt={product.title} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  )}
-                </div>
-                <h3 className="text-lg font-medium tracking-wide mb-1">{product.title}</h3>
-                <p className="text-sm font-mono text-neutral-400">${product.price}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      {/* Full Glassmorphic Catalog Grid */}
+      <CatalogGrid products={products} />
+
+      {/* Footer */}
+      <footer className="border-t border-white/10 py-8 px-6 text-center text-[10px] font-mono text-zinc-600 tracking-[0.2em] uppercase">
+        © HADX LABS — Architecture Terminal // Operational
+      </footer>
     </main>
   );
 }
