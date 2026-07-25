@@ -28,7 +28,6 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
       className="relative min-h-[85vh] flex items-center justify-center overflow-hidden transition-colors duration-700 ease-out pt-24"
       style={{ backgroundColor: tintFor(active.id) }}
     >
-      {/* Topographic Background */}
       <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
         <svg width="100%" height="100%" preserveAspectRatio="none">
           <defs>
@@ -40,7 +39,6 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
         </svg>
       </div>
 
-      {/* Section Label */}
       <div className="absolute top-28 left-6 md:left-12 z-10">
         <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-white/40">
           Featured_Drop // {activeIndex + 1}/{products.length}
@@ -48,7 +46,6 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
       </div>
 
       <div className="relative z-10 max-w-6xl w-full px-6 grid grid-cols-1 md:grid-cols-2 gap-12 items-center py-12">
-        {/* Main Product Display Card - Built-in Pure Glassmorphism */}
         <div className="flex items-center justify-center">
           <div
             key={active.id}
@@ -76,7 +73,6 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
           </div>
         </div>
 
-        {/* Copy + Controls */}
         <div className="text-white">
           <h2 className="text-3xl md:text-5xl font-extralight tracking-tight mb-4 leading-tight">
             {active.title}
@@ -94,21 +90,21 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
             </button>
           </div>
 
-          {/* Thumbnails with Glass Effect */}
           <div className="flex gap-3 overflow-x-auto pb-2">
             {products.slice(0, 6).map((p, i) => (
               <button
                 key={p.id}
                 onClick={() => setActiveIndex(i)}
                 className={`w-14 h-14 shrink-0 rounded-lg transition-all duration-300 flex items-center justify-center p-1 ${
-                  i === activeIndex
-                    ? "border-white bg-white/20 scale-105"
-                    : "border-white/10 bg-white/5 hover:border-white/40"
+                  i === activeIndex ? "bg-white/20 scale-105" : "bg-white/5"
                 }`}
                 style={{
                   backdropFilter: "blur(12px)",
                   WebkitBackdropFilter: "blur(12px)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  border:
+                    i === activeIndex
+                      ? "1px solid rgba(255, 255, 255, 0.9)"
+                      : "1px solid rgba(255, 255, 255, 0.1)",
                 }}
               >
                 {p.imageUrl ? (
