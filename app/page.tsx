@@ -1,15 +1,24 @@
-import prisma from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
 import Link from "next/link";
 
-// Force dynamic server rendering taaki Hamesha fresh DB data aaye
+// Prisma client initialization without extra lib file
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const prisma = globalForPrisma.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+// Force dynamic rendering so DB data stays fresh
 export const revalidate = 0;
 
 export default async function HomePage() {
-  // Admin Dashboard se daale gaye products database se fetch ho rahe hain
-  const products = await prisma.product.findMany({
-    where: { active: true },
-    orderBy: { createdAt: "desc" },
-  });
+  let products: any[] = [];
+  try {
+    products = await prisma.product.findMany({
+      where: { active: true },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    console.error("Database query error:", error);
+  }
 
   return (
     <main className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
