@@ -1,12 +1,10 @@
 import { PrismaClient } from "@prisma/client";
 import Link from "next/link";
 
-// Prisma client initialization without extra lib file
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-// Force dynamic rendering so DB data stays fresh
 export const revalidate = 0;
 
 export default async function HomePage() {
@@ -22,7 +20,6 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
-      {/* Luxury Navigation Header */}
       <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-black/60 border-b border-white/10 px-8 py-4 flex justify-between items-center">
         <h1 className="text-xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-200 to-neutral-500">
           HADX LABS
@@ -33,7 +30,6 @@ export default async function HomePage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <section className="pt-36 pb-20 px-8 text-center max-w-4xl mx-auto">
         <span className="text-xs font-mono tracking-[0.3em] uppercase text-neutral-500 block mb-3">
           Architecture Phase // Operational
@@ -43,7 +39,6 @@ export default async function HomePage() {
         </h2>
       </section>
 
-      {/* Dynamic Products Grid (Connected to Admin / Prisma DB) */}
       <section className="max-w-7xl mx-auto px-8 pb-32">
         {products.length === 0 ? (
           <div className="border border-dashed border-neutral-800 rounded-2xl p-16 text-center">
