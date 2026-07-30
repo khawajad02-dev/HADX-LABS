@@ -1,23 +1,74 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Product } from "./FeaturedShowcase";
+import { useState, useMemo, useEffect } from "react";
 
-export default function CatalogGrid({ products = [] }: { products: Product[] }) {
+export interface Product {
+  id: string;
+  name?: string;
+  title?: string;
+  price: number | string;
+  image_url?: string;
+  imageUrl?: string;
+  category?: string;
+  stock?: number;
+}
+
+interface CatalogGridProps {
+  products?: Product[];
+}
+
+export default function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
+  const [productList, setProductList] = useState<Product[]>(initialProducts || []);
+  const [loading, setLoading] = useState<boolean>(!initialProducts || initialProducts.length === 0);
   const [activeCategory, setActiveCategory] = useState("All");
   const [sortBy, setSortBy] = useState<"newest" | "price-low" | "price-high">("newest");
 
+  // Auto-fetch if products are not passed via props
+  useEffect(() => {
+    if (initialProducts && initialProducts.length > 0) {
+      setProductList(initialProducts);
+      setLoading(false);
+      return;
+    }
+
+    async function loadCatalog() {
+      try {
+        const res = await fetch("/api/products");
+        const data = await res.json();
+        if (res.ok && data.products) {
+          setProductList(data.products);
+        }
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadCatalog();
+  }, [initialProducts]);
+
   const categories = useMemo(() => {
-    const set = new Set(products.map((p) => p.category).filter(Boolean) as string[]);
+    const set = new Set(productList.map((p) => p.category).filter(Boolean) as string[]);
     return ["All", ...Array.from(set)];
-  }, [products]);
+  }, [productList]);
 
   const visibleProducts = useMemo(() => {
-    let list = activeCategory === "All" ? products : products.filter((p) => p.category === activeCategory);
+    let list = activeCategory === "All" ? productList : productList.filter((p) => p.category === activeCategory);
     if (sortBy === "price-low") list = [...list].sort((a, b) => Number(a.price) - Number(b.price));
     if (sortBy === "price-high") list = [...list].sort((a, b) => Number(b.price) - Number(a.price));
     return list;
-  }, [products, activeCategory, sortBy]);
+  }, [productList, activeCategory, sortBy]);
+
+  if (loading) {
+    return (
+      <section className="bg-[#070707] text-zinc-100 px-6 md:px-12 py-24 border-t border-white/10 text-center">
+        <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest animate-pulse">
+          [ LOADING HADX ARCHIVE DATA... ]
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-[#070707] text-zinc-100 px-6 md:px-12 pt-20 pb-24 border-t border-white/10 relative z-10">
@@ -35,7 +86,9 @@ export default function CatalogGrid({ products = [] }: { products: Product[] }) 
               key={cat}
               onClick={() => setActiveCategory(cat)}
               className={`px-4 py-1.5 rounded-full text-[11px] font-mono tracking-wide uppercase border transition-colors ${
-                activeCategory === cat ? "bg-white text-black border-white" : "border-white/15 text-zinc-400 hover:border-white/40 hover:text-white"
+                activeCategory === cat
+                  ? "bg-white text-black border-white"
+                  : "border-white/15 text-zinc-400 hover:border-white/40 hover:text-white"
               }`}
             >
               {cat}
@@ -62,37 +115,42 @@ export default function CatalogGrid({ products = [] }: { products: Product[] }) 
         </div>
       ) : (
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-          {visibleProducts.map((product) => (
-            <div
-              key={product.id}
-              className="group cursor-pointer rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
-              style={{
-                background: "rgba(255, 255, 255, 0.03)",
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4)",
-              }}
-            >
-              <div className="aspect-[4/5] bg-zinc-900/70 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
-                {product.imageUrl ? (
-                  <img
-                    src={product.imageUrl}
-                    alt={product.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <span className="text-zinc-700 text-[10px] font-mono uppercase">no image</span>
-                )}
+          {visibleProducts.map((product) => {
+            const displayTitle = product.title || product.name || "UNNAMED DROP";
+            const displayImg = product.imageUrl || product.image_url;
+
+            return (
+              <div
+                key={product.id}
+                className="group cursor-pointer rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
+                style={{
+                  background: "rgba(255, 255, 255, 0.03)",
+                  backdropFilter: "blur(16px)",
+                  WebkitBackdropFilter: "blur(16px)",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4)",
+                }}
+              >
+                <div className="aspect-[4/5] bg-zinc-900/70 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
+                  {displayImg ? (
+                    <img
+                      src={displayImg}
+                      alt={displayTitle}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <span className="text-zinc-700 text-[10px] font-mono uppercase">no image</span>
+                  )}
+                </div>
+                <h3 className="text-xs md:text-sm font-medium tracking-wide mb-1 group-hover:text-white transition-colors">
+                  {displayTitle}
+                </h3>
+                <p className="text-xs font-mono text-zinc-400">
+                  PKR {Number(product.price).toLocaleString()}
+                </p>
               </div>
-              <h3 className="text-xs md:text-sm font-medium tracking-wide mb-1 group-hover:text-white transition-colors">
-                {product.title}
-              </h3>
-              <p className="text-xs font-mono text-zinc-400">
-                PKR {Number(product.price).toLocaleString()}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </section>
