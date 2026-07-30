@@ -3,26 +3,65 @@
 import { useState } from "react";
 
 type VaultButtonProps = {
+  productId?: string;
+  userId?: string;
   isActive?: boolean;
   onToggle?: (next: boolean) => void;
 };
 
-export default function VaultButton({ isActive = false, onToggle }: VaultButtonProps) {
+export default function VaultButton({
+  productId,
+  userId,
+  isActive = false,
+  onToggle,
+}: VaultButtonProps) {
   const [active, setActive] = useState(isActive);
   const [pulsing, setPulsing] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleClick = () => {
-    const next = !active;
-    setActive(next);
+  const handleClick = async () => {
+    if (loading) return;
+
+    const nextState = !active;
+    setActive(nextState);
     setPulsing(true);
     setTimeout(() => setPulsing(false), 400);
-    onToggle?.(next);
+
+    onToggle?.(nextState);
+
+    // Agar productId hai, toh backend API call trigger karo
+    if (productId) {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/vault", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: nextState ? "add" : "remove",
+            productId,
+            userId: userId || null,
+          }),
+        });
+
+        if (!res.ok) {
+          // Revert state if backend request fails
+          setActive(!nextState);
+          console.error("Vault update failed on server.");
+        }
+      } catch (err) {
+        setActive(!nextState);
+        console.error("Vault network error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return (
     <button
       onClick={handleClick}
       aria-pressed={active}
+      disabled={loading}
       className={`
         group relative inline-flex items-center gap-2 rounded-lg px-4 py-2
         backdrop-blur-md border transition-all duration-300
@@ -32,6 +71,7 @@ export default function VaultButton({ isActive = false, onToggle }: VaultButtonP
             : "bg-black/50 border-hadx-border hover:border-hadx-border-glow"
         }
         ${pulsing ? "scale-105" : "scale-100"}
+        ${loading ? "opacity-70 cursor-wait" : ""}
       `}
     >
       <svg
