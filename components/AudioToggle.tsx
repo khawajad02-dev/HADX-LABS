@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export default function AudioToggle({ src }: { src: string }) {
+interface AudioToggleProps {
+  src?: string;
+}
+
+export default function AudioToggle({ src = "/obsidian_loom.mp3" }: AudioToggleProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -12,23 +16,28 @@ export default function AudioToggle({ src }: { src: string }) {
     audioRef.current.volume = 0.35;
 
     return () => {
-      audioRef.current?.pause();
-      audioRef.current = null;
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
     };
   }, [src]);
 
-  const toggle = () => {
+  const toggle = async () => {
     if (!audioRef.current) return;
 
     if (isPlaying) {
       audioRef.current.pause();
+      setIsPlaying(false);
     } else {
-      audioRef.current.play().catch(() => {
-        // Autoplay/permission errors are silently ignored;
-        // the toggle stays off if playback couldn't start.
-      });
+      try {
+        await audioRef.current.play();
+        setIsPlaying(true);
+      } catch (err) {
+        console.warn("Audio playback blocked or failed:", err);
+        setIsPlaying(false);
+      }
     }
-    setIsPlaying(!isPlaying);
   };
 
   return (
