@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import Link from "next/link";
-import FeaturedShowcase, { Product } from "../components/FeaturedShowcase";
-import CatalogGrid from "../components/CatalogGrid";
+import FeaturedShowcase, { Product } from "@/components/FeaturedShowcase";
+import CatalogGrid from "@/components/CatalogGrid";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 const prisma = globalForPrisma.prisma || new PrismaClient();
