@@ -1,24 +1,21 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { prisma } from "@/lib/prisma";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const { data: products, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
+    const products = await prisma.product.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
     return NextResponse.json({ success: true, products });
-  } catch (err: any) {
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
     return NextResponse.json(
-      { error: err.message || "Failed to fetch products" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }

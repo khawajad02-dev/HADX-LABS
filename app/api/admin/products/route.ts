@@ -1,17 +1,14 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { Currency } from "@prisma/client";
 
-// Dynamic route enforce karne ke liye taaki response cache na ho
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    // 1. Client se aane waala secret header (F12 me yeh request ki value dikhegi, par SERVER SECRET nahi)
     const authHeader = req.headers.get("x-admin-secret");
-    
-    // 2. Server Data Center ka private Secret Key (Browser bundle me NEVER accessible)
     const serverSecret = process.env.HADX_ADMIN_SECRET;
 
-    // 3. Strict Server Check: Agar server secret set nahi hai ya key match nahi hoti
     if (!serverSecret || authHeader !== serverSecret) {
       return NextResponse.json(
         { error: "Access Denied: Invalid Security Credentials" },
@@ -20,39 +17,62 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, price, imageUrl, category } = body;
+    const { title, description, price, imageUrl, category, sku, stockQuantity } = body;
 
-    if (!title || price === undefined) {
+    if (!title || price === undefined || !sku) {
       return NextResponse.json(
-        { error: "Validation Error: Title and price are required." },
+        { error: "Validation Error: Title, price, and SKU are required." },
         { status: 400 }
       );
     }
 
-    // 4. Secure Database Entry Logic (Database / Prisma Integration)
-    const newProduct = {
-      id: "prod_" + Date.now(),
-      title,
-      price: Number(price),
-      imageUrl: imageUrl || null,
-      category: category || "General",
-    };
+    const product = await prisma.product.create({
+      data: {
+        title,
+        description,
+        sku,
+        priceInCents: Math.round(Number(price) * 100),
+        currency: Currency.USD,
+        imageUrl,
+        category,
+        stockQuantity: Number(stockQuantity) || 0,
+      },
+    });
 
     return NextResponse.json(
-      { message: "Product created successfully", product: newProduct },
+      { message: "Product created successfully", product },
       { status: 201 }
     );
-  } catch (error) {
-    // Internal server errors mask karke bhejna taaki stack trace leak na ho
+  } catch (error: any) {
+    console.error("Product creation error:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: error.message || "Internal Server Error" },
       { status: 500 }
     );
   }
 }
 
-export async function GET() {
-  return NextResponse.json({
-    status: "HADX LABS Security Gateway Active",
-  });
+export async function GET(req: Request) {
+  try {
+    const authHeader = req.headers.get("x-admin-secret");
+    const serverSecret = process.env.HADX_ADMIN_SECRET;
+
+    if (!serverSecret || authHeader !== serverSecret) {
+      return NextResponse.json(
+        { error: "Access Denied" },
+        { status: 401 }
+      );
+    }
+
+    const products = await prisma.product.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json(products);
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }

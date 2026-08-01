@@ -1,11 +1,7 @@
-import { PrismaClient } from "@prisma/client";
 import Link from "next/link";
 import FeaturedShowcase, { Product } from "@/components/FeaturedShowcase";
 import CatalogGrid from "@/components/CatalogGrid";
-
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-const prisma = globalForPrisma.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+import { prisma } from "@/lib/prisma";
 
 export const revalidate = 0;
 
@@ -16,10 +12,10 @@ export default async function HomePage() {
       orderBy: { createdAt: "desc" },
     });
 
-    products = rawProducts.map((p: any) => ({
+    products = rawProducts.map((p) => ({
       id: p.id,
       title: p.title,
-      price: Number(p.price),
+      price: p.priceInCents / 100,
       imageUrl: p.imageUrl ?? null,
       category: p.category ?? "Collection",
     }));

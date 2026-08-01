@@ -1,65 +1,91 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { prisma } from "@/lib/prisma";
+import { PaymentMethod, OrderStatus, PaymentStatus } from "@prisma/client";
+import { randomUUID } from "crypto";
 
 export async function POST(req: Request) {
   try {
-    const { userId, items, shippingAddress, totalAmount } = await req.json();
+    const body = await req.json();
+    const { 
+      productId, 
+      fullName, 
+      email, 
+      phone, 
+      address, 
+      quantity = 1,
+      paymentMethod = "COD" 
+    } = body;
 
-    if (!items || items.length === 0 || !totalAmount) {
+    if (!productId || !fullName || !email || !address) {
       return NextResponse.json(
-        { error: "Invalid order payload. Items and totalAmount are required." },
+        { error: "Missing required fields: productId, fullName, email, address" },
         { status: 400 }
       );
     }
 
-    // 1. Order record insert in orders table
-    const { data: order, error: orderError } = await supabase
-      .from("orders")
-      .insert([
-        {
-          user_id: userId || null,
-          items,
-          total_amount: totalAmount,
-          shipping_address: shippingAddress,
-          status: "pending",
-          created_at: new Date().toISOString(),
-        },
-      ])
-      .select()
-      .single();
+    // 1. Fetch product to get details and check stock
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
 
-    if (orderError) throw orderError;
-
-    // 2. Stock inventory decrement logic
-    for (const item of items) {
-      if (item.id && item.quantity) {
-        const { data: product } = await supabase
-          .from("products")
-          .select("stock")
-          .eq("id", item.id)
-          .single();
-
-        if (product) {
-          const updatedStock = Math.max(0, product.stock - item.quantity);
-          await supabase
-            .from("products")
-            .update({ stock: updatedStock })
-            .eq("id", item.id);
-        }
-      }
+    if (!product) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
+
+    if (product.stockQuantity < quantity) {
+      return NextResponse.json({ error: "Insufficient stock" }, { status: 400 });
+    }
+
+    const totalAmountInCents = product.priceInCents * quantity;
+    const orderId = randomUUID();
+    const orderReference = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+
+    // 2. Use transaction to create order and update stock
+    const result = await prisma.$transaction(async (tx) => {
+      // Create Order
+      const order = await tx.order.create({
+        data: {
+          id: orderId,
+          orderReference,
+          fullName,
+          email,
+          phone: phone || "",
+          address,
+          productId: product.id,
+          productSku: product.sku,
+          productTitle: product.title,
+          unitPriceInCents: product.priceInCents,
+          quantity,
+          totalAmountInCents,
+          currency: product.currency,
+          paymentMethod: paymentMethod as PaymentMethod,
+          paymentStatus: PaymentStatus.PENDING_PAYMENT,
+          orderStatus: OrderStatus.CONFIRMED, // Auto confirm for now
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours expiry
+        },
+      });
+
+      // Update Stock
+      await tx.product.update({
+        where: { id: product.id },
+        data: {
+          stockQuantity: {
+            decrement: quantity,
+          },
+        },
+      });
+
+      return order;
+    });
 
     return NextResponse.json({
       success: true,
       message: "Order placed successfully.",
-      orderId: order.id,
+      orderId: result.id,
+      orderReference: result.orderReference,
     });
   } catch (err: any) {
+    console.error("Checkout error:", err);
     return NextResponse.json(
       { error: err.message || "Failed to process checkout." },
       { status: 500 }

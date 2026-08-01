@@ -37,8 +37,11 @@ model Product {
   id              String          @id @default(uuid())
   sku             String          @unique
   title           String
+  description     String?
   priceInCents    Int
   currency        Currency        @default(USD)
+  imageUrl        String?
+  category        String?
   stockQuantity   Int
   holds           InventoryHold[]
   orders          Order[]
