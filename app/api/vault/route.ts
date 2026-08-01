@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// Server-side initialization (No API keys exposed to client)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Lazy initialization to avoid build-time errors when env vars are missing
+const getSupabase = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error("Supabase credentials missing");
+  }
+  
+  return createClient(supabaseUrl, supabaseKey);
+};
 
 export async function POST(req: Request) {
   try {
@@ -18,8 +24,9 @@ export async function POST(req: Request) {
       );
     }
 
+    const supabase = getSupabase();
+
     if (active) {
-      // Add item to user_vault table
       const { data, error } = await supabase
         .from("user_vault")
         .upsert(
@@ -36,7 +43,6 @@ export async function POST(req: Request) {
         data,
       });
     } else {
-      // Remove item from user_vault table
       const { data, error } = await supabase
         .from("user_vault")
         .delete()
@@ -53,6 +59,7 @@ export async function POST(req: Request) {
       });
     }
   } catch (err: any) {
+    console.error("Vault API Error:", err.message);
     return NextResponse.json(
       { error: err.message || "Internal Server Error" },
       { status: 500 }
