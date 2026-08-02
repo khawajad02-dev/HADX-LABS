@@ -36,7 +36,7 @@ export default async function HomePage() {
         
         <div className="flex items-center gap-8 text-[11px] font-mono tracking-[0.2em] text-zinc-400 uppercase">
           <Link href="/catalog" className="hover:text-white transition-colors duration-300">COLLECTION</Link>
-          <Link href="/admin" className="hover:text-white transition-colors duration-300 text-zinc-500 hover:text-zinc-200">ADMIN</Link>
+          
         </div>
       </nav>
 
@@ -52,7 +52,7 @@ export default async function HomePage() {
             HADX ATELIER IS CURRENTLY EMPTY
           </h2>
           <p className="text-xs text-zinc-500 font-mono mt-4">
-            Visit <Link href="/admin" className="underline text-white">/admin</Link> to post products.
+            Please check back soon for new drops.
           </p>
         </section>
       )}
