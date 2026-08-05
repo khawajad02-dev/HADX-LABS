@@ -30,14 +30,39 @@ export async function GET(
       );
     }
 
-    // In production, generate a signed URL from Supabase storage
-    // For now, return a placeholder response
-    const downloadUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/digital-assets/${order.product.sku}`;
+    // Generate signed URL from Supabase storage
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      return NextResponse.json(
+        { error: "Storage configuration missing" },
+        { status: 500 }
+      );
+    }
+
+    // Create Supabase client with service role
+    const { createClient } = require("@supabase/supabase-js");
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // Generate signed URL (valid for 60 minutes)
+    const { data, error } = await supabase.storage
+      .from("digital-assets")
+      .createSignedUrl(`${order.productSku}/asset.zip`, 3600);
+
+    if (error) {
+      console.error("Signed URL generation failed:", error);
+      return NextResponse.json(
+        { error: "Download unavailable" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      downloadUrl,
-      expiresIn: 3600, // 1 hour
+      downloadUrl: data.signedUrl,
+      expiresIn: 3600,
+      fileName: `${order.productTitle}.zip`,
     });
   } catch (error: any) {
     console.error("Download endpoint error:", error);

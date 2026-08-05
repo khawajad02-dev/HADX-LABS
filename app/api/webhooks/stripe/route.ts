@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import type { Stripe as StripeType } from "stripe";
 import { prisma } from "@/lib/prisma";
 import { resend } from "@/lib/resend";
+import { getHADXOrderEmailHTML } from "@/lib/email-template";
 
 let stripeClient: Stripe | null = null;
 
@@ -67,11 +68,20 @@ export async function POST(req: Request) {
 
       // Send confirmation email via Resend
       try {
+        const emailHtml = getHADXOrderEmailHTML({
+          orderReference: order.orderReference,
+          fullName: order.fullName,
+          productTitle: order.productTitle,
+          quantity: order.quantity,
+          unitPriceInCents: order.unitPriceInCents,
+          totalAmountInCents: order.totalAmountInCents,
+          orderId: order.id,
+        });
         await resend.emails.send({
           from: "orders@hadx-labs.com",
           to: order.email,
-          subject: `Order Confirmation #${order.id}`,
-          html: generateOrderReceiptHTML(order),
+          subject: `Order Confirmation #${order.orderReference}`,
+          html: emailHtml,
         });
       } catch (emailErr) {
         console.error("Failed to send confirmation email:", emailErr);
@@ -98,72 +108,4 @@ export async function POST(req: Request) {
   }
 }
 
-function generateOrderReceiptHTML(order: any): string {
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          body { font-family: Arial, sans-serif; background-color: #f5f5f5; }
-          .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 8px; }
-          .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px; }
-          .header h1 { margin: 0; font-size: 24px; color: #000; }
-          .order-details { margin: 20px 0; }
-          .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-          .detail-label { font-weight: bold; }
-          .items { margin: 20px 0; }
-          .item { padding: 10px; background-color: #f9f9f9; margin: 10px 0; border-radius: 4px; }
-          .footer { text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666; }
-          .download-link { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #000; color: #fff; text-decoration: none; border-radius: 4px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>HADX LABS</h1>
-            <p>Order Confirmation</p>
-          </div>
-          
-          <div class="order-details">
-            <div class="detail-row">
-              <span class="detail-label">Order ID:</span>
-              <span>${order.orderReference}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Date:</span>
-              <span>${new Date().toLocaleDateString()}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Customer:</span>
-              <span>${order.fullName}</span>
-            </div>
-          </div>
 
-          <div class="items">
-            <h2>Items Purchased</h2>
-            <div class="item">
-              <strong>${order.productTitle}</strong><br>
-              Quantity: ${order.quantity}<br>
-              Price: $${(order.unitPriceInCents / 100).toFixed(2)}
-            </div>
-          </div>
-
-          <div class="detail-row" style="font-size: 16px; font-weight: bold;">
-            <span>Total:</span>
-            <span>$${(order.totalAmountInCents / 100).toFixed(2)}</span>
-          </div>
-
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/api/download/${order.id}" class="download-link">
-            Download Your Asset
-          </a>
-
-          <div class="footer">
-            <p>&copy; 2024 HADX LABS. All rights reserved.</p>
-            <p>This is an automated email. Please do not reply.</p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-}
