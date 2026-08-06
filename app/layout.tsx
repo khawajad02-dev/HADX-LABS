@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import './globals.css';
 import CyberOrb from '@/components/CyberOrb';
 
 export const metadata: Metadata = {
