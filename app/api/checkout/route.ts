@@ -2,16 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { PaymentMethod, OrderStatus, PaymentStatus } from "@prisma/client";
 import { randomUUID } from "crypto";
+import Stripe from 'stripe';
 
-let stripeClient: any = null;
-
-function getStripe() {
-  if (!stripeClient) {
-    const Stripe = require("stripe");
-    stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY);
-  }
-  return stripeClient;
-}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' as any });
 
 export async function POST(req: Request) {
   try {
@@ -68,13 +61,18 @@ export async function POST(req: Request) {
           totalAmountInCents,
           currency: product.currency,
           paymentMethod: useStripe ? "CARD" : "COD",
-          paymentStatus: useStripe ? PaymentStatus.PENDING_PAYMENT : PaymentStatus.PENDING_PAYMENT,
+          paymentStatus: useStripe ? PaymentStatus.PENDING_PAYMENT : PaymentStatus.UNPAID_COD,
           orderStatus: OrderStatus.RESERVED,
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
         },
       });
 
-      // Reserve stock
+      // Reserve stock with race condition prevention
+      const currentProduct = await tx.product.findUnique({ where: { id: product.id } });
+      if (!currentProduct || currentProduct.stockQuantity < quantity) {
+        throw new Error("INSUFFICIENT_STOCK");
+      }
+
       await tx.product.update({
         where: { id: product.id },
         data: {
@@ -90,7 +88,6 @@ export async function POST(req: Request) {
     // If using Stripe, create checkout session
     if (useStripe && process.env.STRIPE_SECRET_KEY) {
       try {
-        const stripe = getStripe();
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ["card"],
           line_items: [

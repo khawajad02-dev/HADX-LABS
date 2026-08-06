@@ -3,7 +3,13 @@
 import { useState } from 'react';
 import { CheckoutVideoModal, CheckoutState } from './CheckoutVideoModal';
 
-export default function CheckoutPage() {
+export default function CheckoutPage({ 
+  items: initialItems = [], 
+  total: initialTotal = 0 
+}: { 
+  items?: any[], 
+  total?: number 
+}) {
   const [modalState, setModalState] = useState<CheckoutState>(null);
   const [activeOrderId, setActiveOrderId] = useState<string>('HADX-984210');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -12,15 +18,16 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     address: '',
     city: '',
   });
 
   // Example Cart Items (In real app, fetch from cart state/context)
-  const cartItems = [
+  const cartItems = initialItems.length > 0 ? initialItems : [
     { id: 'prod-001', name: 'HADX Obsidian Hoodie', price: 120, quantity: 1 },
   ];
-  const totalAmount = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const totalAmount = initialTotal > 0 ? initialTotal : cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   // Live Checkout Execution Handler
   const handleRealCheckout = async (e: React.FormEvent) => {
@@ -38,7 +45,10 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           userId: null,
           items: cartItems,
-          shippingAddress: `${formData.address}, ${formData.city}`,
+          fullName: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          address: `${formData.address}, ${formData.city}`,
           totalAmount: totalAmount,
         }),
       });
@@ -106,6 +116,18 @@ export default function CheckoutPage() {
               placeholder="daud@hadx.labs"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-neutral-500 mb-1 uppercase">Phone Number</label>
+            <input
+              type="tel"
+              required
+              placeholder="+92 300 1234567"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               className="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
             />
           </div>

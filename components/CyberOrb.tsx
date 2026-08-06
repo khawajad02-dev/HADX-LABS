@@ -46,8 +46,8 @@ export default function CyberOrb() {
     if (!ctx) return;
 
     const particles: Particle[] = Array.from({ length: 12 }, () => ({
-      x: Math.random() * 56,
-      y: Math.random() * 56,
+      x: Math.random() * 64,
+      y: Math.random() * 64,
       speed: 0.2 + Math.random() * 0.5,
       opacity: 0.1 + Math.random() * 0.4,
       size: 0.5 + Math.random() * 1.5,
@@ -56,7 +56,7 @@ export default function CyberOrb() {
     let animationFrameId: number;
 
     const render = () => {
-      ctx.clearRect(0, 0, 56, 56);
+      ctx.clearRect(0, 0, 64, 64);
       ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
 
       particles.forEach((p) => {
@@ -66,9 +66,9 @@ export default function CyberOrb() {
         ctx.fill();
 
         p.y += p.speed;
-        if (p.y > 56) {
+        if (p.y > 64) {
           p.y = -5;
-          p.x = Math.random() * 56;
+          p.x = Math.random() * 64;
         }
       });
 
@@ -90,25 +90,25 @@ export default function CyberOrb() {
         />
       ),
       angle: 90,
-      distance: 120,
+      distance: 100,
     },
     {
       id: "vault",
       component: <VaultButton />,
       angle: 60,
-      distance: 120,
+      distance: 100,
     },
     {
       id: "audio",
       component: <AudioToggle />,
       angle: 30,
-      distance: 120,
+      distance: 100,
     },
     {
       id: "instagram",
       component: <InstagramDMButton label="DM" />,
       angle: 0,
-      distance: 120,
+      distance: 100,
     },
   ], []);
 
@@ -166,7 +166,7 @@ export default function CyberOrb() {
         }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
         className={`
-          relative w-14 h-14 rounded-full flex items-center justify-center
+          relative w-16 h-16 rounded-full flex items-center justify-center
           backdrop-blur-md border transition-colors duration-300
           ${isOpen ? "bg-amber-500/20 border-amber-500" : "bg-black/50 border-amber-500/30"}
         `}
@@ -174,18 +174,18 @@ export default function CyberOrb() {
         {/* Snow Canvas */}
         <canvas
           ref={canvasRef}
-          width={56}
-          height={56}
+          width={64}
+          height={64}
           className="absolute inset-0 rounded-full pointer-events-none"
         />
 
         {/* Golden Lightning Flash & Pulse */}
         <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
           <div className="lightning-flash-anim absolute inset-0 bg-amber-500/10 opacity-0" />
-          <svg className="w-full h-full" viewBox="0 0 56 56">
+          <svg className="w-full h-full" viewBox="0 0 64 64">
             <path
               className="lightning-path-anim"
-              d="M28 10 L32 25 L24 31 L28 46"
+              d="M32 10 L36 28 L28 36 L32 54"
               stroke="#F59E0B"
               strokeWidth="1.5"
               fill="none"
