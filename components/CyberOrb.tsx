@@ -122,37 +122,38 @@ export default function CyberOrb() {
 
   return (
     <div ref={orbRef} className="fixed bottom-6 right-6 z-50 flex items-center justify-center">
-      {/* Radial Buttons */}
-      <AnimatePresence>
-        {isOpen && (
-          <div className="absolute">
-            {buttons.map((btn, index) => {
-              const pos = getPosition(btn.angle, btn.distance);
-              return (
-                <motion.div
-                  key={btn.id}
-                  initial={{ x: 0, y: 0, opacity: 0, scale: 0.5 }}
-                  animate={{ x: pos.x, y: pos.y, opacity: 1, scale: 1 }}
-                  exit={{ x: 0, y: 0, opacity: 0, scale: 0.5 }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 260, 
-                    damping: 20,
-                    delay: index * 0.05 
-                  }}
-                  className="absolute flex items-center justify-center"
-                  style={{ 
-                    width: "max-content",
-                    height: "max-content"
-                  }}
-                >
-                  {btn.component}
-                </motion.div>
-              );
-            })}
-          </div>
-        )}
-      </AnimatePresence>
+      {/* Radial Buttons (Always mounted for state persistence) */}
+      <div className="absolute pointer-events-none">
+        {buttons.map((btn, index) => {
+          const pos = getPosition(btn.angle, btn.distance);
+          return (
+            <motion.div
+              key={btn.id}
+              initial={false}
+              animate={{ 
+                x: isOpen ? pos.x : 0, 
+                y: isOpen ? pos.y : 0, 
+                opacity: isOpen ? 1 : 0, 
+                scale: isOpen ? 1 : 0.5,
+                pointerEvents: isOpen ? "auto" : "none" as any
+              }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 260, 
+                damping: 20,
+                delay: isOpen ? index * 0.05 : 0 
+              }}
+              className="absolute flex items-center justify-center"
+              style={{ 
+                width: "max-content",
+                height: "max-content"
+              }}
+            >
+              {btn.component}
+            </motion.div>
+          );
+        })}
+      </div>
 
       {/* Main Orb Trigger */}
       <motion.button
