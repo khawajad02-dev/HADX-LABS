@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { PaymentMethod, OrderStatus, PaymentStatus } from "@prisma/client";
+// Import types from @prisma/client, fallback to any if generation fails during CI
+import type { PaymentMethod, OrderStatus, PaymentStatus } from "@prisma/client";
 import { randomUUID } from "crypto";
 import Stripe from 'stripe';
 
@@ -60,9 +61,9 @@ export async function POST(req: Request) {
           quantity,
           totalAmountInCents,
           currency: product.currency,
-          paymentMethod: useStripe ? "CARD" : "COD",
-          paymentStatus: useStripe ? PaymentStatus.PENDING_PAYMENT : PaymentStatus.UNPAID_COD,
-          orderStatus: OrderStatus.RESERVED,
+          paymentMethod: (useStripe ? "CARD" : "COD") as PaymentMethod,
+          paymentStatus: (useStripe ? "PENDING_PAYMENT" : "UNPAID_COD") as PaymentStatus,
+          orderStatus: "RESERVED" as OrderStatus,
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
         },
       });

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Currency, ProductStatus } from "@prisma/client";
+import type { Currency, ProductStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -32,10 +32,10 @@ export async function POST(req: Request) {
         description,
         sku,
         priceInCents: Math.round(Number(price) * 100),
-        currency: Currency.USD,
+        currency: "USD" as Currency,
         imageUrl,
         category,
-        status: status === "PUBLISHED" ? ProductStatus.PUBLISHED : ProductStatus.DRAFT,
+        status: (status === "PUBLISHED" ? "PUBLISHED" : "DRAFT") as ProductStatus,
         stockQuantity: Number(stockQuantity) || 0,
       },
     });
