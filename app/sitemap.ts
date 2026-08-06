@@ -29,7 +29,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic product routes
   try {
     const products = await prisma.product.findMany({
-      where: { stockQuantity: { gt: 0 } },
+      where: { 
+        status: 'PUBLISHED',
+        stockQuantity: { gt: 0 } 
+      },
       select: { sku: true, updatedAt: true },
     })
 

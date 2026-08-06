@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Currency } from "@prisma/client";
+import { Currency, ProductStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, description, price, imageUrl, category, sku, stockQuantity } = body;
+    const { title, description, price, imageUrl, category, sku, stockQuantity, status } = body;
 
     if (!title || price === undefined || !sku) {
       return NextResponse.json(
@@ -35,6 +35,7 @@ export async function POST(req: Request) {
         currency: Currency.USD,
         imageUrl,
         category,
+        status: status === "PUBLISHED" ? ProductStatus.PUBLISHED : ProductStatus.DRAFT,
         stockQuantity: Number(stockQuantity) || 0,
       },
     });

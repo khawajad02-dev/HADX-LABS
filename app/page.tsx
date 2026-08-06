@@ -9,6 +9,7 @@ export default async function HomePage() {
   let products: Product[] = [];
   try {
     const rawProducts = await prisma.product.findMany({
+      where: { status: "PUBLISHED" },
       orderBy: { createdAt: "desc" },
     });
 

@@ -7,8 +7,8 @@ export function getHADXOrderEmailHTML(orderData: {
   totalAmountInCents: number;
   orderId: string;
 }): string {
-  const unitPrice = (orderData.unitPriceInCents / 100).toFixed(2);
-  const totalPrice = (orderData.totalAmountInCents / 100).toFixed(2);
+  const unitPrice = (orderData.unitPriceInCents / 100).toLocaleString();
+  const totalPrice = (orderData.totalAmountInCents / 100).toLocaleString();
   const downloadUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "https://hadx-labs.com"}/api/download/${orderData.orderId}`;
 
   return `
@@ -81,7 +81,7 @@ export function getHADXOrderEmailHTML(orderData: {
                 <div class="item-title">${orderData.productTitle}</div>
                 <div class="item-meta">
                   <span>Quantity: ${orderData.quantity}</span>
-                  <span>$${unitPrice}</span>
+                                    <span>PKR ${unitPrice}</span>
                 </div>
               </div>
             </div>
@@ -89,18 +89,18 @@ export function getHADXOrderEmailHTML(orderData: {
             <div class="total-section">
               <div class="total-row">
                 <span>Total Amount</span>
-                <span>$${totalPrice}</span>
+                <span>PKR ${totalPrice}</span>
               </div>
             </div>
 
-            <a href="${downloadUrl}" class="cta-button">Download Your Asset</a>
+            <a href="${downloadUrl}" class="cta-button">[CLAIM DROP]</a>
 
             <p style="font-size: 12px; color: #999; margin-bottom: 20px;">
               The download link above is valid for 60 minutes. If you need another copy, please contact us.
             </p>
 
             <p style="font-size: 12px; color: #999;">
-              Have questions? Reach out to us on <a href="https://instagram.com/hadxlabs" style="color: #FFD700;">Instagram DM</a>.
+              Have questions? Reach out to us on <a href="https://www.instagram.com/hadx_labs.io.official?igsh=ODR3MWE3czRjbm9l" style="color: #FFD700;">Instagram DM</a>.
             </p>
           </div>
 

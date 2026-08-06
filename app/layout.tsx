@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import AudioToggle from '@/components/AudioToggle';
+import CyberWheel from '@/components/CyberWheel';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://hadx-labs.com'),
@@ -43,7 +43,7 @@ export default function RootLayout({
       </head>
       <body style={{ margin: 0, padding: 0, backgroundColor: '#050505', color: '#ffffff' }}>
         {children}
-        <AudioToggle />
+        <CyberWheel />
       </body>
     </html>
   );
