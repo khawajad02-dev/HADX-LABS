@@ -32,6 +32,18 @@ export default function CheckoutPage({
   // Live Checkout Execution Handler
   const handleRealCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Basic Validation
+    if (!cartItems.length || !cartItems[0]?.id) {
+      alert("System Error: Your loadout is empty.");
+      return;
+    }
+
+    if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.city) {
+      alert("Validation Error: All fields are required.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     const controller = new AbortController();
@@ -43,13 +55,13 @@ export default function CheckoutPage({
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-          userId: null,
-          items: cartItems,
+          productId: cartItems[0]?.id || '',
+          quantity: cartItems[0]?.quantity || 1,
           fullName: formData.name,
           email: formData.email,
           phone: formData.phone,
           address: `${formData.address}, ${formData.city}`,
-          totalAmount: totalAmount,
+          useStripe: false, // Default to COD as per spec unless specified
         }),
       });
 
