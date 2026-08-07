@@ -46,7 +46,7 @@ export default function CyberOrb() {
     if (!ctx) return;
 
     const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
-    const size = 56;
+    const size = 64;
     canvas.width = size * dpr;
     canvas.height = size * dpr;
     ctx.scale(dpr, dpr);
@@ -96,25 +96,25 @@ export default function CyberOrb() {
         />
       ),
       angle: 85,
-      distance: 125,
+      distance: 220,
     },
     {
       id: "vault",
       component: <VaultButton />,
-      angle: 60,
-      distance: 125,
+      angle: 55,
+      distance: 180,
     },
     {
       id: "audio",
       component: <AudioToggle />,
-      angle: 35,
-      distance: 125,
+      angle: 25,
+      distance: 150,
     },
     {
       id: "instagram",
       component: <InstagramDMButton label="DM" />,
-      angle: 10,
-      distance: 125,
+      angle: 0,
+      distance: 130,
     },
   ], []);
 
@@ -139,6 +139,8 @@ export default function CyberOrb() {
               animate={{ 
                 x: isOpen ? pos.x : 0, 
                 y: isOpen ? pos.y : 0, 
+                translateX: "-50%",
+                translateY: "-50%",
                 opacity: isOpen ? 1 : 0, 
                 scale: isOpen ? 1 : 0.5,
                 pointerEvents: (isOpen ? "auto" : "none") as React.CSSProperties["pointerEvents"]
@@ -173,7 +175,7 @@ export default function CyberOrb() {
         }}
         transition={{ duration: 0.4, ease: "easeInOut" }}
         className={`
-          relative w-14 h-14 rounded-full overflow-hidden flex items-center justify-center
+          relative w-16 h-16 rounded-full overflow-hidden flex items-center justify-center
           backdrop-blur-md border transition-colors duration-300
           ${isOpen ? "bg-amber-500/20 border-amber-500" : "bg-black/50 border-amber-500/30"}
         `}
@@ -181,18 +183,18 @@ export default function CyberOrb() {
         {/* Snow Canvas */}
         <canvas
           ref={canvasRef}
-          width={56}
-          height={56}
+          width={64}
+          height={64}
           className="absolute inset-0 rounded-full pointer-events-none"
         />
 
         {/* Golden Lightning Flash & Pulse */}
         <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
           <div className="lightning-flash-anim absolute inset-0 bg-amber-500/10 opacity-0" />
-          <svg className="w-full h-full" viewBox="0 0 56 56">
+          <svg className="w-full h-full" viewBox="0 0 64 64">
             <path
               className="lightning-path-anim"
-              d="M28 8.75 L31.5 24.5 L24.5 31.5 L28 47.25"
+              d="M32 10 L36 28 L28 36 L32 54"
               stroke="#F59E0B"
               strokeWidth="1.5"
               fill="none"
