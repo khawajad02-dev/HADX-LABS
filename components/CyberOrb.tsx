@@ -95,26 +95,26 @@ export default function CyberOrb() {
           onClick={() => setIsCartOpen(true)} 
         />
       ),
-      angle: -150,
-      distance: 85,
+      angle: 85,
+      distance: 125,
     },
     {
       id: "vault",
       component: <VaultButton />,
-      angle: -105,
-      distance: 85,
+      angle: 60,
+      distance: 125,
     },
     {
       id: "audio",
       component: <AudioToggle />,
-      angle: -60,
-      distance: 85,
+      angle: 35,
+      distance: 125,
     },
     {
       id: "instagram",
       component: <InstagramDMButton label="DM" />,
-      angle: -15,
-      distance: 85,
+      angle: 10,
+      distance: 125,
     },
   ], []);
 
@@ -153,7 +153,7 @@ export default function CyberOrb() {
               style={{ 
                 width: "max-content",
                 height: "max-content",
-                zIndex: buttons.length - index
+                zIndex: 100 - index
               }}
             >
               {btn.component}

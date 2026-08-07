@@ -63,7 +63,7 @@ export default function VaultButton({
       aria-pressed={active}
       disabled={loading}
       className={`
-        group relative inline-flex items-center gap-2 rounded-lg px-4 py-2
+        group relative inline-flex items-center gap-2 rounded-lg px-6 py-3
         backdrop-blur-md border transition-all duration-300
         ${
           active
@@ -85,7 +85,7 @@ export default function VaultButton({
       >
         <path d="M12 21s-7.5-4.6-10-9.2C.4 8.1 2.3 4 6.2 4c2 0 3.6 1.1 4.8 2.7C12.2 5.1 13.8 4 15.8 4c3.9 0 5.8 4.1 4.2 7.8C19.5 16.4 12 21 12 21z" />
       </svg>
-      <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-hadx-gold-light">
+      <span className="text-[11px] font-mono tracking-[0.2em] uppercase text-hadx-gold-light">
         {active ? "IN VAULT" : "STASH IN VAULT"}
       </span>
     </button>

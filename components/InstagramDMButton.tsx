@@ -41,7 +41,7 @@ export default function InstagramDMButton({
       href={INSTAGRAM_WEB_URL}
       onClick={handleClick}
       className="
-        group inline-flex items-center gap-2 rounded-full px-5 py-2.5
+        group inline-flex items-center gap-2 rounded-full px-7 py-3.5
         backdrop-blur-md bg-black/50 border border-hadx-border
         transition-all duration-300
         hover:border-hadx-border-glow hover:shadow-gold-glow
@@ -58,7 +58,7 @@ export default function InstagramDMButton({
         <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.8" />
         <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" />
       </svg>
-      <span className="text-[11px] font-mono tracking-[0.2em] uppercase text-hadx-gold-light">
+      <span className="text-[12px] font-mono tracking-[0.2em] uppercase text-hadx-gold-light">
         {label}
       </span>
     </a>
