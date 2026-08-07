@@ -1,11 +1,28 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 // Import types from @prisma/client, fallback to any if generation fails during CI
+// Use type-only imports for Prisma enums to avoid issues during static analysis
+/** 
+ * Safely import Prisma enums. 
+ * If Prisma client is not yet generated, these will fall back to 'any' via the ignore/fallback pattern.
+ */
+// @ts-ignore
 import type { PaymentMethod, OrderStatus, PaymentStatus } from "@prisma/client";
 import { randomUUID } from "crypto";
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2023-10-16' as any });
+// Initialize Stripe lazily to avoid build-time errors when environment variables are missing
+let stripe: Stripe | null = null;
+const getStripe = () => {
+  if (!stripe && process.env.STRIPE_SECRET_KEY) {
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2023-10-16' as any,
+    });
+  }
+  return stripe;
+};
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
@@ -89,7 +106,11 @@ export async function POST(req: Request) {
     // If using Stripe, create checkout session
     if (useStripe && process.env.STRIPE_SECRET_KEY) {
       try {
-        const session = await stripe.checkout.sessions.create({
+        const stripeInstance = getStripe();
+        if (!stripeInstance) {
+          throw new Error("Stripe is not configured");
+        }
+        const session = await stripeInstance.checkout.sessions.create({
           payment_method_types: ["card"],
           line_items: [
             {

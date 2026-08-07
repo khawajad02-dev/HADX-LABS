@@ -45,9 +45,15 @@ export default function CyberOrb() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+    const size = 64;
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    ctx.scale(dpr, dpr);
+
     const particles: Particle[] = Array.from({ length: 12 }, () => ({
-      x: Math.random() * 64,
-      y: Math.random() * 64,
+      x: Math.random() * size,
+      y: Math.random() * size,
       speed: 0.2 + Math.random() * 0.5,
       opacity: 0.1 + Math.random() * 0.4,
       size: 0.5 + Math.random() * 1.5,
@@ -56,7 +62,7 @@ export default function CyberOrb() {
     let animationFrameId: number;
 
     const render = () => {
-      ctx.clearRect(0, 0, 64, 64);
+      ctx.clearRect(0, 0, size, size);
       ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
 
       particles.forEach((p) => {
@@ -66,9 +72,9 @@ export default function CyberOrb() {
         ctx.fill();
 
         p.y += p.speed;
-        if (p.y > 64) {
+        if (p.y > size) {
           p.y = -5;
-          p.x = Math.random() * 64;
+          p.x = Math.random() * size;
         }
       });
 
@@ -90,25 +96,25 @@ export default function CyberOrb() {
         />
       ),
       angle: 90,
-      distance: 100,
+      distance: 98,
     },
     {
       id: "vault",
       component: <VaultButton />,
       angle: 60,
-      distance: 100,
+      distance: 98,
     },
     {
       id: "audio",
       component: <AudioToggle />,
       angle: 30,
-      distance: 100,
+      distance: 98,
     },
     {
       id: "instagram",
       component: <InstagramDMButton label="DM" />,
       angle: 0,
-      distance: 100,
+      distance: 98,
     },
   ], []);
 
@@ -135,7 +141,7 @@ export default function CyberOrb() {
                 y: isOpen ? pos.y : 0, 
                 opacity: isOpen ? 1 : 0, 
                 scale: isOpen ? 1 : 0.5,
-                pointerEvents: isOpen ? "auto" : "none" as any
+                pointerEvents: (isOpen ? "auto" : "none") as React.CSSProperties["pointerEvents"]
               }}
               transition={{ 
                 type: "spring", 
