@@ -69,7 +69,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         {/* Product Details */}
         <div className="flex flex-col">
           <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-zinc-500 mb-2">
-            {product.category || "Collection"} // {product.sku}
+            {product.category || "Collection"} {"//"} {product.sku}
           </span>
           <h1 className="text-4xl md:text-6xl font-extralight tracking-tight mb-6">
             {product.title}

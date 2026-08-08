@@ -95,20 +95,20 @@ export default function CyberOrb() {
           onClick={() => setIsCartOpen(true)} 
         />
       ),
-      angle: 85,
+      angle: 110,
       distance: 220,
     },
     {
       id: "vault",
       component: <VaultButton />,
-      angle: 55,
-      distance: 180,
+      angle: 70,
+      distance: 190,
     },
     {
       id: "audio",
       component: <AudioToggle />,
-      angle: 25,
-      distance: 150,
+      angle: 35,
+      distance: 160,
     },
     {
       id: "instagram",
@@ -139,8 +139,6 @@ export default function CyberOrb() {
               animate={{ 
                 x: isOpen ? pos.x : 0, 
                 y: isOpen ? pos.y : 0, 
-                translateX: "-50%",
-                translateY: "-50%",
                 opacity: isOpen ? 1 : 0, 
                 scale: isOpen ? 1 : 0.5,
                 pointerEvents: (isOpen ? "auto" : "none") as React.CSSProperties["pointerEvents"]

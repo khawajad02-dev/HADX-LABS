@@ -104,7 +104,7 @@ export default function CheckoutPage({
       {/* Real Form & Order Summary Container */}
       <div className="w-full max-w-xl bg-neutral-950/80 border border-neutral-800 rounded-2xl p-6 sm:p-8 backdrop-blur-md shadow-2xl space-y-6">
         <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400 border-b border-neutral-800 pb-3">
-          // Shipping Details
+          {"//"} Shipping Details
         </h2>
 
         <form onSubmit={handleRealCheckout} className="space-y-4 font-mono text-xs">
