@@ -23,6 +23,7 @@ export default function CyberOrb() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const orbRef = useRef<HTMLDivElement>(null);
+  const constraintsRef = useRef(null);
 
   // Mock cart items (since no global store exists)
   const [cartItems, setCartItems] = useState<any[]>([]);
@@ -127,115 +128,123 @@ export default function CyberOrb() {
   };
 
   return (
-    <div ref={orbRef} className="fixed bottom-6 right-6 z-50 flex items-center justify-center">
-      {/* Radial Buttons (Always mounted for state persistence) */}
-      <div className="absolute pointer-events-none">
-        {buttons.map((btn, index) => {
-          const pos = getPosition(btn.angle, btn.distance);
-          return (
-            <motion.div
-              key={btn.id}
-              initial={false}
-              animate={{ 
-                x: isOpen ? pos.x : 0, 
-                y: isOpen ? pos.y : 0, 
-                opacity: isOpen ? 1 : 0, 
-                scale: isOpen ? 1 : 0.5,
-                pointerEvents: (isOpen ? "auto" : "none") as React.CSSProperties["pointerEvents"]
-              }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 260, 
-                damping: 20,
-                delay: isOpen ? index * 0.05 : 0 
-              }}
-              className="absolute flex items-center justify-center"
-              style={{ 
-                width: "max-content",
-                height: "max-content",
-                zIndex: 100 - index
-              }}
-            >
-              {btn.component}
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Main Orb Trigger */}
-      <motion.button
-        onClick={() => setIsOpen(!isOpen)}
-        animate={{ 
-          rotate: isOpen ? 360 : 0,
-          boxShadow: isOpen 
-            ? "0 0 25px rgba(245, 158, 11, 0.5)" 
-            : "0 0 15px rgba(245, 158, 11, 0.2)"
-        }}
-        transition={{ duration: 0.4, ease: "easeInOut" }}
-        className={`
-          relative w-16 h-16 rounded-full overflow-hidden flex items-center justify-center
-          backdrop-blur-md border transition-colors duration-300
-          ${isOpen ? "bg-amber-500/20 border-amber-500" : "bg-black/50 border-amber-500/30"}
-        `}
+    <div className="fixed inset-0 pointer-events-none z-[9999]" ref={constraintsRef}>
+      <motion.div 
+        ref={orbRef} 
+        drag 
+        dragConstraints={constraintsRef}
+        dragElastic={0.1}
+        className="absolute bottom-6 right-6 pointer-events-auto flex items-center justify-center"
       >
-        {/* Snow Canvas */}
-        <canvas
-          ref={canvasRef}
-          width={64}
-          height={64}
-          className="absolute inset-0 rounded-full pointer-events-none"
-        />
-
-        {/* Golden Lightning Flash & Pulse */}
-        <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
-          <div className="lightning-flash-anim absolute inset-0 bg-amber-500/10 opacity-0" />
-          <svg className="w-full h-full" viewBox="0 0 64 64">
-            <path
-              className="lightning-path-anim"
-              d="M32 10 L36 28 L28 36 L32 54"
-              stroke="#F59E0B"
-              strokeWidth="1.5"
-              fill="none"
-              strokeDasharray="100"
-              strokeDashoffset="100"
-            />
-          </svg>
+        {/* Radial Buttons */}
+        <div className="absolute pointer-events-none">
+          {buttons.map((btn, index) => {
+            const pos = getPosition(btn.angle, btn.distance);
+            return (
+              <motion.div
+                key={btn.id}
+                initial={false}
+                animate={{ 
+                  x: isOpen ? pos.x : 0, 
+                  y: isOpen ? pos.y : 0, 
+                  opacity: isOpen ? 1 : 0, 
+                  scale: isOpen ? 1 : 0.5,
+                  pointerEvents: (isOpen ? "auto" : "none") as React.CSSProperties["pointerEvents"]
+                }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 260, 
+                  damping: 20,
+                  delay: isOpen ? index * 0.05 : 0 
+                }}
+                className="absolute flex items-center justify-center"
+                style={{ 
+                  width: "max-content",
+                  height: "max-content",
+                  zIndex: 100 - index
+                }}
+              >
+                {btn.component}
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* Center Icon/Indicator */}
-        <div className={`
-          w-2 h-2 rounded-full transition-all duration-300
-          ${isOpen ? "bg-amber-400 scale-125" : "bg-amber-500/40"}
-        `} />
-      </motion.button>
+        {/* Main Orb Trigger */}
+        <motion.button
+          onClick={() => setIsOpen(!isOpen)}
+          animate={{ 
+            rotate: isOpen ? 360 : 0,
+            boxShadow: isOpen 
+              ? "0 0 25px rgba(245, 158, 11, 0.5)" 
+              : "0 0 15px rgba(245, 158, 11, 0.2)"
+          }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+          className={`
+            relative w-14 h-14 rounded-full overflow-hidden flex items-center justify-center
+            backdrop-blur-md border transition-colors duration-300
+            ${isOpen ? "bg-amber-500/20 border-amber-500" : "bg-black/50 border-amber-500/30"}
+          `}
+        >
+          {/* Snow Canvas */}
+          <canvas
+            ref={canvasRef}
+            width={64}
+            height={64}
+            className="absolute inset-0 rounded-full pointer-events-none"
+          />
 
-      {/* Cart Drawer (Independent state) */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cartItems}
-        onIncrement={(id) => setCartItems(prev => prev.map(i => i.id === id ? {...i, quantity: i.quantity + 1} : i))}
-        onDecrement={(id) => setCartItems(prev => prev.map(i => i.id === id && i.quantity > 1 ? {...i, quantity: i.quantity - 1} : i))}
-        onCheckout={() => window.location.href = "/checkout"}
-      />
+          {/* Golden Lightning Flash & Pulse */}
+          <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
+            <div className="lightning-flash-anim absolute inset-0 bg-amber-500/10 opacity-0" />
+            <svg className="w-full h-full" viewBox="0 0 64 64">
+              <path
+                className="lightning-path-anim"
+                d="M32 10 L36 28 L28 36 L32 54"
+                stroke="#F59E0B"
+                strokeWidth="1.5"
+                fill="none"
+                strokeDasharray="100"
+                strokeDashoffset="100"
+              />
+            </svg>
+          </div>
 
-      <style>{`
-        @keyframes flash {
-          0%, 88%, 92%, 100% { opacity: 0; }
-          90% { opacity: 1; }
-        }
-        @keyframes strike {
-          0%, 88% { stroke-dashoffset: 100; opacity: 0; }
-          90% { stroke-dashoffset: 0; opacity: 1; }
-          92%, 100% { stroke-dashoffset: -100; opacity: 0; }
-        }
-        .lightning-flash-anim {
-          animation: flash 5s infinite;
-        }
-        .lightning-path-anim {
-          animation: strike 5s infinite;
-        }
-      `}</style>
+          {/* Center Icon/Indicator */}
+          <div className={`
+            w-2 h-2 rounded-full transition-all duration-300
+            ${isOpen ? "bg-amber-400 scale-125" : "bg-amber-500/40"}
+          `} />
+        </motion.button>
+
+        {/* Cart Drawer (Independent state) */}
+        <CartDrawer
+          isOpen={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+          items={cartItems}
+          onIncrement={(id) => setCartItems(prev => prev.map(i => i.id === id ? {...i, quantity: i.quantity + 1} : i))}
+          onDecrement={(id) => setCartItems(prev => prev.map(i => i.id === id && i.quantity > 1 ? {...i, quantity: i.quantity - 1} : i))}
+          onCheckout={() => window.location.href = "/checkout"}
+        />
+
+        <style>{`
+          @keyframes flash {
+            0%, 88%, 92%, 100% { opacity: 0; }
+            90% { opacity: 1; }
+          }
+          @keyframes strike {
+            0%, 88% { stroke-dashoffset: 100; opacity: 0; }
+            90% { stroke-dashoffset: 0; opacity: 1; }
+            92%, 100% { stroke-dashoffset: -100; opacity: 0; }
+          }
+          .lightning-flash-anim {
+            animation: flash 5s infinite;
+          }
+          .lightning-path-anim {
+            animation: strike 5s infinite;
+          }
+        `}</style>
+      </motion.div>
     </div>
   );
 }

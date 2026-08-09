@@ -136,9 +136,11 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
             <video
               ref={videoRef}
               src={videoSrc}
-              playsInline
               autoPlay
+              loop
               muted
+              playsInline
+              preload="auto"
               onLoadedData={() => setIsVideoLoaded(true)}
               className={`w-full h-full object-cover transition-opacity duration-500 ${
                 isVideoLoaded ? 'opacity-100' : 'opacity-0'
