@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function IntroSplashScreen() {
   const [isVisible, setIsVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     setMounted(true);
-    // Check if user has already seen the intro in this session
     if (typeof window !== 'undefined') {
       const hasSeenIntro = sessionStorage.getItem("hadx_intro_seen");
       if (!hasSeenIntro) {
@@ -17,6 +18,34 @@ export default function IntroSplashScreen() {
       }
     }
   }, []);
+
+  // Handle audio autoplay policy
+  useEffect(() => {
+    if (isVisible && videoRef.current) {
+      const playVideo = async () => {
+        try {
+          // Try to play with sound first
+          videoRef.current!.muted = false;
+          await videoRef.current!.play();
+          setIsMuted(false);
+        } catch (err) {
+          // If blocked, play muted
+          console.log("Autoplay with sound blocked, playing muted");
+          videoRef.current!.muted = true;
+          setIsMuted(true);
+          videoRef.current!.play().catch(e => console.error("Video play failed:", e));
+        }
+      };
+      playVideo();
+    }
+  }, [isVisible]);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(videoRef.current.muted);
+    }
+  };
 
   if (!mounted) return null;
 
@@ -36,51 +65,52 @@ export default function IntroSplashScreen() {
           transition={{ duration: 1 }}
           className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden w-screen h-screen"
         >
-          {/* Universal Responsive Video Scaling */}
           <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
             <video
+              ref={videoRef}
               autoPlay
-              muted
               playsInline
+              muted={isMuted}
               preload="auto"
               src="/videos/hadx_labs_intro.mp4"
-              className="w-full h-full object-contain md:object-cover"
-              style={{ maxHeight: '100dvh' }}
+              className="absolute inset-0 w-full h-full object-cover"
               onEnded={handleDismiss}
+              onClick={toggleMute}
             />
             
-            {/* Themed Skip Button - Smart Responsive Placement */}
+            {/* Mute Toggle Hint */}
+            {isMuted && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute top-8 left-1/2 -translate-x-1/2 z-[10006] pointer-events-none"
+              >
+                <span className="text-[10px] font-mono tracking-[0.3em] text-hadx-gold-light/60 uppercase bg-black/40 px-4 py-2 rounded-full backdrop-blur-sm border border-hadx-gold/20">
+                  Tap for sound
+                </span>
+              </motion.div>
+            )}
+
+            {/* Themed Skip Button */}
             <button
               onClick={handleDismiss}
               className="
                 absolute bottom-[10%] left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-12 z-[10005] 
                 group relative overflow-hidden rounded-xl px-8 py-4
-                backdrop-blur-md bg-black/50
-                border border-hadx-border
+                backdrop-blur-md bg-black/20
+                border border-hadx-border/30
                 transition-all duration-300 ease-out
                 hover:border-hadx-border-glow hover:shadow-gold-glow-lg cursor-pointer
                 active:scale-[0.95] pointer-events-auto
                 w-[auto] min-w-[160px] whitespace-nowrap
               "
             >
-              {/* Scratched gold border overlay */}
-              <span
-                className="pointer-events-none absolute inset-0 rounded-xl opacity-40 group-hover:opacity-70 transition-opacity duration-300"
-                style={{
-                  background:
-                    "linear-gradient(115deg, transparent 20%, rgba(245,158,11,0.35) 35%, transparent 45%, transparent 65%, rgba(253,230,138,0.25) 78%, transparent 90%)",
-                }}
-              />
-
-              <span className="relative flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.25em] uppercase text-hadx-gold-light group-hover:text-hadx-gold-light">
+              <span className="relative flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.25em] uppercase text-hadx-gold-light/80 group-hover:text-hadx-gold-light">
                 [&nbsp;
                 <span className="bg-clip-text text-transparent bg-gold-gradient">SKIP_INTRO</span>
                 &nbsp;]
               </span>
             </button>
-            
-            {/* Gradient Overlay - Placed BELOW skip button */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-60 pointer-events-none z-[10002]" />
           </div>
         </motion.div>
       )}
