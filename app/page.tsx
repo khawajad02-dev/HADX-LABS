@@ -26,20 +26,6 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#070707] text-zinc-100 selection:bg-white selection:text-black font-sans antialiased">
-      {/* Background Intro Video */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden opacity-40">
-        <video 
-          autoPlay 
-          loop 
-          muted 
-          playsInline 
-          preload="auto" 
-          src="/videos/hadx_labs_intro.mp4" 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#070707] via-transparent to-[#070707]" />
-      </div>
-
       {/* Floating Glass Navigation Header */}
       <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-black/60 border-b border-white/10 px-6 md:px-12 py-4 flex justify-between items-center">
         <div className="flex items-center gap-3">
