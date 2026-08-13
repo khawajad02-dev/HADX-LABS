@@ -6,32 +6,38 @@ interface AudioToggleProps {
   src?: string;
 }
 
+// Global audio instance to maintain playback across component mounts/unmounts
+let globalAudio: HTMLAudioElement | null = null;
+
 export default function AudioToggle({ src = "/obsidian_loom.mp3" }: AudioToggleProps) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    audioRef.current = new Audio(src);
-    audioRef.current.loop = true;
-    audioRef.current.volume = 0.35;
+    // Initialize global audio if it doesn't exist
+    if (typeof window !== "undefined" && !globalAudio) {
+      globalAudio = new Audio(src);
+      globalAudio.loop = true;
+      globalAudio.volume = 0.35;
+    }
 
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
+    // Sync local state with global audio
+    if (globalAudio) {
+      setIsPlaying(!globalAudio.paused);
+    }
+    
+    // We explicitly do NOT pause or null the audio on cleanup to keep it playing
+    // when the CyberOrb menu is closed/collapsed.
   }, [src]);
 
   const toggle = async () => {
-    if (!audioRef.current) return;
+    if (!globalAudio) return;
 
     if (isPlaying) {
-      audioRef.current.pause();
+      globalAudio.pause();
       setIsPlaying(false);
     } else {
       try {
-        await audioRef.current.play();
+        await globalAudio.play();
         setIsPlaying(true);
       } catch (err) {
         console.warn("Audio playback blocked or failed:", err);

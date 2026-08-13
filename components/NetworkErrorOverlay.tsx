@@ -40,7 +40,7 @@ export default function NetworkErrorOverlay() {
             playsInline
             preload="auto"
             src="/videos/network-error.mp4"
-            className="w-full h-full object-cover opacity-60"
+            className="w-full h-full max-h-screen object-cover md:object-contain opacity-60"
           />
           
           <div className="absolute inset-0 bg-red-900/10 pointer-events-none" />
