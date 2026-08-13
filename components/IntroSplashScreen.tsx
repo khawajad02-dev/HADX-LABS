@@ -29,28 +29,30 @@ export default function IntroSplashScreen() {
           className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden w-screen h-screen"
         >
           {/* Universal Responsive Video Scaling */}
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
             <video
               autoPlay
               muted
               playsInline
               preload="auto"
               src="/videos/hadx_labs_intro.mp4"
-              className="w-full h-full max-h-screen object-cover md:object-contain"
+              className="w-full h-full object-contain md:object-cover"
+              style={{ maxHeight: '100dvh' }}
               onEnded={handleDismiss}
             />
             
-            {/* Themed Skip Button - Placed ABOVE video and gradient */}
+            {/* Themed Skip Button - Smart Responsive Placement */}
             <button
               onClick={handleDismiss}
               className="
-                absolute bottom-10 right-6 md:right-12 z-[10005] 
+                absolute bottom-[10%] right-1/2 translate-x-1/2 md:translate-x-0 md:right-12 z-[10005] 
                 group relative overflow-hidden rounded-xl px-8 py-4
                 backdrop-blur-md bg-black/50
                 border border-hadx-border
                 transition-all duration-300 ease-out
                 hover:border-hadx-border-glow hover:shadow-gold-glow-lg cursor-pointer
-                active:scale-[0.98] pointer-events-auto
+                active:scale-[0.95] pointer-events-auto
+                w-[auto] min-w-[160px] whitespace-nowrap
               "
             >
               {/* Scratched gold border overlay */}

@@ -40,7 +40,8 @@ export default function NetworkErrorOverlay() {
             playsInline
             preload="auto"
             src="/videos/network-error.mp4"
-            className="w-full h-full max-h-screen object-cover md:object-contain opacity-60"
+            className="w-full h-full object-contain md:object-cover opacity-60"
+            style={{ maxHeight: '100dvh' }}
           />
           
           <div className="absolute inset-0 bg-red-900/10 pointer-events-none" />
@@ -58,6 +59,15 @@ export default function NetworkErrorOverlay() {
             <p className="text-[11px] font-mono text-zinc-500 tracking-widest max-w-md mx-auto leading-relaxed">
               HADX ARCHITECTURE TERMINAL HAS DISCONNECTED FROM THE GRID. RE-ESTABLISHING UPLINK...
             </p>
+            
+            <div className="pt-6">
+              <button 
+                onClick={() => window.location.reload()}
+                className="px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[10px] font-mono tracking-[0.3em] uppercase transition-all backdrop-blur-md rounded-xl"
+              >
+                RETRY_CONNECTION
+              </button>
+            </div>
           </div>
         </motion.div>
       )}
