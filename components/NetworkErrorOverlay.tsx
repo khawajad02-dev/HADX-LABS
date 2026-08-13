@@ -5,8 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function NetworkErrorOverlay() {
   const [isOffline, setIsOffline] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
 
@@ -23,6 +25,8 @@ export default function NetworkErrorOverlay() {
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
+
+  if (!mounted) return null;
 
   return (
     <AnimatePresence>

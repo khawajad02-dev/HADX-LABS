@@ -4,17 +4,21 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function IntroSplashScreen() {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Check if user has already seen the intro in this session
     if (typeof window !== 'undefined') {
       const hasSeenIntro = sessionStorage.getItem("hadx_intro_seen");
-      if (hasSeenIntro) {
-        setIsVisible(false);
+      if (!hasSeenIntro) {
+        setIsVisible(true);
       }
     }
   }, []);
+
+  if (!mounted) return null;
 
   const handleDismiss = () => {
     setIsVisible(false);
