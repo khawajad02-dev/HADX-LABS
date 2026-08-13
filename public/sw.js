@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hadx-labs-cache-v2';
+const CACHE_NAME = 'hadx-labs-cache-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/catalog',
@@ -13,9 +13,13 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      // Use addAll but catch individual failures to ensure partial success doesn't block install
       return Promise.allSettled(
-        ASSETS_TO_CACHE.map(url => cache.add(url).catch(err => console.warn(`Failed to cache ${url}:`, err)))
+        ASSETS_TO_CACHE.map(url => 
+          fetch(url, { cache: 'no-cache' }).then(response => {
+            if (!response.ok) throw new Error(`Offline cache failed for ${url}`);
+            return cache.put(url, response);
+          }).catch(err => console.warn(err))
+        )
       );
     })
   );
@@ -34,45 +38,31 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
 
-  // Cache-First for videos
-  if (url.pathname.endsWith('.mp4')) {
+  // For navigation requests, try network first, then cache, then root
+  if (event.request.mode === 'navigate') {
     event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) return cachedResponse;
-        return fetch(event.request).then((response) => {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
-          return response;
-        });
+      fetch(event.request).catch(() => {
+        return caches.match(event.request).then(response => response || caches.match('/'));
       })
     );
     return;
   }
 
-  // Network-First for other assets
+  // For other assets, use Cache-First strategy
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
+    caches.match(event.request).then((cachedResponse) => {
+      if (cachedResponse) return cachedResponse;
+      return fetch(event.request).then((response) => {
         if (response.status === 200) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
         }
         return response;
-      })
-      .catch(() => {
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) return cachedResponse;
-          // Fallback to root for navigation requests
-          if (event.request.mode === 'navigate') {
-            return caches.match('/');
-          }
-          return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
-        });
-      })
+      });
+    })
   );
 });
