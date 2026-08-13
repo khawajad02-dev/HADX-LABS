@@ -8,15 +8,19 @@ export default function IntroSplashScreen() {
 
   useEffect(() => {
     // Check if user has already seen the intro in this session
-    const hasSeenIntro = sessionStorage.getItem("hadx_intro_seen");
-    if (hasSeenIntro) {
-      setIsVisible(false);
+    if (typeof window !== 'undefined') {
+      const hasSeenIntro = sessionStorage.getItem("hadx_intro_seen");
+      if (hasSeenIntro) {
+        setIsVisible(false);
+      }
     }
   }, []);
 
   const handleDismiss = () => {
     setIsVisible(false);
-    sessionStorage.setItem("hadx_intro_seen", "true");
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem("hadx_intro_seen", "true");
+    }
   };
 
   return (
@@ -45,7 +49,7 @@ export default function IntroSplashScreen() {
             <button
               onClick={handleDismiss}
               className="
-                absolute bottom-[10%] right-1/2 translate-x-1/2 md:translate-x-0 md:right-12 z-[10005] 
+                absolute bottom-[10%] left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-12 z-[10005] 
                 group relative overflow-hidden rounded-xl px-8 py-4
                 backdrop-blur-md bg-black/50
                 border border-hadx-border

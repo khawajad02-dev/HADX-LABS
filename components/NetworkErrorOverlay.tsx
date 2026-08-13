@@ -14,7 +14,7 @@ export default function NetworkErrorOverlay() {
     window.addEventListener("offline", handleOffline);
 
     // Initial check
-    if (!navigator.onLine) {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
       setIsOffline(true);
     }
 

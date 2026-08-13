@@ -27,6 +27,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   // Dynamic product routes
+  if (!process.env.DATABASE_URL) {
+    console.warn('DATABASE_URL not found, skipping dynamic product routes in sitemap');
+    return staticRoutes;
+  }
+
   try {
     const products = await prisma.product.findMany({
       where: { 
