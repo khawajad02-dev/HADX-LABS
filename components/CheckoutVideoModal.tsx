@@ -50,9 +50,7 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
   orderId,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const [showSoundHint, setShowSoundHint] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -61,34 +59,21 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
 
   useEffect(() => {
     if (state && videoRef.current) {
-      setIsVideoLoaded(false);
+      setVideoReady(false);
       videoRef.current.currentTime = 0;
       
       const playVideo = async () => {
         try {
           videoRef.current!.muted = false;
           await videoRef.current!.play();
-          setIsMuted(false);
-          setShowSoundHint(false);
         } catch (err) {
           videoRef.current!.muted = true;
-          setIsMuted(true);
-          setShowSoundHint(true);
           videoRef.current!.play().catch(() => {});
         }
       };
       playVideo();
     }
   }, [state]);
-
-  const toggleMute = () => {
-    if (videoRef.current) {
-      const newMutedState = !videoRef.current.muted;
-      videoRef.current.muted = newMutedState;
-      setIsMuted(newMutedState);
-      if (!newMutedState) setShowSoundHint(false);
-    }
-  };
 
   if (!mounted || !state) return null;
 
@@ -104,39 +89,25 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
         className="fixed inset-0 z-[10007] bg-black flex flex-col items-center justify-center overflow-hidden w-screen h-screen"
       >
         <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
+          
+          {/* Logo Placeholder while loading */}
+          <div className={`absolute inset-0 z-[10008] flex items-center justify-center bg-black transition-opacity duration-700 ${videoReady ? 'opacity-0' : 'opacity-100'}`}>
+            <img src="/og-image.png" alt="HADX Logo" className="w-full h-full object-contain md:object-cover opacity-50" />
+          </div>
+
           <video
             ref={videoRef}
             src={videoSrc}
             autoPlay
             loop={state !== 'order_confirmed'}
             playsInline
-            muted={isMuted}
             preload="auto"
-            onLoadedData={() => setIsVideoLoaded(true)}
-            onClick={toggleMute}
-            className={`w-full h-full object-contain md:object-cover transition-opacity duration-700 ${
-              isVideoLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
+            onCanPlayThrough={() => setVideoReady(true)}
+            className="w-full h-full object-cover"
           />
 
-          {/* Mute Toggle Hint */}
-          {showSoundHint && isVideoLoaded && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="absolute top-8 left-1/2 -translate-x-1/2 z-[10009]"
-            >
-              <button 
-                onClick={toggleMute}
-                className="text-[10px] font-mono tracking-[0.3em] text-white/90 uppercase bg-black/60 px-6 py-3 rounded-full backdrop-blur-md border border-white/40 hover:bg-white/10 transition-colors"
-              >
-                Tap to Unmute
-              </button>
-            </motion.div>
-          )}
-
           {/* Themed Action Buttons */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[10008] flex flex-col gap-4 w-full max-w-xs px-6">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[10009] flex flex-col gap-4 w-full max-w-xs px-6">
             <button
               onClick={onRetry || onClose}
               className="

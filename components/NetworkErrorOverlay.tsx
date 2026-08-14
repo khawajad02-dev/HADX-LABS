@@ -6,13 +6,15 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function NetworkErrorOverlay() {
   const [isOffline, setIsOffline] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const [showSoundHint, setShowSoundHint] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     setMounted(true);
-    const handleOnline = () => setIsOffline(false);
+    const handleOnline = () => {
+      setIsOffline(false);
+      setVideoReady(false);
+    };
     const handleOffline = () => setIsOffline(true);
 
     window.addEventListener("online", handleOnline);
@@ -34,27 +36,14 @@ export default function NetworkErrorOverlay() {
         try {
           videoRef.current!.muted = false;
           await videoRef.current!.play();
-          setIsMuted(false);
-          setShowSoundHint(false);
         } catch (err) {
           videoRef.current!.muted = true;
-          setIsMuted(true);
-          setShowSoundHint(true);
           videoRef.current!.play().catch(e => console.error("Offline video play failed:", e));
         }
       };
       playVideo();
     }
   }, [isOffline]);
-
-  const toggleMute = () => {
-    if (videoRef.current) {
-      const newMutedState = !videoRef.current.muted;
-      videoRef.current.muted = newMutedState;
-      setIsMuted(newMutedState);
-      if (!newMutedState) setShowSoundHint(false);
-    }
-  };
 
   if (!mounted) return null;
 
@@ -68,39 +57,28 @@ export default function NetworkErrorOverlay() {
           className="fixed inset-0 z-[10002] bg-black flex flex-col items-center justify-center overflow-hidden w-screen h-screen"
         >
           <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
+            
+            {/* Logo Placeholder while loading */}
+            <div className={`absolute inset-0 z-[10003] flex items-center justify-center bg-black transition-opacity duration-700 ${videoReady ? 'opacity-0' : 'opacity-100'}`}>
+              <img src="/og-image.png" alt="HADX Logo" className="w-full h-full object-contain md:object-cover opacity-50" />
+            </div>
+
             <video
               ref={videoRef}
               autoPlay
               loop
               playsInline
-              muted={isMuted}
               preload="auto"
               src="/videos/network-error.mp4"
-              className="w-full h-full object-contain md:object-cover"
-              onClick={toggleMute}
+              className="w-full h-full object-cover"
+              onCanPlayThrough={() => setVideoReady(true)}
             />
             
             {/* Subtle Red Overlay for Mood */}
-            <div className="absolute inset-0 bg-red-950/10 pointer-events-none z-[10003]" />
-            
-            {/* Mute Toggle Hint */}
-            {showSoundHint && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute top-8 left-1/2 -translate-x-1/2 z-[10006]"
-              >
-                <button 
-                  onClick={toggleMute}
-                  className="text-[10px] font-mono tracking-[0.3em] text-white/90 uppercase bg-black/60 px-6 py-3 rounded-full backdrop-blur-md border border-white/40 hover:bg-white/10 transition-colors"
-                >
-                  Tap to Unmute
-                </button>
-              </motion.div>
-            )}
+            <div className="absolute inset-0 bg-red-950/10 pointer-events-none z-[10004]" />
 
             {/* Themed Retry Button */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[10004]">
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[10005]">
               <button 
                 onClick={() => window.location.reload()}
                 className="
