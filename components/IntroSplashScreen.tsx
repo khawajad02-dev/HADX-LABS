@@ -7,6 +7,7 @@ export default function IntroSplashScreen() {
   const [isVisible, setIsVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+  const [showSoundHint, setShowSoundHint] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -28,11 +29,13 @@ export default function IntroSplashScreen() {
           videoRef.current!.muted = false;
           await videoRef.current!.play();
           setIsMuted(false);
+          setShowSoundHint(false);
         } catch (err) {
           // If blocked, play muted
           console.log("Autoplay with sound blocked, playing muted");
           videoRef.current!.muted = true;
           setIsMuted(true);
+          setShowSoundHint(true);
           videoRef.current!.play().catch(e => console.error("Video play failed:", e));
         }
       };
@@ -42,8 +45,10 @@ export default function IntroSplashScreen() {
 
   const toggleMute = () => {
     if (videoRef.current) {
-      videoRef.current.muted = !videoRef.current.muted;
-      setIsMuted(videoRef.current.muted);
+      const newMutedState = !videoRef.current.muted;
+      videoRef.current.muted = newMutedState;
+      setIsMuted(newMutedState);
+      if (!newMutedState) setShowSoundHint(false);
     }
   };
 
@@ -65,44 +70,51 @@ export default function IntroSplashScreen() {
           transition={{ duration: 1 }}
           className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden w-screen h-screen"
         >
-          <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+          <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
             <video
               ref={videoRef}
               autoPlay
               playsInline
               muted={isMuted}
               preload="auto"
+              poster="/og-image.png"
               src="/videos/hadx_labs_intro.mp4"
-              className="absolute inset-0 w-full h-full object-cover"
+              className="w-full h-full object-contain md:object-cover"
               onEnded={handleDismiss}
               onClick={toggleMute}
             />
             
+            {/* Poster Overlay (Fade out when video starts) */}
+            <div className="absolute inset-0 pointer-events-none bg-black/20" />
+
             {/* Mute Toggle Hint */}
-            {isMuted && (
+            {showSoundHint && (
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="absolute top-8 left-1/2 -translate-x-1/2 z-[10006] pointer-events-none"
+                className="absolute top-8 left-1/2 -translate-x-1/2 z-[10006]"
               >
-                <span className="text-[10px] font-mono tracking-[0.3em] text-hadx-gold-light/60 uppercase bg-black/40 px-4 py-2 rounded-full backdrop-blur-sm border border-hadx-gold/20">
-                  Tap for sound
-                </span>
+                <button 
+                  onClick={toggleMute}
+                  className="text-[10px] font-mono tracking-[0.3em] text-hadx-gold-light/90 uppercase bg-black/60 px-6 py-3 rounded-full backdrop-blur-md border border-hadx-gold/40 hover:bg-hadx-gold/20 transition-colors"
+                >
+                  Tap to Unmute
+                </button>
               </motion.div>
             )}
 
-            {/* Themed Skip Button */}
+            {/* Themed Skip Button - Fixed to Bottom Right */}
             <button
               onClick={handleDismiss}
               className="
-                absolute bottom-[10%] left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-12 z-[10005] 
+                absolute bottom-8 right-8 z-[10005] 
                 group relative overflow-hidden rounded-xl px-8 py-4
-                backdrop-blur-md bg-black/20
-                border border-hadx-border/30
+                backdrop-blur-md bg-black/40
+                border border-hadx-border/40
                 transition-all duration-300 ease-out
                 hover:border-hadx-border-glow hover:shadow-gold-glow-lg cursor-pointer
                 active:scale-[0.95] pointer-events-auto
-                w-[auto] min-w-[160px] whitespace-nowrap
+                w-[auto] min-w-[140px] whitespace-nowrap
               "
             >
               <span className="relative flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.25em] uppercase text-hadx-gold-light/80 group-hover:text-hadx-gold-light">
