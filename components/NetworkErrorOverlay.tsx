@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function NetworkErrorOverlay() {
   const [isOffline, setIsOffline] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
+  const [videoStarted, setVideoStarted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -15,13 +15,12 @@ export default function NetworkErrorOverlay() {
     const updateOnlineStatus = () => {
       const status = !navigator.onLine;
       setIsOffline(status);
-      if (!status) setVideoReady(false);
+      if (!status) setVideoStarted(false);
     };
 
     window.addEventListener("online", updateOnlineStatus);
     window.addEventListener("offline", updateOnlineStatus);
 
-    // Initial check
     if (typeof navigator !== 'undefined') {
       setIsOffline(!navigator.onLine);
     }
@@ -38,9 +37,15 @@ export default function NetworkErrorOverlay() {
         try {
           videoRef.current!.muted = false;
           await videoRef.current!.play();
+          setVideoStarted(true);
         } catch (err) {
-          videoRef.current!.muted = true;
-          videoRef.current!.play().catch(e => console.error("Offline video play failed:", e));
+          try {
+            videoRef.current!.muted = true;
+            await videoRef.current!.play();
+            setVideoStarted(true);
+          } catch (e) {
+            console.error("Offline video play failed:", e);
+          }
         }
       };
       playVideo();
@@ -60,9 +65,11 @@ export default function NetworkErrorOverlay() {
         >
           <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
             
-            {/* Logo Placeholder while loading (Full Screen) */}
-            <div className={`absolute inset-0 z-[10003] flex items-center justify-center bg-black transition-opacity duration-700 ${videoReady ? 'opacity-0' : 'opacity-100'}`}>
-              <img src="/og-image.png" alt="HADX Logo" className="w-full h-full object-cover opacity-50" />
+            {/* Logo Placeholder while loading (Centered, No Clipping) */}
+            <div className={`absolute inset-0 z-[10003] flex items-center justify-center bg-black transition-opacity duration-700 ${videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+              <div className="w-48 h-48 sm:w-64 sm:h-64 relative flex items-center justify-center">
+                <img src="/og-image.png" alt="HADX Logo" className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(212,175,55,0.4)]" />
+              </div>
             </div>
 
             <video
@@ -73,7 +80,7 @@ export default function NetworkErrorOverlay() {
               preload="auto"
               src="/videos/network-error.mp4"
               className="w-full h-full object-cover"
-              onCanPlayThrough={() => setVideoReady(true)}
+              onPlaying={() => setVideoStarted(true)}
             />
             
             {/* Subtle Red Overlay for Mood */}
@@ -86,16 +93,16 @@ export default function NetworkErrorOverlay() {
                 className="
                   group relative overflow-hidden rounded-xl px-10 py-4
                   backdrop-blur-md bg-black/30
-                  border border-hadx-border/40
+                  border border-amber-500/30
                   transition-all duration-300 ease-out
-                  hover:border-hadx-border-glow hover:shadow-gold-glow-lg cursor-pointer
+                  hover:border-amber-400 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] cursor-pointer
                   active:scale-[0.95] pointer-events-auto
                   min-w-[220px]
                 "
               >
-                <span className="relative flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.3em] uppercase text-hadx-gold-light group-hover:text-hadx-gold-light">
+                <span className="relative flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.3em] uppercase text-amber-200 group-hover:text-amber-100">
                   [&nbsp;
-                  <span className="bg-clip-text text-transparent bg-gold-gradient">RETRY_CONNECTION</span>
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">RETRY_CONNECTION</span>
                   &nbsp;]
                 </span>
               </button>

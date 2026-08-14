@@ -50,7 +50,7 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
   orderId,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoReady, setVideoReady] = useState(false);
+  const [videoStarted, setVideoStarted] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -59,18 +59,22 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
 
   useEffect(() => {
     if (state && videoRef.current) {
-      setVideoReady(false);
+      setVideoStarted(false);
       videoRef.current.currentTime = 0;
       
       const playVideo = async () => {
         try {
-          // Force unmute and play
           videoRef.current!.muted = false;
           await videoRef.current!.play();
+          setVideoStarted(true);
         } catch (err) {
-          // Fallback to muted autoplay
-          videoRef.current!.muted = true;
-          videoRef.current!.play().catch(() => {});
+          try {
+            videoRef.current!.muted = true;
+            await videoRef.current!.play();
+            setVideoStarted(true);
+          } catch (e) {
+            console.error("Checkout video play failed:", e);
+          }
         }
       };
       playVideo();
@@ -92,9 +96,11 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
       >
         <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
           
-          {/* Logo Placeholder (Full Screen) */}
-          <div className={`absolute inset-0 z-[10008] flex items-center justify-center bg-black transition-opacity duration-700 ${videoReady ? 'opacity-0' : 'opacity-100'}`}>
-            <img src="/og-image.png" alt="HADX Logo" className="w-full h-full object-cover opacity-50" />
+          {/* Logo Placeholder (Centered, No Clipping) */}
+          <div className={`absolute inset-0 z-[10008] flex items-center justify-center bg-black transition-opacity duration-700 ${videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className="w-48 h-48 sm:w-64 sm:h-64 relative flex items-center justify-center">
+              <img src="/og-image.png" alt="HADX Logo" className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(212,175,55,0.4)]" />
+            </div>
           </div>
 
           <video
@@ -104,7 +110,7 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
             loop={state !== 'order_confirmed'}
             playsInline
             preload="auto"
-            onCanPlayThrough={() => setVideoReady(true)}
+            onPlaying={() => setVideoStarted(true)}
             className="w-full h-full object-cover"
           />
 
@@ -115,16 +121,16 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
               className="
                 group relative overflow-hidden rounded-xl px-8 py-4
                 backdrop-blur-md bg-black/30
-                border border-hadx-border/40
+                border border-amber-500/30
                 transition-all duration-300 ease-out
-                hover:border-hadx-border-glow hover:shadow-gold-glow-lg cursor-pointer
+                hover:border-amber-400 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] cursor-pointer
                 active:scale-[0.95] pointer-events-auto
                 w-full
               "
             >
-              <span className="relative flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.25em] uppercase text-hadx-gold-light group-hover:text-hadx-gold-light">
+              <span className="relative flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.25em] uppercase text-amber-200 group-hover:text-amber-100">
                 [&nbsp;
-                <span className="bg-clip-text text-transparent bg-gold-gradient">{config.primaryBtnText}</span>
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">{config.primaryBtnText}</span>
                 &nbsp;]
               </span>
             </button>
@@ -150,7 +156,7 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
             
             {state === 'order_confirmed' && orderId && (
               <div className="text-center pt-2">
-                <span className="text-[9px] font-mono text-hadx-gold-light/60 tracking-widest uppercase">
+                <span className="text-[9px] font-mono text-amber-300/60 tracking-widest uppercase">
                   ORDER ID: {orderId}
                 </span>
               </div>
