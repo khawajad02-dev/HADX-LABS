@@ -92,14 +92,14 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[10007] bg-black flex flex-col items-center justify-center overflow-hidden w-screen h-screen"
+        className="fixed inset-0 z-[10007] bg-black flex flex-col items-center justify-center overflow-hidden w-screen h-[100dvh]"
       >
         <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
           
-          {/* Logo Placeholder (Centered, No Clipping) */}
+          {/* Logo Placeholder */}
           <div className={`absolute inset-0 z-[10008] flex items-center justify-center bg-black transition-opacity duration-700 ${videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-            <div className="w-48 h-48 sm:w-64 sm:h-64 relative flex items-center justify-center">
-              <img src="/og-image.png" alt="HADX Logo" className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(212,175,55,0.4)]" />
+            <div className="w-full h-full flex items-center justify-center p-6">
+              <img src="/og-image.png" alt="HADX Logo" className="max-w-[70vw] max-h-[35vh] w-auto h-auto object-contain drop-shadow-[0_0_30px_rgba(212,175,55,0.3)]" />
             </div>
           </div>
 
@@ -111,24 +111,25 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
             playsInline
             preload="auto"
             onPlaying={() => setVideoStarted(true)}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain bg-black"
           />
 
-          {/* Themed Action Buttons */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[10009] flex flex-col gap-4 w-full max-w-xs px-6">
+          {/* Themed Action Buttons - Bottom Center */}
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[10009] flex flex-col gap-3 w-full max-w-xs px-6">
             <button
               onClick={onRetry || onClose}
               className="
-                group relative overflow-hidden rounded-xl px-8 py-4
-                backdrop-blur-md bg-black/30
-                border border-amber-500/30
+                group relative overflow-hidden rounded-xl px-8 py-3.5
+                backdrop-blur-md bg-black/60
+                border border-amber-500/40
+                shadow-[0_4px_25px_rgba(0,0,0,0.8)]
                 transition-all duration-300 ease-out
-                hover:border-amber-400 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] cursor-pointer
+                hover:border-amber-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] cursor-pointer
                 active:scale-[0.95] pointer-events-auto
                 w-full
               "
             >
-              <span className="relative flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.25em] uppercase text-amber-200 group-hover:text-amber-100">
+              <span className="relative flex items-center justify-center gap-2 text-xs font-bold tracking-[0.25em] uppercase text-amber-200 group-hover:text-amber-100">
                 [&nbsp;
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">{config.primaryBtnText}</span>
                 &nbsp;]
@@ -148,15 +149,15 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
                 w-full
               "
               >
-                <span className="relative flex items-center justify-center gap-2 text-[9px] font-medium tracking-[0.2em] uppercase text-zinc-400 group-hover:text-white">
+                <span className="relative flex items-center justify-center gap-2 text-[10px] font-medium tracking-[0.2em] uppercase text-zinc-400 group-hover:text-white">
                   {config.secondaryBtnText}
                 </span>
               </button>
             )}
             
             {state === 'order_confirmed' && orderId && (
-              <div className="text-center pt-2">
-                <span className="text-[9px] font-mono text-amber-300/60 tracking-widest uppercase">
+              <div className="text-center pt-1">
+                <span className="text-[10px] font-mono text-amber-300/70 tracking-widest uppercase">
                   ORDER ID: {orderId}
                 </span>
               </div>

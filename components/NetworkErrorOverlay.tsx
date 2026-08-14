@@ -61,14 +61,14 @@ export default function NetworkErrorOverlay() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[10002] bg-black flex flex-col items-center justify-center overflow-hidden w-screen h-screen"
+          className="fixed inset-0 z-[10002] bg-black flex flex-col items-center justify-center overflow-hidden w-screen h-[100dvh]"
         >
           <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
             
-            {/* Logo Placeholder while loading (Centered, No Clipping) */}
+            {/* Logo Placeholder */}
             <div className={`absolute inset-0 z-[10003] flex items-center justify-center bg-black transition-opacity duration-700 ${videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-              <div className="w-48 h-48 sm:w-64 sm:h-64 relative flex items-center justify-center">
-                <img src="/og-image.png" alt="HADX Logo" className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(212,175,55,0.4)]" />
+              <div className="w-full h-full flex items-center justify-center p-6">
+                <img src="/og-image.png" alt="HADX Logo" className="max-w-[70vw] max-h-[35vh] w-auto h-auto object-contain drop-shadow-[0_0_30px_rgba(212,175,55,0.3)]" />
               </div>
             </div>
 
@@ -79,28 +79,29 @@ export default function NetworkErrorOverlay() {
               playsInline
               preload="auto"
               src="/videos/network-error.mp4"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain bg-black"
               onPlaying={() => setVideoStarted(true)}
             />
             
-            {/* Subtle Red Overlay for Mood */}
+            {/* Subtle Red Overlay */}
             <div className="absolute inset-0 bg-red-950/10 pointer-events-none z-[10004]" />
 
-            {/* Themed Retry Button */}
+            {/* Themed Retry Button - Bottom Center */}
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[10005]">
               <button 
                 onClick={() => window.location.reload()}
                 className="
-                  group relative overflow-hidden rounded-xl px-10 py-4
-                  backdrop-blur-md bg-black/30
-                  border border-amber-500/30
+                  group relative overflow-hidden rounded-xl px-8 py-3.5
+                  backdrop-blur-md bg-black/60
+                  border border-amber-500/40
+                  shadow-[0_4px_25px_rgba(0,0,0,0.8)]
                   transition-all duration-300 ease-out
-                  hover:border-amber-400 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] cursor-pointer
+                  hover:border-amber-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] cursor-pointer
                   active:scale-[0.95] pointer-events-auto
                   min-w-[220px]
                 "
               >
-                <span className="relative flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.3em] uppercase text-amber-200 group-hover:text-amber-100">
+                <span className="relative flex items-center justify-center gap-2 text-xs font-bold tracking-[0.3em] uppercase text-amber-200 group-hover:text-amber-100">
                   [&nbsp;
                   <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">RETRY_CONNECTION</span>
                   &nbsp;]

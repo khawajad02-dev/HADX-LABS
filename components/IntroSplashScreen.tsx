@@ -64,30 +64,32 @@ export default function IntroSplashScreen() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.6 }}
-          className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden w-screen h-screen"
+          className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden w-screen h-[100dvh]"
         >
           <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
             
-            {/* Phase 1: Logo Display (Restored Original Full-Size Scaling via object-cover) */}
+            {/* Phase 1: Logo Pre-loader (Restricted sizing with breathing room) */}
             <div className={`absolute inset-0 z-[10001] flex items-center justify-center bg-black transition-opacity duration-500 ${showVideo && videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-              <img 
-                src="/og-image.png" 
-                alt="HADX Logo" 
-                className="w-full h-full object-cover"
-              />
+              <div className="w-full h-full flex items-center justify-center p-6">
+                <img 
+                  src="/og-image.png" 
+                  alt="HADX Logo" 
+                  className="max-w-[70vw] max-h-[35vh] w-auto h-auto object-contain drop-shadow-[0_0_30px_rgba(212,175,55,0.3)]"
+                />
+              </div>
             </div>
 
-            {/* Phase 2: Intro Video (True Full-Screen Scaling) */}
+            {/* Phase 2: Intro Video (Auto-Responsive Viewport Engine with object-contain) */}
             <video
               ref={videoRef}
               playsInline
               preload="auto"
               src="/videos/hadx_labs_intro.mp4"
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${showVideo ? 'opacity-100' : 'opacity-0'}`}
+              className={`absolute inset-0 w-full h-full object-contain bg-black transition-opacity duration-700 ${showVideo ? 'opacity-100' : 'opacity-0'}`}
               onEnded={handleDismiss}
             />
 
-            {/* Themed Skip Button - Fixed strictly in Bottom-Right Corner with safe area padding */}
+            {/* Themed Skip Button - Fixed strictly in Bottom Center Safe Area */}
             {videoStarted && (
               <motion.button
                 initial={{ opacity: 0, y: 15 }}
@@ -95,18 +97,18 @@ export default function IntroSplashScreen() {
                 transition={{ duration: 0.3 }}
                 onClick={handleDismiss}
                 className="
-                  absolute bottom-6 right-6 sm:bottom-10 sm:right-10 z-[10005] 
-                  group relative overflow-hidden rounded-xl px-5 py-2.5 sm:px-6 sm:py-3
+                  absolute bottom-10 left-1/2 -translate-x-1/2 z-[10005] 
+                  group relative overflow-hidden rounded-xl px-8 py-3.5
                   backdrop-blur-md bg-black/60
                   border border-amber-500/40
-                  shadow-[0_4px_20px_rgba(0,0,0,0.8)]
+                  shadow-[0_4px_25px_rgba(0,0,0,0.8)]
                   transition-all duration-300 ease-out
-                  hover:border-amber-400 hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] cursor-pointer
+                  hover:border-amber-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] cursor-pointer
                   active:scale-[0.95] pointer-events-auto
                   whitespace-nowrap
                 "
               >
-                <span className="relative flex items-center justify-center gap-2 text-[10px] sm:text-xs font-bold tracking-[0.25em] uppercase text-amber-200 group-hover:text-amber-100">
+                <span className="relative flex items-center justify-center gap-2 text-xs font-bold tracking-[0.25em] uppercase text-amber-200 group-hover:text-amber-100">
                   [&nbsp;
                   <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">SKIP_INTRO</span>
                   &nbsp;]
