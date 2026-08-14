@@ -34,7 +34,6 @@ export default function IntroSplashScreen() {
           await videoRef.current!.play();
           setVideoStarted(true);
         } catch (err) {
-          // Fallback to muted autoplay if browser blocks audio
           try {
             videoRef.current!.muted = true;
             await videoRef.current!.play();
@@ -69,15 +68,13 @@ export default function IntroSplashScreen() {
         >
           <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
             
-            {/* Phase 1: Logo Display (Normal Size, Centered, No Clipping) */}
+            {/* Phase 1: Logo Display (Restored Original Full-Size Scaling via object-cover) */}
             <div className={`absolute inset-0 z-[10001] flex items-center justify-center bg-black transition-opacity duration-500 ${showVideo && videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-              <div className="w-48 h-48 sm:w-64 sm:h-64 relative flex items-center justify-center">
-                <img 
-                  src="/og-image.png" 
-                  alt="HADX Logo" 
-                  className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(212,175,55,0.4)]"
-                />
-              </div>
+              <img 
+                src="/og-image.png" 
+                alt="HADX Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Phase 2: Intro Video (True Full-Screen Scaling) */}
@@ -90,7 +87,7 @@ export default function IntroSplashScreen() {
               onEnded={handleDismiss}
             />
 
-            {/* Themed Skip Button - Only visible when video has actually started playing */}
+            {/* Themed Skip Button - Fixed strictly in Bottom-Right Corner with safe area padding */}
             {videoStarted && (
               <motion.button
                 initial={{ opacity: 0, y: 15 }}
@@ -98,17 +95,18 @@ export default function IntroSplashScreen() {
                 transition={{ duration: 0.3 }}
                 onClick={handleDismiss}
                 className="
-                  absolute bottom-8 right-8 z-[10005] 
-                  group relative overflow-hidden rounded-xl px-6 py-3
-                  backdrop-blur-md bg-black/50
-                  border border-amber-500/30
+                  absolute bottom-6 right-6 sm:bottom-10 sm:right-10 z-[10005] 
+                  group relative overflow-hidden rounded-xl px-5 py-2.5 sm:px-6 sm:py-3
+                  backdrop-blur-md bg-black/60
+                  border border-amber-500/40
+                  shadow-[0_4px_20px_rgba(0,0,0,0.8)]
                   transition-all duration-300 ease-out
-                  hover:border-amber-400 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] cursor-pointer
+                  hover:border-amber-400 hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] cursor-pointer
                   active:scale-[0.95] pointer-events-auto
                   whitespace-nowrap
                 "
               >
-                <span className="relative flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.25em] uppercase text-amber-200/90 group-hover:text-amber-100">
+                <span className="relative flex items-center justify-center gap-2 text-[10px] sm:text-xs font-bold tracking-[0.25em] uppercase text-amber-200 group-hover:text-amber-100">
                   [&nbsp;
                   <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">SKIP_INTRO</span>
                   &nbsp;]
