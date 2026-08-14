@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   description: 'High-quality bootleg vintage graphic assets featuring top Anime, Marvel, and DC characters. Have a custom idea? Upload your image to get a unique custom vintage graphic design.',
   keywords: 'vintage graphics, bootleg anime, marvel assets, dc characters, custom graphic design',
   authors: [{ name: 'HADX LABS' }],
+  manifest: '/manifest.webmanifest',
   openGraph: {
     title: 'HADX LABS | Bootleg Vintage Graphics',
     description: 'High-quality bootleg vintage graphic assets featuring top Anime, Marvel, and DC characters.',
@@ -43,6 +44,7 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="theme-color" content="#050505" />
+        <link rel="manifest" href="/manifest.webmanifest" />
         <script dangerouslySetInnerHTML={{ __html: `
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {

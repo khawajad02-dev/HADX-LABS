@@ -66,20 +66,19 @@ export default function IntroSplashScreen() {
           transition={{ duration: 0.6 }}
           className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden w-screen h-[100dvh]"
         >
-          <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
-            
-            {/* Phase 1: Logo Pre-loader */}
-            <div className={`absolute inset-0 z-[10001] flex items-center justify-center bg-black transition-opacity duration-500 ${showVideo && videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-              <div className="w-full h-full flex items-center justify-center p-4">
-                <img 
-                  src="/og-image.png" 
-                  alt="HADX Logo" 
-                  className="max-w-[85vw] max-h-[45vh] w-auto h-auto object-contain drop-shadow-[0_0_35px_rgba(212,175,55,0.35)]"
-                />
-              </div>
+          {/* Phase 1: Logo Pre-loader */}
+          <div className={`absolute inset-0 z-[10001] flex items-center justify-center bg-black transition-opacity duration-500 ${showVideo && videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            <div className="w-full h-full flex items-center justify-center p-4">
+              <img 
+                src="/og-image.png" 
+                alt="HADX Logo" 
+                className="max-w-[85vw] max-h-[45vh] w-auto h-auto object-contain drop-shadow-[0_0_35px_rgba(212,175,55,0.35)]"
+              />
             </div>
+          </div>
 
-            {/* Phase 2: Intro Video */}
+          {/* Phase 2: Intro Video */}
+          <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
             <video
               ref={videoRef}
               playsInline
@@ -88,34 +87,34 @@ export default function IntroSplashScreen() {
               className={`absolute inset-0 w-full h-full object-contain bg-black transition-opacity duration-700 ${showVideo ? 'opacity-100' : 'opacity-0'}`}
               onEnded={handleDismiss}
             />
-
-            {/* Themed Skip Button - Maintained horizontal position (right-16) and moved down by ~30% (bottom-10) */}
-            {videoStarted && (
-              <motion.button
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                onClick={handleDismiss}
-                className="
-                  absolute bottom-10 right-16 z-[10005] 
-                  group relative overflow-hidden rounded-xl px-6 py-3
-                  backdrop-blur-md bg-black/70
-                  border border-amber-500/50
-                  shadow-[0_4px_30px_rgba(0,0,0,0.9)]
-                  transition-all duration-300 ease-out
-                  hover:border-amber-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] cursor-pointer
-                  active:scale-[0.95] pointer-events-auto
-                  whitespace-nowrap
-                "
-              >
-                <span className="relative flex items-center justify-center gap-2 text-xs font-bold tracking-[0.25em] uppercase text-amber-200 group-hover:text-amber-100">
-                  [&nbsp;
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">SKIP_INTRO</span>
-                  &nbsp;]
-                </span>
-              </motion.button>
-            )}
           </div>
+
+          {/* Themed Skip Button - Anchored directly to root fixed overlay at bottom-right (bottom-6 right-12) */}
+          {videoStarted && (
+            <motion.button
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={handleDismiss}
+              className="
+                absolute bottom-6 right-12 z-[10005] 
+                group relative overflow-hidden rounded-xl px-6 py-3
+                backdrop-blur-md bg-black/80
+                border border-amber-500/50
+                shadow-[0_4px_30px_rgba(0,0,0,0.9)]
+                transition-all duration-300 ease-out
+                hover:border-amber-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] cursor-pointer
+                active:scale-[0.95] pointer-events-auto
+                whitespace-nowrap
+              "
+            >
+              <span className="relative flex items-center justify-center gap-2 text-xs font-bold tracking-[0.25em] uppercase text-amber-200 group-hover:text-amber-100">
+                [&nbsp;
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">SKIP_INTRO</span>
+                &nbsp;]
+              </span>
+            </motion.button>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
