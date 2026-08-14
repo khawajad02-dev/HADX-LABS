@@ -65,30 +65,30 @@ export default function IntroSplashScreen() {
           transition={{ duration: 0.6 }}
           className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden w-screen h-[100dvh]"
         >
-          {/* Logo Pre-loader */}
+          {/* Logo Pre-loader with precise requested sizing */}
           <div className={`absolute inset-0 z-[10001] flex items-center justify-center bg-black transition-opacity duration-500 ${showVideo && videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-            <div className="w-full h-full flex items-center justify-center p-4">
+            <div className="w-full h-[100dvh] flex items-center justify-center bg-black p-4">
               <img 
                 src="/og-image.png" 
                 alt="HADX Logo" 
-                className="max-w-[85vw] max-h-[45vh] w-auto h-auto object-contain drop-shadow-[0_0_35px_rgba(212,175,55,0.35)]"
+                className="max-w-[70vw] max-h-[35vh] w-auto h-auto object-contain drop-shadow-[0_0_35px_rgba(212,175,55,0.35)]"
               />
             </div>
           </div>
 
-          {/* Intro Video with professional object-cover responsive scaling */}
-          <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
+          {/* Intro Video with object-contain and precise wrapper */}
+          <div className="w-full h-[100dvh] overflow-hidden bg-black flex items-center justify-center relative">
             <video
               ref={videoRef}
               playsInline
               preload="auto"
               src="/videos/hadx_labs_intro.mp4"
-              className={`absolute inset-0 w-full h-full object-cover bg-black transition-opacity duration-700 ${showVideo ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full object-contain bg-black transition-opacity duration-700 ${showVideo ? 'opacity-100' : 'opacity-0'}`}
               onEnded={handleDismiss}
             />
           </div>
 
-          {/* Professional Skip Button: Placed cleanly in bottom-right corner with industry-standard padding */}
+          {/* Skip Button: Maintained at current position without changing its placement */}
           {videoStarted && (
             <motion.div 
               initial={{ opacity: 0, y: 15 }}
