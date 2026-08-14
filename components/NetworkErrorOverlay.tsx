@@ -11,22 +11,24 @@ export default function NetworkErrorOverlay() {
 
   useEffect(() => {
     setMounted(true);
-    const handleOnline = () => {
-      setIsOffline(false);
-      setVideoReady(false);
+    
+    const updateOnlineStatus = () => {
+      const status = !navigator.onLine;
+      setIsOffline(status);
+      if (!status) setVideoReady(false);
     };
-    const handleOffline = () => setIsOffline(true);
 
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", updateOnlineStatus);
+    window.addEventListener("offline", updateOnlineStatus);
 
-    if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      setIsOffline(true);
+    // Initial check
+    if (typeof navigator !== 'undefined') {
+      setIsOffline(!navigator.onLine);
     }
 
     return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", updateOnlineStatus);
+      window.removeEventListener("offline", updateOnlineStatus);
     };
   }, []);
 
@@ -58,9 +60,9 @@ export default function NetworkErrorOverlay() {
         >
           <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
             
-            {/* Logo Placeholder while loading */}
+            {/* Logo Placeholder while loading (Full Screen) */}
             <div className={`absolute inset-0 z-[10003] flex items-center justify-center bg-black transition-opacity duration-700 ${videoReady ? 'opacity-0' : 'opacity-100'}`}>
-              <img src="/og-image.png" alt="HADX Logo" className="w-full h-full object-contain md:object-cover opacity-50" />
+              <img src="/og-image.png" alt="HADX Logo" className="w-full h-full object-cover opacity-50" />
             </div>
 
             <video
@@ -78,7 +80,7 @@ export default function NetworkErrorOverlay() {
             <div className="absolute inset-0 bg-red-950/10 pointer-events-none z-[10004]" />
 
             {/* Themed Retry Button */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[10005]">
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[10005]">
               <button 
                 onClick={() => window.location.reload()}
                 className="
@@ -88,7 +90,7 @@ export default function NetworkErrorOverlay() {
                   transition-all duration-300 ease-out
                   hover:border-hadx-border-glow hover:shadow-gold-glow-lg cursor-pointer
                   active:scale-[0.95] pointer-events-auto
-                  min-w-[200px]
+                  min-w-[220px]
                 "
               >
                 <span className="relative flex items-center justify-center gap-2 text-[10px] font-bold tracking-[0.3em] uppercase text-hadx-gold-light group-hover:text-hadx-gold-light">

@@ -64,9 +64,11 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
       
       const playVideo = async () => {
         try {
+          // Force unmute and play
           videoRef.current!.muted = false;
           await videoRef.current!.play();
         } catch (err) {
+          // Fallback to muted autoplay
           videoRef.current!.muted = true;
           videoRef.current!.play().catch(() => {});
         }
@@ -90,9 +92,9 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
       >
         <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
           
-          {/* Logo Placeholder while loading */}
+          {/* Logo Placeholder (Full Screen) */}
           <div className={`absolute inset-0 z-[10008] flex items-center justify-center bg-black transition-opacity duration-700 ${videoReady ? 'opacity-0' : 'opacity-100'}`}>
-            <img src="/og-image.png" alt="HADX Logo" className="w-full h-full object-contain md:object-cover opacity-50" />
+            <img src="/og-image.png" alt="HADX Logo" className="w-full h-full object-cover opacity-50" />
           </div>
 
           <video
@@ -107,7 +109,7 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
           />
 
           {/* Themed Action Buttons */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[10009] flex flex-col gap-4 w-full max-w-xs px-6">
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[10009] flex flex-col gap-4 w-full max-w-xs px-6">
             <button
               onClick={onRetry || onClose}
               className="
