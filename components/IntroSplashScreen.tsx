@@ -68,18 +68,18 @@ export default function IntroSplashScreen() {
         >
           <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
             
-            {/* Phase 1: Logo Pre-loader (Restricted sizing with breathing room) */}
+            {/* Phase 1: Logo Pre-loader (Slightly larger: max-w-[85vw] max-h-[45vh]) */}
             <div className={`absolute inset-0 z-[10001] flex items-center justify-center bg-black transition-opacity duration-500 ${showVideo && videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-              <div className="w-full h-full flex items-center justify-center p-6">
+              <div className="w-full h-full flex items-center justify-center p-4">
                 <img 
                   src="/og-image.png" 
                   alt="HADX Logo" 
-                  className="max-w-[70vw] max-h-[35vh] w-auto h-auto object-contain drop-shadow-[0_0_30px_rgba(212,175,55,0.3)]"
+                  className="max-w-[85vw] max-h-[45vh] w-auto h-auto object-contain drop-shadow-[0_0_35px_rgba(212,175,55,0.35)]"
                 />
               </div>
             </div>
 
-            {/* Phase 2: Intro Video (Auto-Responsive Viewport Engine with object-contain) */}
+            {/* Phase 2: Intro Video */}
             <video
               ref={videoRef}
               playsInline
@@ -89,7 +89,7 @@ export default function IntroSplashScreen() {
               onEnded={handleDismiss}
             />
 
-            {/* Themed Skip Button - Fixed strictly in Bottom Center Safe Area */}
+            {/* Themed Skip Button - Inset 20% further inside (bottom-16 right-16) to prevent edge overflow */}
             {videoStarted && (
               <motion.button
                 initial={{ opacity: 0, y: 15 }}
@@ -97,13 +97,13 @@ export default function IntroSplashScreen() {
                 transition={{ duration: 0.3 }}
                 onClick={handleDismiss}
                 className="
-                  absolute bottom-10 left-1/2 -translate-x-1/2 z-[10005] 
-                  group relative overflow-hidden rounded-xl px-8 py-3.5
-                  backdrop-blur-md bg-black/60
-                  border border-amber-500/40
-                  shadow-[0_4px_25px_rgba(0,0,0,0.8)]
+                  absolute bottom-16 right-16 z-[10005] 
+                  group relative overflow-hidden rounded-xl px-6 py-3
+                  backdrop-blur-md bg-black/70
+                  border border-amber-500/50
+                  shadow-[0_4px_30px_rgba(0,0,0,0.9)]
                   transition-all duration-300 ease-out
-                  hover:border-amber-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] cursor-pointer
+                  hover:border-amber-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] cursor-pointer
                   active:scale-[0.95] pointer-events-auto
                   whitespace-nowrap
                 "
