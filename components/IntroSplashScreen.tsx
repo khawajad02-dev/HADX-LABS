@@ -68,7 +68,7 @@ export default function IntroSplashScreen() {
         >
           <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
             
-            {/* Phase 1: Logo Pre-loader (Slightly larger: max-w-[85vw] max-h-[45vh]) */}
+            {/* Phase 1: Logo Pre-loader */}
             <div className={`absolute inset-0 z-[10001] flex items-center justify-center bg-black transition-opacity duration-500 ${showVideo && videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               <div className="w-full h-full flex items-center justify-center p-4">
                 <img 
@@ -89,7 +89,7 @@ export default function IntroSplashScreen() {
               onEnded={handleDismiss}
             />
 
-            {/* Themed Skip Button - Inset 20% further inside (bottom-16 right-16) to prevent edge overflow */}
+            {/* Themed Skip Button - Maintained horizontal position (right-16) and moved down by ~30% (bottom-10) */}
             {videoStarted && (
               <motion.button
                 initial={{ opacity: 0, y: 15 }}
@@ -97,7 +97,7 @@ export default function IntroSplashScreen() {
                 transition={{ duration: 0.3 }}
                 onClick={handleDismiss}
                 className="
-                  absolute bottom-16 right-16 z-[10005] 
+                  absolute bottom-10 right-16 z-[10005] 
                   group relative overflow-hidden rounded-xl px-6 py-3
                   backdrop-blur-md bg-black/70
                   border border-amber-500/50
