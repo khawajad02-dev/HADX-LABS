@@ -326,10 +326,17 @@ export default function HadxAmbientEngine() {
       pointerStart = null;
       const end = { x: event.clientX, y: event.clientY };
       const distance = distanceBetween(start, end);
-      const intensity = clamp(0.34 + distance / Math.max(180, Math.min(width, height) * 0.72), 0.34, 1);
+      const intensity = clamp(0.42 + distance / Math.max(180, Math.min(width, height) * 0.72), 0.42, 1);
       const now = performance.now();
-      scrollEnergy = Math.max(scrollEnergy, intensity * 0.8);
-      addBolt(createLightningBolt(start, end, intensity, now));
+      scrollEnergy = Math.max(scrollEnergy, intensity * 0.9);
+
+      // A tap has almost no geometric length, so give it a short cloud-to-finger strike.
+      // A swipe keeps the exact touch-down -> touch-release path requested for mobile.
+      if (distance < 14) {
+        addBolt(createCloudStrike(start, -1, intensity, width, height, now));
+      } else {
+        addBolt(createLightningBolt(start, end, intensity, now));
+      }
       pointerMoved = false;
     };
 
