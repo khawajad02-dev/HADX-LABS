@@ -75,7 +75,7 @@ export default function PwaInstallBanner() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 50 }}
           transition={{ duration: 0.4 }}
-          className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-[9999] bg-zinc-950/90 border border-amber-500/40 backdrop-blur-xl rounded-2xl p-4 shadow-[0_10px_40px_rgba(0,0,0,0.8)] flex items-center justify-between gap-4"
+          className="liquid-panel fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-[9999] border-amber-500/40 rounded-2xl p-4 shadow-[0_10px_40px_rgba(0,0,0,0.8)] flex items-center justify-between gap-4"
         >
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0 overflow-hidden">
@@ -89,13 +89,13 @@ export default function PwaInstallBanner() {
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleInstallClick}
-              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black text-xs font-bold uppercase tracking-widest rounded-lg shadow-lg cursor-pointer transition-all active:scale-95"
+              className="liquid-ui px-4 py-2 text-amber-100 text-xs font-bold uppercase tracking-widest rounded-lg shadow-lg cursor-pointer"
             >
               Install
             </button>
             <button
               onClick={handleDismiss}
-              className="p-2 text-zinc-400 hover:text-white text-xs cursor-pointer"
+              className="liquid-ui flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 hover:text-white text-xs cursor-pointer"
             >
               ✕
             </button>

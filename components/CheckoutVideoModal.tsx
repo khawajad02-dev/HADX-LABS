@@ -119,8 +119,7 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
           <button
             onClick={onRetry || onClose}
             className="
-              group relative overflow-hidden rounded-xl px-8 py-3.5
-              backdrop-blur-md bg-black/60
+              liquid-ui group relative overflow-hidden rounded-xl px-8 py-3.5
               border border-amber-500/40
               shadow-[0_4px_25px_rgba(0,0,0,0.8)]
               transition-all duration-300 ease-out
@@ -140,8 +139,7 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
             <button
               onClick={onClose}
               className="
-              group relative overflow-hidden rounded-xl px-8 py-3
-              backdrop-blur-md bg-white/5
+              liquid-ui group relative overflow-hidden rounded-xl px-8 py-3
               border border-white/10
               transition-all duration-300 ease-out
               hover:border-white/30 cursor-pointer

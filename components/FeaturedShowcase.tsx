@@ -88,7 +88,7 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
             <span className="text-2xl font-mono font-semibold">
               PKR {Number(active.price).toLocaleString()}
             </span>
-            <button className="px-6 py-2.5 bg-white text-black text-xs font-bold tracking-widest uppercase rounded-full hover:bg-white/90 transition-colors">
+            <button className="liquid-ui px-6 py-2.5 text-amber-100 text-xs font-bold tracking-widest uppercase rounded-full">
               Buy Now
             </button>
           </div>
@@ -98,17 +98,11 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
               <button
                 key={p.id}
                 onClick={() => setActiveIndex(i)}
-                className={`w-14 h-14 shrink-0 rounded-lg transition-all duration-300 flex items-center justify-center p-1 ${
-                  i === activeIndex ? "bg-white/20 scale-105" : "bg-white/5"
+                className={`liquid-ui w-14 h-14 shrink-0 rounded-lg transition-all duration-300 flex items-center justify-center p-1 ${
+                  i === activeIndex
+                    ? "border-amber-200 shadow-gold-glow scale-105"
+                    : "border-hadx-border"
                 }`}
-                style={{
-                  backdropFilter: "blur(12px)",
-                  WebkitBackdropFilter: "blur(12px)",
-                  border:
-                    i === activeIndex
-                      ? "1px solid rgba(255, 255, 255, 0.9)"
-                      : "1px solid rgba(255, 255, 255, 0.1)",
-                }}
               >
                 {p.imageUrl ? (
                   <img src={p.imageUrl} alt={p.title} className="w-full h-full object-cover rounded-md" />

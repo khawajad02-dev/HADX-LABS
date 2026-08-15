@@ -23,8 +23,7 @@ export default function SecureDropButton({
       onMouseUp={() => setIsPressed(false)}
       onMouseLeave={() => setIsPressed(false)}
       className={`
-        group relative overflow-hidden rounded-xl px-10 py-5
-        backdrop-blur-md bg-black/50
+        liquid-ui group relative overflow-hidden rounded-xl px-10 py-5
         border border-hadx-border
         transition-all duration-300 ease-out
         ${disabled ? "opacity-40 cursor-not-allowed" : "hover:border-hadx-border-glow hover:shadow-gold-glow-lg cursor-pointer"}

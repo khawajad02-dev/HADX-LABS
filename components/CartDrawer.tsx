@@ -62,7 +62,7 @@ export default function CartDrawer({
         aria-label="Shopping Cart Drawer"
         className={`
           fixed top-0 right-0 z-50 h-full w-full max-w-sm
-          bg-black/80 backdrop-blur-md border-l border-hadx-border
+          liquid-panel border-l border-hadx-border
           transition-transform duration-300 ease-out flex flex-col
           ${isOpen ? "translate-x-0" : "translate-x-full"}
         `}
@@ -74,7 +74,7 @@ export default function CartDrawer({
           </h2>
           <button
             onClick={onClose}
-            className="text-hadx-gold hover:text-hadx-gold-light transition-colors text-lg leading-none"
+            className="liquid-ui flex h-8 w-8 items-center justify-center rounded-full text-hadx-gold hover:text-hadx-gold-light text-lg leading-none"
             aria-label="Close cart"
           >
             ✕
@@ -94,7 +94,7 @@ export default function CartDrawer({
             items.map((item) => (
               <div
                 key={item.id}
-                className="flex gap-3 border border-hadx-border rounded-lg p-3 bg-hadx-card/40 hover:border-hadx-border-glow transition-all"
+                className="liquid-panel flex gap-3 rounded-lg p-3 hover:border-hadx-border-glow transition-all"
               >
                 <div className="w-16 h-16 rounded-md bg-neutral-900 border border-neutral-800 overflow-hidden flex items-center justify-center shrink-0">
                   {item.imageUrl ? (
@@ -121,7 +121,7 @@ export default function CartDrawer({
                   <div className="flex items-center gap-3 pt-2">
                     <button
                       onClick={() => onDecrement(item.id)}
-                      className="w-6 h-6 flex items-center justify-center rounded border border-hadx-border text-hadx-gold-light hover:border-hadx-border-glow transition-colors font-mono text-xs"
+                      className="liquid-ui w-6 h-6 flex items-center justify-center rounded border border-hadx-border text-hadx-gold-light hover:border-hadx-border-glow font-mono text-xs"
                       aria-label={`Decrease quantity of ${item.name}`}
                     >
                       −
@@ -131,7 +131,7 @@ export default function CartDrawer({
                     </span>
                     <button
                       onClick={() => onIncrement(item.id)}
-                      className="w-6 h-6 flex items-center justify-center rounded border border-hadx-border text-hadx-gold-light hover:border-hadx-border-glow transition-colors font-mono text-xs"
+                      className="liquid-ui w-6 h-6 flex items-center justify-center rounded border border-hadx-border text-hadx-gold-light hover:border-hadx-border-glow font-mono text-xs"
                       aria-label={`Increase quantity of ${item.name}`}
                     >
                       +
@@ -144,7 +144,7 @@ export default function CartDrawer({
         </div>
 
         {/* Footer Summary & Checkout */}
-        <div className="border-t border-hadx-border px-6 py-5 space-y-4 bg-black/40">
+        <div className="liquid-panel border-t border-hadx-border px-6 py-5 space-y-4">
           <div className="flex justify-between items-center text-xs font-mono uppercase tracking-wide text-zinc-400">
             <span>Subtotal</span>
             <span className="text-hadx-gold-light text-base font-bold">
@@ -156,9 +156,8 @@ export default function CartDrawer({
             onClick={onCheckout}
             disabled={items.length === 0}
             className={`
-              w-full rounded-xl py-3.5 text-xs font-bold tracking-[0.25em] uppercase
+              liquid-ui w-full rounded-xl py-3.5 text-xs font-bold tracking-[0.25em] uppercase
               border border-hadx-border-glow shadow-gold-glow
-              transition-all duration-300 bg-neutral-900/80
               ${
                 items.length === 0
                   ? "opacity-40 cursor-not-allowed"

@@ -85,9 +85,9 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-1.5 rounded-full text-[11px] font-mono tracking-wide uppercase border transition-colors ${
+              className={`liquid-ui px-4 py-1.5 rounded-full text-[11px] font-mono tracking-wide uppercase border transition-colors ${
                 activeCategory === cat
-                  ? "bg-white text-black border-white"
+                  ? "border-amber-200 text-amber-100 shadow-gold-glow"
                   : "border-white/15 text-zinc-400 hover:border-white/40 hover:text-white"
               }`}
             >
@@ -99,7 +99,7 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-          className="bg-zinc-950 border border-white/15 rounded-full px-4 py-1.5 text-[11px] font-mono uppercase text-zinc-300 tracking-wide focus:outline-none focus:border-white/40"
+          className="liquid-ui border border-white/15 rounded-full px-4 py-1.5 text-[11px] font-mono uppercase text-zinc-300 tracking-wide focus:outline-none focus:border-white/40"
         >
           <option value="newest">Newest</option>
           <option value="price-low">Price: Low to High</option>
@@ -108,7 +108,7 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
       </div>
 
       {visibleProducts.length === 0 ? (
-        <div className="max-w-7xl mx-auto border border-dashed border-white/10 rounded-xl p-20 text-center">
+        <div className="liquid-panel max-w-7xl mx-auto border-dashed border-white/10 rounded-xl p-20 text-center">
           <p className="text-zinc-500 text-xs font-mono uppercase tracking-widest">
             No products in this category yet
           </p>
@@ -122,14 +122,7 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
             return (
               <div
                 key={product.id}
-                className="group cursor-pointer rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
-                style={{
-                  background: "rgba(255, 255, 255, 0.03)",
-                  backdropFilter: "blur(16px)",
-                  WebkitBackdropFilter: "blur(16px)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4)",
-                }}
+                className="liquid-panel group cursor-pointer rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
               >
                 <div className="aspect-[4/5] bg-zinc-900/45 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
                   {displayImg ? (

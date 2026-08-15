@@ -102,7 +102,7 @@ export default function CheckoutPage({
       </div>
 
       {/* Real Form & Order Summary Container */}
-      <div className="w-full max-w-xl bg-neutral-950/80 border border-neutral-800 rounded-2xl p-6 sm:p-8 backdrop-blur-md shadow-2xl space-y-6">
+      <div className="liquid-panel w-full max-w-xl rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
         <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400 border-b border-neutral-800 pb-3">
           {"//"} Shipping Details
         </h2>
@@ -116,7 +116,7 @@ export default function CheckoutPage({
               placeholder="Daud Commando"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
+              className="liquid-ui w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
             />
           </div>
 
@@ -128,7 +128,7 @@ export default function CheckoutPage({
               placeholder="daud@hadx.labs"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
+              className="liquid-ui w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
             />
           </div>
 
@@ -140,7 +140,7 @@ export default function CheckoutPage({
               placeholder="+92 300 1234567"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
+              className="liquid-ui w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
             />
           </div>
 
@@ -153,7 +153,7 @@ export default function CheckoutPage({
                 placeholder="Sector 7"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
+                className="liquid-ui w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
               />
             </div>
             <div>
@@ -164,7 +164,7 @@ export default function CheckoutPage({
                 placeholder="Cyber City"
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="w-full bg-neutral-900 border border-neutral-800 rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
+                className="liquid-ui w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
               />
             </div>
           </div>
@@ -179,7 +179,7 @@ export default function CheckoutPage({
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold uppercase tracking-wider transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] ${
+              className={`liquid-ui px-6 py-3 rounded-xl text-amber-100 font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.3)] ${
                 isSubmitting ? 'opacity-50 cursor-wait' : ''
               }`}
             >
@@ -190,26 +190,26 @@ export default function CheckoutPage({
       </div>
 
       {/* Developer Test Suite (For Testing All Video States directly) */}
-      <div className="w-full max-w-xl bg-neutral-950/40 border border-dashed border-neutral-800 rounded-xl p-4 space-y-3">
+      <div className="liquid-panel w-full max-w-xl border-dashed border-neutral-800 rounded-xl p-4 space-y-3">
         <p className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest text-center">
           [ DEV DEBUG TOOL: OVERRIDE MODAL STATES ]
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <button
             onClick={() => setModalState('payment_failed')}
-            className="p-2 rounded-lg bg-red-950/40 border border-red-500/30 text-red-400 hover:bg-red-900/50 font-mono text-[10px]"
+            className="liquid-ui p-2 rounded-lg border border-red-500/30 text-red-300 hover:bg-red-900/50 font-mono text-[10px]"
           >
             Payment Failed
           </button>
           <button
             onClick={() => setModalState('network_error')}
-            className="p-2 rounded-lg bg-amber-950/40 border border-amber-500/30 text-amber-400 hover:bg-amber-900/50 font-mono text-[10px]"
+            className="liquid-ui p-2 rounded-lg border border-amber-500/30 text-amber-300 hover:bg-amber-900/50 font-mono text-[10px]"
           >
             Network Error
           </button>
           <button
             onClick={() => setModalState('timeout')}
-            className="p-2 rounded-lg bg-orange-950/40 border border-orange-500/30 text-orange-400 hover:bg-orange-900/50 font-mono text-[10px]"
+            className="liquid-ui p-2 rounded-lg border border-orange-500/30 text-orange-300 hover:bg-orange-900/50 font-mono text-[10px]"
           >
             Session Timeout
           </button>
@@ -218,7 +218,7 @@ export default function CheckoutPage({
               setActiveOrderId('HADX-' + Math.floor(100000 + Math.random() * 900000));
               setModalState('order_confirmed');
             }}
-            className="p-2 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-900/50 font-mono text-[10px]"
+            className="liquid-ui p-2 rounded-lg border border-emerald-500/30 text-emerald-300 hover:bg-emerald-900/50 font-mono text-[10px]"
           >
             Order Confirmed
           </button>

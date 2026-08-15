@@ -34,7 +34,7 @@ export default function CyberOrb() {
             animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: 20, scale: 0.95, filter: "blur(6px)" }}
             transition={{ duration: 0.28, ease: "easeOut" }}
-            className="flex flex-col items-end gap-3 mb-2 rounded-2xl border border-amber-400/20 bg-black/50 p-3 shadow-[0_0_35px_rgba(179,112,18,0.12)] backdrop-blur-xl"
+            className="liquid-panel flex flex-col items-end gap-3 mb-2 rounded-2xl p-3 shadow-[0_0_35px_rgba(179,112,18,0.12)]"
           >
             <SecureDropButton label="EXECUTE ORDER" onClick={() => setIsCartOpen(true)} />
             <VaultButton />
@@ -52,10 +52,10 @@ export default function CyberOrb() {
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className={`relative isolate w-14 h-14 rounded-full flex items-center justify-center backdrop-blur-xl border shadow-2xl transition-all duration-300 ${
+        className={`liquid-ui relative isolate w-14 h-14 rounded-full flex items-center justify-center shadow-2xl ${
           isOpen
-            ? "bg-amber-500/20 border-amber-400 shadow-[0_0_30px_rgba(217,158,51,0.35)]"
-            : "bg-black/75 border-amber-200/30 shadow-[0_0_22px_rgba(217,158,51,0.18)]"
+            ? "bg-amber-500/10 border-amber-300/70 shadow-[0_0_30px_rgba(217,158,51,0.35)]"
+            : "bg-white/[0.035] border-amber-200/35 shadow-[0_0_22px_rgba(217,158,51,0.18)]"
         }`}
       >
         {/* Thin sci-fi rings echoing the approved ambient mockup. */}

@@ -63,12 +63,12 @@ export default function VaultButton({
       aria-pressed={active}
       disabled={loading}
       className={`
-        group relative inline-flex items-center gap-2 rounded-lg px-6 py-3
-        backdrop-blur-md border transition-all duration-300
+        liquid-ui group relative inline-flex items-center gap-2 rounded-lg px-6 py-3
+        border transition-all duration-300
         ${
           active
             ? "bg-hadx-gold/10 border-hadx-border-glow shadow-gold-glow"
-            : "bg-black/50 border-hadx-border hover:border-hadx-border-glow"
+            : "border-hadx-border hover:border-hadx-border-glow"
         }
         ${pulsing ? "scale-105" : "scale-100"}
         ${loading ? "opacity-70 cursor-wait" : ""}

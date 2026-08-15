@@ -41,8 +41,8 @@ export default function InstagramDMButton({
       href={INSTAGRAM_WEB_URL}
       onClick={handleClick}
       className="
-        group inline-flex items-center gap-2 rounded-full px-7 py-3.5
-        backdrop-blur-md bg-black/50 border border-hadx-border
+        liquid-ui group inline-flex items-center gap-2 rounded-full px-7 py-3.5
+        border border-hadx-border
         transition-all duration-300
         hover:border-hadx-border-glow hover:shadow-gold-glow
       "

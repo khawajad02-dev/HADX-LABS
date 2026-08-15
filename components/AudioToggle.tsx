@@ -51,11 +51,8 @@ export default function AudioToggle({ src = "/obsidian_loom.mp3" }: AudioToggleP
       onClick={toggle}
       aria-label={isPlaying ? "Mute ambient sound" : "Play ambient sound"}
       className={`
-        w-14 h-14 rounded-full
-        backdrop-blur-md bg-black/50 border border-hadx-border
+        liquid-ui w-14 h-14 rounded-full
         flex items-center justify-center
-        transition-all duration-300
-        hover:border-hadx-border-glow hover:shadow-gold-glow
         ${isPlaying ? "shadow-gold-glow animate-pulse-glow" : ""}
       `}
     >
