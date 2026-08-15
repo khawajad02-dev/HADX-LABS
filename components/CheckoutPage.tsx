@@ -89,7 +89,7 @@ export default function CheckoutPage({
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white p-6 sm:p-12 flex flex-col items-center justify-center space-y-12">
+    <div className="relative min-h-screen bg-transparent text-white p-6 sm:p-12 flex flex-col items-center justify-center space-y-12">
       
       {/* Title */}
       <div className="text-center space-y-2 max-w-lg">

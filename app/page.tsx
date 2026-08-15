@@ -1,7 +1,6 @@
 import Link from "next/link";
 import FeaturedShowcase, { Product } from "@/components/FeaturedShowcase";
 import CatalogGrid from "@/components/CatalogGrid";
-import HadxAmbientEngine from "@/components/HadxAmbientEngine";
 import { prisma } from "@/lib/prisma";
 
 export const revalidate = 0;
@@ -26,8 +25,7 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="relative isolate min-h-screen overflow-hidden bg-[#070707] text-zinc-100 selection:bg-white selection:text-black font-sans antialiased">
-      <HadxAmbientEngine />
+    <main className="relative isolate min-h-screen overflow-hidden bg-transparent text-zinc-100 selection:bg-white selection:text-black font-sans antialiased">
 
       <div className="relative z-10">
       {/* Floating Glass Navigation Header */}
@@ -65,9 +63,17 @@ export default async function HomePage() {
       {/* Full Glassmorphic Catalog Grid */}
       <CatalogGrid products={products} />
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 py-8 px-6 text-center text-[10px] font-mono text-zinc-600 tracking-[0.2em] uppercase">
-        © HADX LABS — Architecture Terminal // Operational
+      {/* Minimalist Professional Footer */}
+      <footer className="relative z-10 border-t border-white/10 bg-black/40 backdrop-blur-md py-12 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] font-mono tracking-[0.25em] text-zinc-500 uppercase">
+        <div className="flex items-center gap-3">
+          <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" />
+          <span>© 2026 HADX LABS // ALL RIGHTS RESERVED</span>
+        </div>
+        <div className="flex items-center gap-8">
+          <Link href="/catalog" className="hover:text-amber-400 transition-colors">ARCHIVES</Link>
+          <span className="text-zinc-700">/</span>
+          <span className="text-zinc-400">SECURE ENCRYPTION ACTIVE</span>
+        </div>
       </footer>
       </div>
     </main>

@@ -26,8 +26,11 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
   return (
     <section
       className="relative min-h-[85vh] flex items-center justify-center overflow-hidden transition-colors duration-700 ease-out pt-24"
-      style={{ backgroundColor: tintFor(active.id) }}
     >
+      <div
+        className="absolute inset-0 pointer-events-none opacity-25 transition-colors duration-700"
+        style={{ backgroundColor: tintFor(active.id) }}
+      />
       <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
         <svg width="100%" height="100%" preserveAspectRatio="none">
           <defs>

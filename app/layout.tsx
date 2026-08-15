@@ -4,6 +4,7 @@ import CyberOrb from '@/components/CyberOrb';
 import IntroSplashScreen from '@/components/IntroSplashScreen';
 import NetworkErrorOverlay from '@/components/NetworkErrorOverlay';
 import PwaInstallBanner from '@/components/PwaInstallBanner';
+import HadxAmbientEngine from '@/components/HadxAmbientEngine';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://hadx-labs.com'),
@@ -59,6 +60,7 @@ export default function RootLayout({
         `}} />
       </head>
       <body style={{ margin: 0, padding: 0, backgroundColor: '#050505', color: '#ffffff' }}>
+        <HadxAmbientEngine />
         <IntroSplashScreen />
         <NetworkErrorOverlay />
         <PwaInstallBanner />

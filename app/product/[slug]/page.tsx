@@ -49,7 +49,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
   }
 
   return (
-    <main className="min-h-screen bg-[#070707] text-zinc-100 pt-32 pb-24 px-6">
+    <main className="relative min-h-screen bg-transparent text-zinc-100 pt-32 pb-24 px-6">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Product Image */}
         <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10">
