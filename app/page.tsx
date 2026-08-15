@@ -25,7 +25,14 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#070707] text-zinc-100 selection:bg-white selection:text-black font-sans antialiased">
+    <main className="relative isolate min-h-screen overflow-hidden bg-[#070707] text-zinc-100 selection:bg-white selection:text-black font-sans antialiased">
+      {/* Lightweight ambient background: the existing UI remains above these layers. */}
+      <div className="ambient-gold-field" aria-hidden="true">
+        <div className="ambient-gold-dust" />
+        <div className="ambient-gold-glow" />
+      </div>
+
+      <div className="relative z-10">
       {/* Floating Glass Navigation Header */}
       <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-black/60 border-b border-white/10 px-6 md:px-12 py-4 flex justify-between items-center">
         <div className="flex items-center gap-3">
@@ -65,6 +72,7 @@ export default async function HomePage() {
       <footer className="border-t border-white/10 py-8 px-6 text-center text-[10px] font-mono text-zinc-600 tracking-[0.2em] uppercase">
         © HADX LABS — Architecture Terminal // Operational
       </footer>
+      </div>
     </main>
   );
 }

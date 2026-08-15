@@ -19,3 +19,106 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* HADX LABS ambient background: lightweight CSS-only motion, no canvas or dependency. */
+.ambient-gold-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 16% 78%, rgba(152, 91, 12, 0.13) 0%, rgba(75, 45, 8, 0.055) 20%, transparent 48%),
+    radial-gradient(ellipse at 88% 58%, rgba(180, 112, 20, 0.12) 0%, rgba(87, 50, 8, 0.045) 22%, transparent 49%),
+    radial-gradient(circle at 50% 38%, rgba(255, 193, 64, 0.035), transparent 36%);
+}
+
+.ambient-gold-field::before,
+.ambient-gold-field::after {
+  content: "";
+  position: absolute;
+  width: 78vw;
+  height: 19rem;
+  border: 1px solid rgba(218, 155, 48, 0.16);
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-radius: 50%;
+  filter: blur(1px);
+  opacity: 0.72;
+  transform: rotate(-12deg) translate3d(-8%, 20%, 0);
+  animation: ambient-ribbon-drift 18s ease-in-out infinite alternate;
+}
+
+.ambient-gold-field::before {
+  left: -13rem;
+  bottom: 13%;
+  box-shadow: 0 0 32px rgba(217, 158, 51, 0.16), inset 0 0 24px rgba(217, 158, 51, 0.1);
+}
+
+.ambient-gold-field::after {
+  right: -18rem;
+  bottom: 28%;
+  opacity: 0.48;
+  transform: rotate(18deg) translate3d(8%, 0, 0) scale(0.84);
+  animation-delay: -8s;
+}
+
+.ambient-gold-dust {
+  position: absolute;
+  inset: 0;
+  opacity: 0.42;
+  background-image:
+    radial-gradient(circle at 8% 34%, rgba(255, 213, 112, 0.78) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 22% 66%, rgba(223, 165, 54, 0.66) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 37% 24%, rgba(255, 211, 105, 0.42) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 55% 70%, rgba(227, 170, 64, 0.7) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 72% 42%, rgba(255, 220, 123, 0.52) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 91% 20%, rgba(232, 177, 68, 0.64) 0 1px, transparent 1.8px);
+  background-size: 265px 220px, 330px 290px, 410px 350px, 360px 260px, 300px 340px, 480px 390px;
+  animation: ambient-dust-drift 26s linear infinite;
+}
+
+.ambient-gold-glow {
+  position: absolute;
+  left: 50%;
+  bottom: -18rem;
+  width: min(70rem, 120vw);
+  height: 34rem;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(174, 108, 16, 0.12) 0%, rgba(112, 66, 9, 0.045) 38%, transparent 70%);
+  filter: blur(20px);
+  animation: ambient-glow-breathe 9s ease-in-out infinite;
+}
+
+@keyframes ambient-ribbon-drift {
+  0% { transform: rotate(-12deg) translate3d(-8%, 20%, 0) scale(0.98); }
+  100% { transform: rotate(-8deg) translate3d(5%, 14%, 0) scale(1.04); }
+}
+
+@keyframes ambient-dust-drift {
+  0% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-1.5%, -2%, 0); }
+  100% { transform: translate3d(1%, -4%, 0); }
+}
+
+@keyframes ambient-glow-breathe {
+  0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(0.98); }
+  50% { opacity: 0.9; transform: translateX(-50%) scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-gold-field::before,
+  .ambient-gold-field::after,
+  .ambient-gold-dust,
+  .ambient-gold-glow {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .ambient-gold-field::before,
+  .ambient-gold-field::after {
+    width: 120vw;
+  }
+}
