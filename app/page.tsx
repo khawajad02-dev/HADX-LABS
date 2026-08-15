@@ -1,6 +1,7 @@
 import Link from "next/link";
 import FeaturedShowcase, { Product } from "@/components/FeaturedShowcase";
 import CatalogGrid from "@/components/CatalogGrid";
+import HadxAmbientEngine from "@/components/HadxAmbientEngine";
 import { prisma } from "@/lib/prisma";
 
 export const revalidate = 0;
@@ -26,11 +27,7 @@ export default async function HomePage() {
 
   return (
     <main className="relative isolate min-h-screen overflow-hidden bg-[#070707] text-zinc-100 selection:bg-white selection:text-black font-sans antialiased">
-      {/* Lightweight ambient background: the existing UI remains above these layers. */}
-      <div className="ambient-gold-field" aria-hidden="true">
-        <div className="ambient-gold-dust" />
-        <div className="ambient-gold-glow" />
-      </div>
+      <HadxAmbientEngine />
 
       <div className="relative z-10">
       {/* Floating Glass Navigation Header */}
