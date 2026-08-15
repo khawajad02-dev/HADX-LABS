@@ -35,7 +35,7 @@ function growVein(origin: Point, angle: number, length: number, segments: number
   for (let index = 1; index <= segments; index += 1) {
     const progress = index / segments;
     heading += (Math.random() - 0.5) * jitter * (1.15 - progress * 0.45);
-    const step = length / segments * (0.78 + Math.random() * 0.42);
+    const step = (length / segments) * (0.82 + Math.random() * 0.36);
     x += Math.cos(heading) * step;
     y += Math.sin(heading) * step;
     points.push({ x, y });
@@ -47,36 +47,32 @@ function growVein(origin: Point, angle: number, length: number, segments: number
 function createStormBolt(origin: Point, direction: 1 | -1, intensity: number, now: number): StormBolt {
   const branches: Point[][] = [];
   const primaryAngle = direction > 0 ? Math.PI / 2 : -Math.PI / 2;
-  const branchCount = 4 + Math.floor(intensity * 4);
+  const branchCount = 3 + Math.floor(intensity * 3);
 
   for (let index = 0; index < branchCount; index += 1) {
-    const angleBias = (Math.random() - 0.5) * (1.35 + intensity * 0.65);
-    const angle = primaryAngle + angleBias;
+    const angle = primaryAngle + (Math.random() - 0.5) * (1.15 + intensity * 0.55);
     const branchOrigin = {
-      x: origin.x + (Math.random() - 0.5) * 18,
-      y: origin.y + (Math.random() - 0.5) * 18,
+      x: origin.x + (Math.random() - 0.5) * 16,
+      y: origin.y + (Math.random() - 0.5) * 16,
     };
     const vein = growVein(
       branchOrigin,
       angle,
-      60 + intensity * 210 * (0.7 + Math.random() * 0.5),
-      6 + Math.floor(intensity * 5),
-      0.72 + intensity * 0.32,
+      54 + intensity * 175 * (0.76 + Math.random() * 0.4),
+      5 + Math.floor(intensity * 4),
+      0.7 + intensity * 0.25,
     );
     branches.push(vein);
 
-    // Fine secondary cracks make it resemble the natural gold veins in the logo,
-    // rather than one thick geometric line.
-    if (intensity > 0.38 && index % 2 === 0 && vein.length > 4) {
-      const forkIndex = Math.max(2, Math.floor(vein.length * (0.42 + Math.random() * 0.28)));
-      const fork = vein[forkIndex];
+    if (intensity > 0.46 && index % 2 === 0 && vein.length > 3) {
+      const fork = vein[Math.max(2, Math.floor(vein.length * (0.4 + Math.random() * 0.26)))];
       branches.push(
         growVein(
           fork,
           angle + (Math.random() > 0.5 ? 0.72 : -0.72),
-          26 + intensity * 90,
-          4 + Math.floor(intensity * 3),
-          0.95,
+          22 + intensity * 66,
+          3 + Math.floor(intensity * 3),
+          0.9,
         ),
       );
     }
@@ -86,9 +82,46 @@ function createStormBolt(origin: Point, direction: 1 | -1, intensity: number, no
     origin,
     branches,
     born: now,
-    ttl: 300 + intensity * 300,
+    ttl: 260 + intensity * 270,
     intensity,
-    cloudRadius: 22 + intensity * 42,
+    cloudRadius: 18 + intensity * 38,
+  };
+}
+
+function createGestureBolt(start: Point, end: Point, intensity: number, now: number): StormBolt {
+  const dx = end.x - start.x;
+  const dy = end.y - start.y;
+  const distance = Math.max(24, Math.sqrt(dx * dx + dy * dy));
+  const direction = Math.atan2(dy, dx);
+  const normal = { x: -Math.sin(direction), y: Math.cos(direction) };
+  const steps = Math.min(18, Math.max(7, Math.round(distance / 34)));
+  const main: Point[] = [start];
+
+  for (let index = 1; index <= steps; index += 1) {
+    const progress = index / steps;
+    const wave = Math.sin(progress * Math.PI) * (Math.random() - 0.5) * (10 + intensity * 22);
+    main.push({
+      x: start.x + dx * progress + normal.x * wave,
+      y: start.y + dy * progress + normal.y * wave,
+    });
+  }
+
+  main.push(end);
+  const branches: Point[][] = [main];
+  const branchCount = intensity > 0.62 ? 3 : 2;
+  for (let index = 0; index < branchCount; index += 1) {
+    const point = main[Math.max(1, Math.floor(main.length * (0.32 + Math.random() * 0.42)))];
+    const branchAngle = direction + (Math.random() > 0.5 ? 0.78 : -0.78);
+    branches.push(growVein(point, branchAngle, 18 + intensity * 54, 3 + Math.floor(intensity * 2), 0.8));
+  }
+
+  return {
+    origin: start,
+    branches,
+    born: now,
+    ttl: 360 + intensity * 260,
+    intensity,
+    cloudRadius: 24 + intensity * 42,
   };
 }
 
@@ -97,18 +130,17 @@ function drawStormBolt(ctx: CanvasRenderingContext2D, bolt: StormBolt, now: numb
   const life = Math.max(0, 1 - age / bolt.ttl);
   if (life <= 0) return;
 
-  const flicker = 0.56 + Math.max(0, Math.sin(now * 0.055 + bolt.born * 0.01)) * 0.44;
+  const flicker = 0.58 + Math.max(0, Math.sin(now * 0.052 + bolt.born * 0.01)) * 0.42;
   const alpha = life * bolt.intensity * flicker;
   const { x, y } = bolt.origin;
 
-  // A brief cloud-like glow makes the current feel born inside the dust field.
-  const cloud = ctx.createRadialGradient(x, y, 0, x, y, bolt.cloudRadius * 2.8);
-  cloud.addColorStop(0, `rgba(255, 205, 96, ${Math.min(0.18, alpha * 0.16)})`);
-  cloud.addColorStop(0.32, `rgba(203, 143, 38, ${Math.min(0.09, alpha * 0.08)})`);
+  const cloud = ctx.createRadialGradient(x, y, 0, x, y, bolt.cloudRadius * 2.7);
+  cloud.addColorStop(0, `rgba(255, 205, 96, ${Math.min(0.16, alpha * 0.14)})`);
+  cloud.addColorStop(0.36, `rgba(203, 143, 38, ${Math.min(0.075, alpha * 0.07)})`);
   cloud.addColorStop(1, "rgba(0, 0, 0, 0)");
   ctx.fillStyle = cloud;
   ctx.beginPath();
-  ctx.arc(x, y, bolt.cloudRadius * 2.8, 0, Math.PI * 2);
+  ctx.arc(x, y, bolt.cloudRadius * 2.7, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.save();
@@ -116,30 +148,32 @@ function drawStormBolt(ctx: CanvasRenderingContext2D, bolt: StormBolt, now: numb
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
+  // One grouped path per pass keeps the animation smooth on mobile GPUs.
+  ctx.beginPath();
   for (const branch of bolt.branches) {
-    ctx.beginPath();
     branch.forEach((point, index) => {
       if (index === 0) ctx.moveTo(point.x, point.y);
       else ctx.lineTo(point.x, point.y);
     });
-    ctx.strokeStyle = `${VEIN_GOLD}${Math.min(0.34, alpha * 0.25)})`;
-    ctx.lineWidth = 2.5 + bolt.intensity * 2.4;
-    ctx.shadowBlur = 15 + bolt.intensity * 10;
-    ctx.shadowColor = `${VEIN_GOLD}${Math.min(0.35, alpha * 0.35)})`;
-    ctx.stroke();
-
-    ctx.beginPath();
-    branch.forEach((point, index) => {
-      if (index === 0) ctx.moveTo(point.x, point.y);
-      else ctx.lineTo(point.x, point.y);
-    });
-    ctx.strokeStyle = `${VEIN_HIGHLIGHT}${Math.min(0.78, alpha * 0.62)})`;
-    ctx.lineWidth = 0.45 + bolt.intensity * 0.8;
-    ctx.shadowBlur = 5;
-    ctx.shadowColor = `${VEIN_HIGHLIGHT}${Math.min(0.35, alpha * 0.3)})`;
-    ctx.stroke();
   }
+  ctx.strokeStyle = `${VEIN_GOLD}${Math.min(0.28, alpha * 0.22)})`;
+  ctx.lineWidth = 2.2 + bolt.intensity * 2;
+  ctx.shadowBlur = 12 + bolt.intensity * 8;
+  ctx.shadowColor = `${VEIN_GOLD}${Math.min(0.3, alpha * 0.3)})`;
+  ctx.stroke();
 
+  ctx.beginPath();
+  for (const branch of bolt.branches) {
+    branch.forEach((point, index) => {
+      if (index === 0) ctx.moveTo(point.x, point.y);
+      else ctx.lineTo(point.x, point.y);
+    });
+  }
+  ctx.strokeStyle = `${VEIN_HIGHLIGHT}${Math.min(0.7, alpha * 0.58)})`;
+  ctx.lineWidth = 0.42 + bolt.intensity * 0.7;
+  ctx.shadowBlur = 4;
+  ctx.shadowColor = `${VEIN_HIGHLIGHT}${Math.min(0.32, alpha * 0.28)})`;
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -155,7 +189,7 @@ export default function HadxAmbientEngine() {
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isSmallScreen = window.innerWidth < 700;
-    const particleCount = reducedMotion ? 28 : isSmallScreen ? 54 : 92;
+    const particleCount = reducedMotion ? 24 : isSmallScreen ? 42 : 72;
     let width = 0;
     let height = 0;
     let dpr = 1;
@@ -165,11 +199,13 @@ export default function HadxAmbientEngine() {
     let lastScrollTime = performance.now();
     let scrollEnergy = 0;
     let lastBoltAt = 0;
+    let pointerStart: Point | null = null;
+    let pointerMoved = false;
     const particles: Particle[] = [];
     const bolts: StormBolt[] = [];
 
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = Math.floor(width * dpr);
@@ -183,10 +219,10 @@ export default function HadxAmbientEngine() {
           particles.push({
             x: Math.random() * width,
             y: Math.random() * height,
-            radius: Math.random() * 1.4 + 0.35,
-            alpha: Math.random() * 0.6 + 0.2,
-            driftX: (Math.random() - 0.5) * 0.2,
-            driftY: -(Math.random() * 0.32 + 0.06),
+            radius: Math.random() * 1.25 + 0.35,
+            alpha: Math.random() * 0.52 + 0.2,
+            driftX: (Math.random() - 0.5) * 0.16,
+            driftY: -(Math.random() * 0.25 + 0.05),
             phase: Math.random() * Math.PI * 2,
           });
         }
@@ -194,77 +230,113 @@ export default function HadxAmbientEngine() {
     };
 
     const pickDustCloud = (): Point => {
-      const candidates = particles.filter((particle) => particle.y > height * 0.12 && particle.y < height * 0.86);
+      const candidates = particles.filter((particle) => particle.y > height * 0.1 && particle.y < height * 0.9);
       const seed = candidates[Math.floor(Math.random() * Math.max(1, candidates.length))] || {
-        x: width * (0.22 + Math.random() * 0.56),
-        y: height * (0.26 + Math.random() * 0.42),
+        x: width * (0.2 + Math.random() * 0.6),
+        y: height * (0.24 + Math.random() * 0.48),
       };
       return {
-        x: Math.min(width - 28, Math.max(28, seed.x + (Math.random() - 0.5) * 44)),
-        y: Math.min(height - 34, Math.max(86, seed.y + (Math.random() - 0.5) * 44)),
+        x: Math.min(width - 24, Math.max(24, seed.x + (Math.random() - 0.5) * 42)),
+        y: Math.min(height - 28, Math.max(72, seed.y + (Math.random() - 0.5) * 42)),
       };
     };
 
-    const spawnLightning = (energy: number, direction: 1 | -1, now: number) => {
-      if (reducedMotion || now - lastBoltAt < 120) return;
+    const addBolt = (bolt: StormBolt) => {
+      bolts.push(bolt);
+      if (bolts.length > 6) bolts.splice(0, bolts.length - 6);
+    };
+
+    const spawnScrollLightning = (energy: number, direction: 1 | -1, now: number) => {
+      if (reducedMotion || now - lastBoltAt < 190) return;
       lastBoltAt = now;
-      const origin = pickDustCloud();
-      bolts.push(createStormBolt(origin, direction, Math.max(0.34, energy), now));
-      if (energy > 0.68 && Math.random() > 0.3) {
-        bolts.push(createStormBolt({ x: origin.x + (Math.random() - 0.5) * 55, y: origin.y + (Math.random() - 0.5) * 55 }, direction, energy * 0.64, now + 18));
-      }
-      if (bolts.length > 9) bolts.splice(0, bolts.length - 9);
+      addBolt(createStormBolt(pickDustCloud(), direction, Math.max(0.34, energy), now));
     };
 
     const handleScroll = () => {
       const now = performance.now();
       const delta = window.scrollY - lastScrollY;
       const elapsed = Math.max(16, now - lastScrollTime);
-      const velocity = Math.min(1, Math.abs(delta) / elapsed * 7);
+      const velocity = Math.min(1, (Math.abs(delta) / elapsed) * 7);
       if (Math.abs(delta) > 0.25) {
-        const direction: 1 | -1 = delta >= 0 ? 1 : -1;
         scrollEnergy = Math.max(scrollEnergy, velocity);
-        spawnLightning(scrollEnergy, direction, now);
+        spawnScrollLightning(velocity, delta >= 0 ? 1 : -1, now);
       }
       lastScrollY = window.scrollY;
       lastScrollTime = now;
     };
 
+    const handlePointerDown = (event: PointerEvent) => {
+      if (reducedMotion || (event.pointerType !== "touch" && event.pointerType !== "pen")) return;
+      pointerStart = { x: event.clientX, y: event.clientY };
+      pointerMoved = false;
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!pointerStart) return;
+      const dx = event.clientX - pointerStart.x;
+      const dy = event.clientY - pointerStart.y;
+      pointerMoved = pointerMoved || Math.sqrt(dx * dx + dy * dy) > 14;
+    };
+
+    const handlePointerUp = (event: PointerEvent) => {
+      if (!pointerStart) return;
+      const start = pointerStart;
+      pointerStart = null;
+      if (!pointerMoved) return;
+
+      const end = { x: event.clientX, y: event.clientY };
+      const dx = end.x - start.x;
+      const dy = end.y - start.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const intensity = Math.min(1, Math.max(0.34, distance / Math.max(160, Math.min(width, height) * 0.75)));
+      const now = performance.now();
+      scrollEnergy = Math.max(scrollEnergy, intensity);
+      addBolt(createGestureBolt(start, end, intensity, now));
+
+      // A small secondary spark lands exactly where the finger was released.
+      if (distance > 90) {
+        addBolt(createStormBolt(end, dy >= 0 ? 1 : -1, intensity * 0.62, now + 16));
+      }
+    };
+
+    const handlePointerCancel = () => {
+      pointerStart = null;
+      pointerMoved = false;
+    };
+
     const render = (now: number) => {
-      const dt = Math.min(34, now - lastFrame);
+      const dt = Math.min(32, now - lastFrame);
       lastFrame = now;
       const seconds = now / 1000;
-      scrollEnergy += (0 - scrollEnergy) * Math.min(1, dt / (reducedMotion ? 160 : 520));
+      scrollEnergy += (0 - scrollEnergy) * Math.min(1, dt / (reducedMotion ? 150 : 460));
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, width, height);
 
       const haze = ctx.createRadialGradient(width * 0.18, height * 0.68, 0, width * 0.18, height * 0.68, Math.max(width, height) * 0.68);
-      haze.addColorStop(0, `rgba(176, 109, 18, ${0.13 + scrollEnergy * 0.08})`);
-      haze.addColorStop(0.42, `rgba(112, 66, 10, ${0.06 + scrollEnergy * 0.04})`);
+      haze.addColorStop(0, `rgba(176, 109, 18, ${0.12 + scrollEnergy * 0.08})`);
+      haze.addColorStop(0.42, `rgba(112, 66, 10, ${0.055 + scrollEnergy * 0.04})`);
       haze.addColorStop(1, "rgba(0, 0, 0, 0)");
       ctx.fillStyle = haze;
       ctx.fillRect(0, 0, width, height);
 
-      const speedMultiplier = reducedMotion ? 0.45 : 1 + scrollEnergy * 3.2;
+      const speedMultiplier = reducedMotion ? 0.45 : 1 + scrollEnergy * 2.7;
+      ctx.shadowBlur = 0;
       for (const particle of particles) {
-        particle.x += (particle.driftX + Math.sin(seconds * 0.55 + particle.phase) * 0.08) * speedMultiplier * dt;
+        particle.x += (particle.driftX + Math.sin(seconds * 0.55 + particle.phase) * 0.065) * speedMultiplier * dt;
         particle.y += particle.driftY * speedMultiplier * dt;
 
         if (particle.y < -8) particle.y = height + 8;
         if (particle.x < -8) particle.x = width + 8;
         if (particle.x > width + 8) particle.x = -8;
 
-        const pulse = 0.7 + Math.sin(seconds * 0.8 + particle.phase) * 0.3;
-        const alpha = particle.alpha * pulse * (0.82 + scrollEnergy * 0.75);
+        const pulse = 0.72 + Math.sin(seconds * 0.8 + particle.phase) * 0.28;
+        const alpha = particle.alpha * pulse * (0.82 + scrollEnergy * 0.62);
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.radius + scrollEnergy * 0.75, 0, Math.PI * 2);
-        ctx.fillStyle = `${VEIN_GOLD}${Math.min(0.92, alpha)})`;
-        ctx.shadowBlur = 8 + scrollEnergy * 14;
-        ctx.shadowColor = `${VEIN_GOLD}${Math.min(0.55, alpha)})`;
+        ctx.arc(particle.x, particle.y, particle.radius + scrollEnergy * 0.55, 0, Math.PI * 2);
+        ctx.fillStyle = `${VEIN_GOLD}${Math.min(0.82, alpha)})`;
         ctx.fill();
       }
-      ctx.shadowBlur = 0;
 
       for (let index = bolts.length - 1; index >= 0; index -= 1) {
         if (now - bolts[index].born > bolts[index].ttl) bolts.splice(index, 1);
@@ -277,20 +349,29 @@ export default function HadxAmbientEngine() {
     resize();
     window.addEventListener("resize", resize, { passive: true });
     window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("pointerdown", handlePointerDown, { passive: true });
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("pointerup", handlePointerUp, { passive: true });
+    window.addEventListener("pointercancel", handlePointerCancel, { passive: true });
     raf = window.requestAnimationFrame(render);
 
     return () => {
       window.cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerCancel);
     };
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0 h-full w-full opacity-90"
-    />
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+      <div className="ambient-nebula-cloud ambient-nebula-cloud-one" />
+      <div className="ambient-nebula-cloud ambient-nebula-cloud-two" />
+      <div className="ambient-nebula-cloud ambient-nebula-cloud-three" />
+      <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 h-full w-full opacity-90" />
+    </div>
   );
 }
