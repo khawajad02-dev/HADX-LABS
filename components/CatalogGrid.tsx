@@ -62,7 +62,7 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
 
   if (loading) {
     return (
-      <section className="bg-[#070707] text-zinc-100 px-6 md:px-12 py-24 border-t border-white/10 text-center">
+      <section className="bg-transparent text-zinc-100 px-6 md:px-12 py-24 border-t border-white/10 text-center">
         <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest animate-pulse">
           [ LOADING HADX ARCHIVE DATA... ]
         </p>
@@ -71,7 +71,7 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
   }
 
   return (
-    <section className="bg-[#070707] text-zinc-100 px-6 md:px-12 pt-20 pb-24 border-t border-white/10 relative z-10">
+    <section className="bg-transparent text-zinc-100 px-6 md:px-12 pt-20 pb-24 border-t border-white/10 relative z-10">
       <div className="max-w-7xl mx-auto mb-12">
         <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-zinc-500 block mb-3">
           Full_Catalog
@@ -131,7 +131,7 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
                   boxShadow: "0 20px 40px rgba(0, 0, 0, 0.4)",
                 }}
               >
-                <div className="aspect-[4/5] bg-zinc-900/70 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
+                <div className="aspect-[4/5] bg-zinc-900/45 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
                   {displayImg ? (
                     <img
                       src={displayImg}

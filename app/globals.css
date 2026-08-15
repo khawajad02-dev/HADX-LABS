@@ -28,9 +28,11 @@ body {
   pointer-events: none;
   z-index: 0;
   background:
-    radial-gradient(ellipse at 16% 78%, rgba(152, 91, 12, 0.13) 0%, rgba(75, 45, 8, 0.055) 20%, transparent 48%),
-    radial-gradient(ellipse at 88% 58%, rgba(180, 112, 20, 0.12) 0%, rgba(87, 50, 8, 0.045) 22%, transparent 49%),
-    radial-gradient(circle at 50% 38%, rgba(255, 193, 64, 0.035), transparent 36%);
+    radial-gradient(ellipse at 14% 18%, rgba(180, 112, 20, 0.19) 0%, rgba(83, 48, 8, 0.09) 24%, transparent 56%),
+    radial-gradient(ellipse at 18% 76%, rgba(190, 122, 22, 0.22) 0%, rgba(93, 54, 10, 0.095) 25%, transparent 58%),
+    radial-gradient(ellipse at 88% 52%, rgba(206, 140, 28, 0.21) 0%, rgba(92, 54, 9, 0.085) 25%, transparent 58%),
+    radial-gradient(circle at 52% 40%, rgba(255, 193, 64, 0.07), transparent 42%),
+    linear-gradient(180deg, rgba(29, 18, 5, 0.18) 0%, transparent 45%, rgba(24, 14, 3, 0.13) 100%);
 }
 
 .ambient-gold-field::before,
@@ -66,15 +68,17 @@ body {
 .ambient-gold-dust {
   position: absolute;
   inset: 0;
-  opacity: 0.42;
+  opacity: 0.68;
   background-image:
     radial-gradient(circle at 8% 34%, rgba(255, 213, 112, 0.78) 0 1px, transparent 1.8px),
     radial-gradient(circle at 22% 66%, rgba(223, 165, 54, 0.66) 0 1px, transparent 1.7px),
     radial-gradient(circle at 37% 24%, rgba(255, 211, 105, 0.42) 0 1px, transparent 1.8px),
     radial-gradient(circle at 55% 70%, rgba(227, 170, 64, 0.7) 0 1px, transparent 1.8px),
     radial-gradient(circle at 72% 42%, rgba(255, 220, 123, 0.52) 0 1px, transparent 1.7px),
-    radial-gradient(circle at 91% 20%, rgba(232, 177, 68, 0.64) 0 1px, transparent 1.8px);
-  background-size: 265px 220px, 330px 290px, 410px 350px, 360px 260px, 300px 340px, 480px 390px;
+    radial-gradient(circle at 91% 20%, rgba(232, 177, 68, 0.82) 0 1.2px, transparent 2px),
+    radial-gradient(circle at 64% 88%, rgba(240, 186, 77, 0.55) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 46% 52%, rgba(255, 214, 114, 0.42) 0 0.8px, transparent 1.6px);
+  background-size: 265px 220px, 330px 290px, 410px 350px, 360px 260px, 300px 340px, 480px 390px, 370px 310px, 520px 430px;
   animation: ambient-dust-drift 26s linear infinite;
 }
 
@@ -86,7 +90,7 @@ body {
   height: 34rem;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(174, 108, 16, 0.12) 0%, rgba(112, 66, 9, 0.045) 38%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(203, 132, 24, 0.22) 0%, rgba(136, 80, 11, 0.09) 38%, transparent 70%);
   filter: blur(20px);
   animation: ambient-glow-breathe 9s ease-in-out infinite;
 }
