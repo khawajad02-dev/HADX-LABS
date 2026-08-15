@@ -16,10 +16,10 @@ export default function IntroSplashScreen() {
       const hasSeenIntro = sessionStorage.getItem("hadx_intro_seen");
       if (!hasSeenIntro) {
         setIsVisible(true);
-        // Show logo pre-loader for 1000ms then start video
+        // Show logo pre-loader for 800ms then start video layer
         const timer = setTimeout(() => {
           setShowVideo(true);
-        }, 1000);
+        }, 800);
         return () => clearTimeout(timer);
       }
     }
@@ -65,8 +65,8 @@ export default function IntroSplashScreen() {
           transition={{ duration: 0.6 }}
           className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden w-screen h-[100dvh]"
         >
-          {/* Logo Pre-loader with precise requested sizing */}
-          <div className={`absolute inset-0 z-[10001] flex items-center justify-center bg-black transition-opacity duration-500 ${showVideo && videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          {/* Logo Pre-loader: Appears instantly, fades out cleanly once video starts */}
+          <div className={`absolute inset-0 z-[10002] flex items-center justify-center bg-black transition-opacity duration-500 ${videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <div className="w-full h-[100dvh] flex items-center justify-center bg-black p-4">
               <img 
                 src="/og-image.png" 
@@ -76,19 +76,20 @@ export default function IntroSplashScreen() {
             </div>
           </div>
 
-          {/* Intro Video with object-contain and precise wrapper */}
-          <div className="w-full h-[100dvh] overflow-hidden bg-black flex items-center justify-center relative">
+          {/* Intro Video Layer */}
+          <div className="absolute inset-0 w-full h-[100dvh] overflow-hidden bg-black flex items-center justify-center z-[10001]">
             <video
               ref={videoRef}
               playsInline
               preload="auto"
               src="/videos/hadx_labs_intro.mp4"
-              className={`w-full h-full object-contain bg-black transition-opacity duration-700 ${showVideo ? 'opacity-100' : 'opacity-0'}`}
+              className="w-full h-full object-contain bg-black"
+              onPlaying={() => setVideoStarted(true)}
               onEnded={handleDismiss}
             />
           </div>
 
-          {/* Skip Button: Maintained at current position without changing its placement */}
+          {/* Skip Button */}
           {videoStarted && (
             <motion.div 
               initial={{ opacity: 0, y: 15 }}
