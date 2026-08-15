@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function IntroSplashScreen() {
   const [isVisible, setIsVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
   const [videoStarted, setVideoStarted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -16,17 +15,12 @@ export default function IntroSplashScreen() {
       const hasSeenIntro = sessionStorage.getItem("hadx_intro_seen");
       if (!hasSeenIntro) {
         setIsVisible(true);
-        // Show logo pre-loader for 800ms then start video layer
-        const timer = setTimeout(() => {
-          setShowVideo(true);
-        }, 800);
-        return () => clearTimeout(timer);
       }
     }
   }, []);
 
   useEffect(() => {
-    if (showVideo && videoRef.current) {
+    if (isVisible && videoRef.current) {
       const playVideo = async () => {
         try {
           videoRef.current!.muted = false;
@@ -45,7 +39,7 @@ export default function IntroSplashScreen() {
       };
       playVideo();
     }
-  }, [showVideo]);
+  }, [isVisible]);
 
   if (!mounted) return null;
 
@@ -65,18 +59,7 @@ export default function IntroSplashScreen() {
           transition={{ duration: 0.6 }}
           className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden w-screen h-[100dvh]"
         >
-          {/* Logo Pre-loader: Appears instantly, fades out cleanly once video starts */}
-          <div className={`absolute inset-0 z-[10002] flex items-center justify-center bg-black transition-opacity duration-500 ${videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-            <div className="w-full h-[100dvh] flex items-center justify-center bg-black p-4">
-              <img 
-                src="/og-image.png" 
-                alt="HADX Logo" 
-                className="max-w-[70vw] max-h-[35vh] w-auto h-auto object-contain drop-shadow-[0_0_35px_rgba(212,175,55,0.35)]"
-              />
-            </div>
-          </div>
-
-          {/* Intro Video Layer */}
+          {/* Pure Video Layer - NO static image pre-loader to eliminate double-picture trigger completely */}
           <div className="absolute inset-0 w-full h-[100dvh] overflow-hidden bg-black flex items-center justify-center z-[10001]">
             <video
               ref={videoRef}
