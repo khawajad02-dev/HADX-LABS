@@ -234,17 +234,16 @@ body {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.96;
+  opacity: 0.62;
   background:
-    radial-gradient(ellipse at 12% 24%, rgba(255, 255, 255, 0.72) 0 2px, rgba(255, 255, 255, 0.22) 3px, transparent 8px),
-    radial-gradient(ellipse at 36% 74%, rgba(255, 241, 190, 0.62) 0 3px, rgba(255, 241, 190, 0.16) 5px, transparent 12px),
-    radial-gradient(ellipse at 70% 35%, rgba(255, 255, 255, 0.64) 0 2px, rgba(255, 255, 255, 0.17) 4px, transparent 10px),
-    radial-gradient(ellipse at 88% 78%, rgba(255, 225, 151, 0.58) 0 2px, rgba(255, 225, 151, 0.12) 4px, transparent 10px),
-    radial-gradient(ellipse at 52% 12%, rgba(255, 255, 255, 0.42) 0 2px, transparent 8px),
-    linear-gradient(112deg, transparent 34%, rgba(255, 255, 255, 0.055) 48%, rgba(255, 247, 214, 0.12) 50%, rgba(235, 207, 142, 0.03) 55%, transparent 68%);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 100%;
-  transform: translateX(-58%) rotate(8deg);
-  animation: liquid-glass-sheen 9s ease-in-out infinite, liquid-drop-drift 7s ease-in-out infinite;
+    radial-gradient(ellipse 3px 6px at 12% -14%, rgba(255, 255, 255, 0.62) 0 32%, rgba(255, 255, 255, 0.12) 58%, transparent 72%),
+    radial-gradient(ellipse 2px 5px at 34% -25%, rgba(255, 239, 181, 0.52) 0 34%, rgba(255, 239, 181, 0.1) 60%, transparent 74%),
+    radial-gradient(ellipse 3px 7px at 63% -8%, rgba(255, 255, 255, 0.48) 0 30%, rgba(255, 255, 255, 0.1) 58%, transparent 73%),
+    radial-gradient(ellipse 2px 5px at 86% -20%, rgba(255, 222, 138, 0.5) 0 34%, rgba(255, 222, 138, 0.09) 60%, transparent 74%),
+    linear-gradient(112deg, transparent 35%, rgba(255, 255, 255, 0.035) 48%, rgba(255, 247, 214, 0.08) 50%, transparent 62%);
+  background-size: 100% 190%, 100% 170%, 100% 210%, 100% 180%, 180% 100%;
+  background-position: 0 -24%, 0 -34%, 0 -48%, 0 -18%, -58% 0;
+  animation: liquid-drop-fall 8.5s linear infinite, liquid-glass-sheen 10s ease-in-out infinite;
 }
 
 .liquid-ui::after,
@@ -314,10 +313,10 @@ body {
   50% { transform: scale(1.3); opacity: 0.48; }
 }
 
-@keyframes liquid-drop-drift {
-  0%, 100% { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, -58% 0; }
-  35% { background-position: 3% 5%, -4% -7%, 4% 3%, -3% 8%, 2% -5%, 0 0; }
-  70% { background-position: -4% -4%, 5% 4%, -3% -5%, 4% -3%, -3% 4%, 58% 0; }
+@keyframes liquid-drop-fall {
+  0% { background-position: 0 -24%, 0 -34%, 0 -48%, 0 -18%, -58% 0; }
+  50% { background-position: 1% 42%, -1% 34%, 2% 48%, -2% 38%, 0 0; }
+  100% { background-position: -1% 118%, 2% 112%, -2% 124%, 1% 116%, 58% 0; }
 }
 
 @keyframes liquid-drop-ripple {
@@ -366,51 +365,49 @@ body {
 
 .empty-state-liquid__water-drop {
   position: absolute;
-  z-index: 3;
-  width: 68px;
-  height: 84px;
-  border: 1px solid rgba(255, 231, 174, 0.42);
-  border-radius: 64% 36% 58% 42% / 38% 58% 42% 62%;
+  z-index: 1;
+  width: 7px;
+  height: 12px;
+  border: 1px solid rgba(255, 231, 174, 0.56);
+  border-radius: 55% 45% 62% 38% / 42% 52% 48% 58%;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 29% 21%, rgba(255,255,255,0.76) 0 4px, rgba(255,255,255,0.2) 7px, transparent 16px),
-    radial-gradient(ellipse at 70% 74%, rgba(224,161,44,0.2), transparent 60%),
-    linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,218,132,0.035) 56%, rgba(0,0,0,0.1));
+    radial-gradient(ellipse at 30% 22%, rgba(255,255,255,0.8) 0 1.2px, rgba(255,255,255,0.18) 2px, transparent 3.8px),
+    linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,211,120,0.08) 58%, rgba(0,0,0,0.12));
   box-shadow:
-    inset -10px -12px 18px rgba(154, 94, 12, 0.16),
-    inset 7px 7px 14px rgba(255,255,255,0.12),
-    0 0 18px rgba(255,205,96,0.16);
-  filter: saturate(110%);
-  animation: water-drop-float 8s ease-in-out infinite;
+    inset -1px -2px 3px rgba(154, 94, 12, 0.22),
+    inset 1px 1px 2px rgba(255,255,255,0.22),
+    0 0 5px rgba(255,205,96,0.2);
+  opacity: 0.72;
+  animation: empty-card-drop-fall 5.2s linear infinite;
 }
 
 .empty-state-liquid__water-drop::before {
   content: "";
   position: absolute;
-  inset: -9px;
-  border: 1px solid rgba(255, 222, 142, 0.17);
-  border-radius: 50%;
-  opacity: 0;
-  animation: water-drop-ripple 7s ease-out infinite;
+  left: 50%;
+  top: 100%;
+  width: 1px;
+  height: 9px;
+  background: linear-gradient(to bottom, rgba(255,226,151,0.34), transparent);
+  opacity: 0.36;
 }
 
 .empty-state-liquid__water-drop::after {
   content: "";
   position: absolute;
-  left: 18%;
-  top: 14%;
-  width: 10px;
-  height: 6px;
+  left: 1px;
+  top: 1px;
+  width: 2px;
+  height: 2px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.68);
-  filter: blur(0.4px);
-  transform: rotate(-18deg);
+  background: rgba(255,255,255,0.76);
 }
 
-.empty-state-liquid__water-drop--a { top: 14%; left: 8%; animation-delay: -1.2s; }
-.empty-state-liquid__water-drop--b { top: 18%; right: 9%; width: 52px; height: 66px; animation-delay: -4.4s; }
-.empty-state-liquid__water-drop--c { bottom: 14%; left: 17%; width: 46px; height: 58px; animation-delay: -2.6s; }
-.empty-state-liquid__water-drop--d { right: 15%; bottom: 17%; width: 76px; height: 92px; animation-delay: -5.8s; }
+.empty-state-liquid__water-drop--a { top: -12%; left: 18%; animation-delay: -0.7s; }
+.empty-state-liquid__water-drop--b { top: -20%; left: 43%; width: 5px; height: 9px; animation-delay: -2.5s; }
+.empty-state-liquid__water-drop--c { top: -8%; right: 26%; width: 6px; height: 10px; animation-delay: -3.8s; }
+.empty-state-liquid__water-drop--d { top: -16%; right: 12%; width: 8px; height: 13px; animation-delay: -4.4s; }
 
 .empty-state-liquid > .empty-state-liquid__water-film,
 .empty-state-liquid > .empty-state-liquid__water-drop {
@@ -428,16 +425,12 @@ body {
   78%, 100% { background-position: -125% 0, 0 0, 0 0; opacity: 0.38; }
 }
 
-@keyframes water-drop-float {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(0.96) rotate(-4deg); opacity: 0.52; }
-  35% { transform: translate3d(5px, 7px, 0) scale(1.04) rotate(4deg); opacity: 0.9; }
-  68% { transform: translate3d(-4px, 2px, 0) scale(0.99) rotate(-2deg); opacity: 0.68; }
-}
-
-@keyframes water-drop-ripple {
-  0%, 58% { transform: scale(0.42); opacity: 0; }
-  70% { transform: scale(0.86); opacity: 0.46; }
-  100% { transform: scale(1.5); opacity: 0; }
+@keyframes empty-card-drop-fall {
+  0% { transform: translate3d(0, -12px, 0) rotate(-8deg) scale(0.82); opacity: 0; }
+  12% { opacity: 0.74; }
+  48% { transform: translate3d(7px, 48%, 0) rotate(8deg) scale(1); opacity: 0.62; }
+  78% { transform: translate3d(-5px, 82%, 0) rotate(-5deg) scale(0.92); opacity: 0.36; }
+  100% { transform: translate3d(3px, 116%, 0) rotate(6deg) scale(0.7); opacity: 0; }
 }
 
 /* Keep text and icons crisp above the animated droplet film. */
@@ -445,6 +438,19 @@ body {
 .liquid-panel > * {
   position: relative;
   z-index: 2;
+}
+
+/* Falling drops are decoration only: keep them below every product, label, icon, and button. */
+.empty-state-liquid > .empty-state-liquid__water-film,
+.empty-state-liquid > .empty-state-liquid__water-drop {
+  position: absolute;
+  z-index: 1 !important;
+  pointer-events: none;
+}
+
+.empty-state-liquid > p {
+  position: relative;
+  z-index: 5 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
