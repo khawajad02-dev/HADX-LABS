@@ -52,14 +52,8 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
         <div className="flex items-center justify-center">
           <div
             key={active.id}
-            className="relative w-72 h-80 md:w-96 md:h-[28rem] rounded-2xl p-3 flex items-center justify-center transition-all duration-700 ease-out hover:scale-[1.02]"
-            style={{
-              background: "rgba(255, 255, 255, 0.03)",
-              backdropFilter: "blur(16px)",
-              WebkitBackdropFilter: "blur(16px)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              boxShadow: "0 20px 50px rgba(0, 0, 0, 0.5)",
-            }}
+            data-liquid-surface
+            className="liquid-panel relative w-72 h-80 md:w-96 md:h-[28rem] rounded-2xl p-3 flex items-center justify-center transition-all duration-700 ease-out hover:scale-[1.02]"
           >
             {active.imageUrl ? (
               <img

@@ -52,7 +52,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
     <main className="relative min-h-screen bg-transparent text-zinc-100 pt-32 pb-24 px-6">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
         {/* Product Image */}
-        <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-900 border border-white/10">
+        <div data-liquid-surface className="liquid-panel relative aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-900/45">
           {product.imageUrl ? (
             <img
               src={product.imageUrl}
@@ -67,7 +67,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         </div>
 
         {/* Product Details */}
-        <div className="flex flex-col">
+        <div data-liquid-surface className="liquid-panel flex flex-col p-6 rounded-2xl">
           <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-zinc-500 mb-2">
             {product.category || "Collection"} {"//"} {product.sku}
           </span>
@@ -89,7 +89,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
           {/* Specs / Price section end */}
           <div className="border-t border-white/10 pt-8 mt-auto">
             {/* Task 1: Custom Design CTA Box */}
-            <div className="p-6 rounded-2xl bg-zinc-900/50 border border-white/5 backdrop-blur-md">
+            <div className="liquid-panel p-6 rounded-2xl">
               <h3 className="text-sm font-mono tracking-wider uppercase text-zinc-300 mb-2">
                 Custom Commissions
               </h3>

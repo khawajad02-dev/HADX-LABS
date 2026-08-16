@@ -276,6 +276,16 @@ export default function HadxAmbientEngine() {
     const addBolt = (bolt: StormBolt) => {
       bolts.push(bolt);
       if (bolts.length > 5) bolts.splice(0, bolts.length - 5);
+      window.dispatchEvent(new CustomEvent("hadx:lightning", {
+        detail: {
+          startX: bolt.start.x,
+          startY: bolt.start.y,
+          endX: bolt.end.x,
+          endY: bolt.end.y,
+          intensity: bolt.intensity,
+          radius: bolt.cloudRadius,
+        },
+      }));
     };
 
     const spawnScrollLightning = (energy: number, direction: 1 | -1, now: number) => {

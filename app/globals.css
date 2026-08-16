@@ -206,67 +206,80 @@ body {
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  --liquid-pointer-x: 50%;
+  --liquid-pointer-y: 50%;
+  --liquid-ripple-x: 50%;
+  --liquid-ripple-y: 50%;
+  --liquid-lightning-intensity: 0;
+  --liquid-spring-y: var(--liquid-global-spring-y, 0px);
   border: 1px solid rgba(235, 212, 158, 0.38);
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012) 46%, rgba(255, 213, 133, 0.016)),
     radial-gradient(ellipse at 18% 0%, rgba(255, 255, 255, 0.055), transparent 44%);
   -webkit-backdrop-filter: blur(8px) saturate(118%);
-  backdrop-filter: blur(8px) saturate(118%);
+  backdrop-filter: url("#hadx-liquid-refraction") blur(8px) saturate(118%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     inset 0 -1px 0 rgba(0, 0, 0, 0.14),
     0 12px 30px rgba(0, 0, 0, 0.14),
     0 0 16px rgba(225, 190, 111, 0.035);
+  translate: 0 var(--liquid-spring-y);
+  will-change: translate, border-color, box-shadow;
 }
 
 .liquid-ui {
   transition:
     transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    translate 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    scale 180ms cubic-bezier(0.22, 1, 0.36, 1),
     border-color 220ms ease,
     box-shadow 220ms ease,
     background-color 220ms ease;
 }
 
 .liquid-ui::before,
-.liquid-panel::before {
+.liquid-panel::before,
+[data-liquid-surface]::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.62;
+  opacity: 0.2;
   background:
-    radial-gradient(ellipse 3px 6px at 12% -14%, rgba(255, 255, 255, 0.62) 0 32%, rgba(255, 255, 255, 0.12) 58%, transparent 72%),
-    radial-gradient(ellipse 2px 5px at 34% -25%, rgba(255, 239, 181, 0.52) 0 34%, rgba(255, 239, 181, 0.1) 60%, transparent 74%),
-    radial-gradient(ellipse 3px 7px at 63% -8%, rgba(255, 255, 255, 0.48) 0 30%, rgba(255, 255, 255, 0.1) 58%, transparent 73%),
-    radial-gradient(ellipse 2px 5px at 86% -20%, rgba(255, 222, 138, 0.5) 0 34%, rgba(255, 222, 138, 0.09) 60%, transparent 74%),
-    linear-gradient(112deg, transparent 35%, rgba(255, 255, 255, 0.035) 48%, rgba(255, 247, 214, 0.08) 50%, transparent 62%);
-  background-size: 100% 190%, 100% 170%, 100% 210%, 100% 180%, 180% 100%;
-  background-position: 0 -24%, 0 -34%, 0 -48%, 0 -18%, -58% 0;
-  animation: liquid-drop-fall 8.5s linear infinite, liquid-glass-sheen 10s ease-in-out infinite;
+    radial-gradient(ellipse 5px 8px at var(--liquid-pointer-x) var(--liquid-pointer-y), rgba(255, 255, 255, 0.42) 0 18%, rgba(255, 224, 148, 0.16) 42%, transparent 74%),
+    linear-gradient(112deg, transparent 35%, rgba(255, 255, 255, 0.035) 48%, rgba(255, 247, 214, 0.1) 50%, transparent 62%);
+  background-size: 100% 100%, 180% 100%;
+  background-position: 0 0, -58% 0;
+  filter: url("#hadx-liquid-refraction");
+  animation: liquid-glass-sheen 10s ease-in-out infinite;
+  mix-blend-mode: screen;
 }
 
 .liquid-ui::after,
-.liquid-panel::after {
+.liquid-panel::after,
+[data-liquid-surface]::after {
   content: "";
   position: absolute;
-  width: 46%;
-  aspect-ratio: 1;
-  top: 8%;
-  right: -18%;
+  left: var(--liquid-pointer-x);
+  top: var(--liquid-pointer-y);
+  width: 48px;
+  height: 48px;
   z-index: 1;
   pointer-events: none;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 244, 207, 0.38);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 244, 207, 0.22);
   background:
-    radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.72) 0 2px, transparent 5px),
-    radial-gradient(circle, rgba(255, 244, 207, 0.14) 0 4%, rgba(255, 218, 137, 0.05) 24%, transparent 64%);
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.62) 0 2px, transparent 7px),
+    radial-gradient(circle at 50% 50%, rgba(255, 244, 207, 0.08) 0 18%, transparent 62%);
+  opacity: 0.16;
+  translate: -50% -50%;
   filter: blur(0.2px);
-  animation: liquid-glass-breathe 6.5s ease-in-out infinite, liquid-drop-ripple 4.8s ease-in-out infinite;
+  animation: liquid-drop-ripple 4.8s ease-in-out infinite;
 }
 
 .liquid-ui:hover {
-  transform: translateY(-1px);
+  translate: 0 calc(var(--liquid-spring-y) - 1px);
   border-color: rgba(255, 231, 175, 0.68);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.24),
@@ -274,8 +287,10 @@ body {
     0 0 26px rgba(226, 196, 126, 0.14);
 }
 
-.liquid-ui:active {
-  transform: translateY(1px) scale(0.985);
+.liquid-ui:active,
+.liquid-ui[data-liquid-active="true"] {
+  translate: 0 calc(var(--liquid-spring-y) + 1px);
+  scale: 0.985;
   border-color: rgba(255, 238, 194, 0.92);
   background:
     radial-gradient(circle at 50% 50%, rgba(255, 235, 173, 0.17), transparent 48%),
@@ -283,12 +298,51 @@ body {
   transition-duration: 90ms;
 }
 
-.liquid-ui:active::before {
+.liquid-ui:active::before,
+.liquid-ui[data-liquid-active="true"]::before,
+[data-liquid-surface][data-liquid-active="true"]::before {
   animation: liquid-touch-sheen 720ms ease-out;
 }
 
-.liquid-ui:active::after {
+.liquid-ui:active::after,
+.liquid-ui[data-liquid-active="true"]::after,
+[data-liquid-surface][data-liquid-active="true"]::after,
+[data-liquid-ripple]::after {
+  left: var(--liquid-ripple-x);
+  top: var(--liquid-ripple-y);
   animation: liquid-touch-ripple 720ms ease-out;
+  opacity: 0.82;
+}
+
+.liquid-ui[data-liquid-near-light="true"],
+.liquid-ui[data-liquid-active="true"],
+.liquid-panel[data-liquid-near-light="true"],
+.liquid-panel[data-liquid-active="true"],
+[data-liquid-surface][data-liquid-near-light="true"],
+[data-liquid-surface][data-liquid-active="true"] {
+  border-color: rgba(255, 231, 175, 0.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 22px rgba(255, 198, 76, 0.2),
+    0 12px 36px rgba(0, 0, 0, 0.22);
+}
+
+.liquid-ui[data-liquid-lightning="true"],
+.liquid-panel[data-liquid-lightning="true"],
+[data-liquid-surface][data-liquid-lightning="true"] {
+  border-color: rgba(255, 235, 174, 0.94);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 0 22px rgba(255, 213, 108, 0.3),
+    0 0 48px rgba(209, 143, 34, 0.16),
+    0 12px 36px rgba(0, 0, 0, 0.22);
+}
+
+.liquid-ui[data-liquid-lightning="true"]::before,
+.liquid-panel[data-liquid-lightning="true"]::before,
+[data-liquid-surface][data-liquid-lightning="true"]::before {
+  opacity: calc(0.22 + var(--liquid-lightning-intensity) * 0.46);
+  animation: liquid-lightning-flash 560ms ease-out;
 }
 
 .liquid-ui:focus-visible {
@@ -300,6 +354,12 @@ body {
   0%, 22% { transform: translateX(-58%) rotate(8deg); opacity: 0; }
   42% { opacity: 0.7; }
   68%, 100% { transform: translateX(58%) rotate(8deg); opacity: 0; }
+}
+
+@keyframes liquid-lightning-flash {
+  0% { opacity: 0.16; filter: brightness(1) url("#hadx-liquid-refraction"); }
+  22% { opacity: 0.95; filter: brightness(1.42) url("#hadx-liquid-refraction"); }
+  100% { opacity: 0.22; filter: brightness(1) url("#hadx-liquid-refraction"); }
 }
 
 @keyframes liquid-touch-sheen {
@@ -435,7 +495,8 @@ body {
 
 /* Keep text and icons crisp above the animated droplet film. */
 .liquid-ui > *,
-.liquid-panel > * {
+.liquid-panel > *,
+[data-liquid-surface] > * {
   position: relative;
   z-index: 2;
 }
@@ -451,6 +512,25 @@ body {
 .empty-state-liquid > p {
   position: relative;
   z-index: 5 !important;
+}
+
+/* Global physics surface: the lens is visible only when a pointer or touch is nearby. */
+[data-liquid-surface]::after {
+  opacity: 0;
+}
+
+[data-liquid-surface][data-liquid-near-light="true"]::after,
+[data-liquid-surface][data-liquid-active="true"]::after {
+  opacity: 0.72;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-ui,
+  .liquid-panel,
+  [data-liquid-surface] {
+    translate: none;
+    will-change: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

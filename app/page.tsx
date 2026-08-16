@@ -29,7 +29,7 @@ export default async function HomePage() {
 
       <div className="relative z-10">
       {/* Floating Glass Navigation Header */}
-      <nav className="fixed top-0 w-full z-50 backdrop-blur-xl bg-black/60 border-b border-white/10 px-6 md:px-12 py-4 flex justify-between items-center">
+      <nav className="liquid-panel fixed top-0 w-full z-50 border-b border-white/10 px-6 md:px-12 py-4 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
           <h1 className="text-sm font-extrabold tracking-[0.35em] text-white uppercase">
@@ -38,7 +38,7 @@ export default async function HomePage() {
         </div>
         
         <div className="flex items-center gap-8 text-[11px] font-mono tracking-[0.2em] text-zinc-400 uppercase">
-          <Link href="/catalog" className="hover:text-white transition-colors duration-300">COLLECTION</Link>
+          <Link href="/catalog" className="liquid-ui rounded-full px-4 py-2 hover:text-white transition-colors duration-300">COLLECTION</Link>
           
         </div>
       </nav>
@@ -64,13 +64,13 @@ export default async function HomePage() {
       <CatalogGrid products={products} />
 
       {/* Minimalist Professional Footer */}
-      <footer className="relative z-10 border-t border-white/10 bg-black/40 backdrop-blur-md py-12 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] font-mono tracking-[0.25em] text-zinc-500 uppercase">
+      <footer className="liquid-panel relative z-10 border-t border-white/10 py-12 px-6 md:px-12 flex flex-col md:flex-row items-center justify-between gap-6 text-[10px] font-mono tracking-[0.25em] text-zinc-500 uppercase">
         <div className="flex items-center gap-3">
           <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" />
           <span>© 2026 HADX LABS // ALL RIGHTS RESERVED</span>
         </div>
         <div className="flex items-center gap-8">
-          <Link href="/catalog" className="hover:text-amber-400 transition-colors">ARCHIVES</Link>
+          <Link href="/catalog" className="liquid-ui rounded-full px-4 py-2 hover:text-amber-400 transition-colors">ARCHIVES</Link>
           <span className="text-zinc-700">/</span>
           <span className="text-zinc-400">SECURE ENCRYPTION ACTIVE</span>
         </div>

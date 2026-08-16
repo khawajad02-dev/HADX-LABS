@@ -34,7 +34,7 @@ export default function CyberOrb() {
   };
 
   return (
-    <div ref={orbRef} className="fixed bottom-[0.75%] right-3 z-[9999] flex translate-y-5 flex-col items-end gap-2 sm:bottom-[1%] sm:right-5 sm:translate-y-6">
+    <div ref={orbRef} className="fixed bottom-[1%] right-4 z-[9999] flex translate-y-8 flex-col items-end gap-2 sm:bottom-[2%] sm:right-6 sm:translate-y-9">
       {/* The actions remain in the same vertical floating panel; only the surface language is shared. */}
       <AnimatePresence>
         {isOpen && (
@@ -55,6 +55,8 @@ export default function CyberOrb() {
 
       {/* Original circular HUD footprint: a compact core surrounded by visible orbital rings. */}
       <div className="relative flex h-16 w-16 items-center justify-center sm:h-20 sm:w-20">
+        <span className="pointer-events-none absolute -inset-2 rounded-full border border-cyan-200/10 shadow-[0_0_24px_rgba(34,211,238,0.12)] animate-[orb-neon-breathe_4.4s_ease-in-out_infinite]" />
+        <span className="pointer-events-none absolute -inset-4 rounded-full border border-amber-200/10" />
         <span className="pointer-events-none absolute inset-3 rounded-full border border-amber-200/20 shadow-[0_0_22px_rgba(218,173,76,0.12)]" />
         <span className="pointer-events-none absolute inset-1 rounded-full border border-amber-300/25" />
         <span className="pointer-events-none absolute -inset-1 rounded-full border border-dashed border-amber-300/30 animate-[orb-spin-reverse_22s_linear_infinite]" />
@@ -168,11 +170,16 @@ export default function CyberOrb() {
           72% { transform: scale(1.04); opacity: 0.52; }
           84% { transform: scale(1.12); opacity: 0; }
         }
+        @keyframes orb-neon-breathe {
+          0%, 100% { opacity: 0.42; transform: scale(0.98); }
+          50% { opacity: 0.9; transform: scale(1.04); }
+        }
         @media (prefers-reduced-motion: reduce) {
           .animate-\\[orb-spin_26s_linear_infinite\\],
           .animate-\\[orb-spin-reverse_22s_linear_infinite\\],
           .animate-\\[scanline_3s_linear_infinite\\],
-          .animate-\\[orb-ripple_2.8s_ease-out_infinite\\] {
+          .animate-\\[orb-ripple_2.8s_ease-out_infinite\\],
+          .animate-\\[orb-neon-breathe_4.4s_ease-in-out_infinite\\] {
             animation: none !important;
           }
         }

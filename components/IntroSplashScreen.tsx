@@ -99,15 +99,8 @@ export default function IntroSplashScreen() {
             >
               <button
                 onClick={handleDismiss}
-                className="
-                  group relative overflow-hidden rounded-xl px-6 py-3
-                  backdrop-blur-md bg-black/75
-                  border border-amber-500/50
-                  shadow-[0_4px_25px_rgba(0,0,0,0.8)]
-                  transition-all duration-300 ease-out
-                  hover:border-amber-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] cursor-pointer
-                  active:scale-[0.95]
-                "
+                data-liquid-surface
+                className="liquid-ui group relative overflow-hidden rounded-xl px-6 py-3 cursor-pointer"
               >
                 <span className="relative flex items-center justify-center gap-2 text-xs font-bold tracking-[0.25em] uppercase text-amber-200 group-hover:text-amber-100">
                   [&nbsp;

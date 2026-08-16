@@ -90,16 +90,8 @@ export default function NetworkErrorOverlay() {
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[10005]">
             <button 
               onClick={() => window.location.reload()}
-              className="
-                group relative overflow-hidden rounded-xl px-8 py-3.5
-                backdrop-blur-md bg-black/60
-                border border-amber-500/40
-                shadow-[0_4px_25px_rgba(0,0,0,0.8)]
-                transition-all duration-300 ease-out
-                hover:border-amber-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] cursor-pointer
-                active:scale-[0.95] pointer-events-auto
-                min-w-[220px]
-              "
+              data-liquid-surface
+              className="liquid-ui group relative overflow-hidden rounded-xl px-8 py-3.5 cursor-pointer pointer-events-auto min-w-[220px]"
             >
               <span className="relative flex items-center justify-center gap-2 text-xs font-bold tracking-[0.3em] uppercase text-amber-200 group-hover:text-amber-100">
                 [&nbsp;
