@@ -206,17 +206,17 @@ body {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid rgba(235, 212, 158, 0.28);
+  border: 1px solid rgba(235, 212, 158, 0.38);
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.032) 46%, rgba(255, 213, 133, 0.026)),
-    radial-gradient(ellipse at 18% 0%, rgba(255, 255, 255, 0.09), transparent 44%);
-  -webkit-backdrop-filter: blur(20px) saturate(128%);
-  backdrop-filter: blur(20px) saturate(128%);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012) 46%, rgba(255, 213, 133, 0.016)),
+    radial-gradient(ellipse at 18% 0%, rgba(255, 255, 255, 0.055), transparent 44%);
+  -webkit-backdrop-filter: blur(8px) saturate(118%);
+  backdrop-filter: blur(8px) saturate(118%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
-    0 12px 36px rgba(0, 0, 0, 0.17),
-    0 0 20px rgba(225, 190, 111, 0.055);
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.14),
+    0 12px 30px rgba(0, 0, 0, 0.14),
+    0 0 16px rgba(225, 190, 111, 0.035);
 }
 
 .liquid-ui {
@@ -231,33 +231,35 @@ body {
 .liquid-panel::before {
   content: "";
   position: absolute;
-  inset: -70% -30%;
-  z-index: -1;
+  inset: 0;
+  z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 22% 28%, rgba(255, 255, 255, 0.16) 0 1px, transparent 2px),
-    radial-gradient(ellipse at 74% 62%, rgba(255, 235, 177, 0.1) 0 2px, transparent 4px),
-    linear-gradient(112deg, transparent 34%, rgba(255, 255, 255, 0.1) 47%, rgba(255, 247, 214, 0.18) 50%, rgba(235, 207, 142, 0.055) 55%, transparent 68%);
-  background-size: 100% 100%, 100% 100%, 180% 100%;
+    radial-gradient(circle at 12% 24%, rgba(255, 255, 255, 0.38) 0 1px, rgba(255, 255, 255, 0.12) 2px, transparent 5px),
+    radial-gradient(circle at 36% 74%, rgba(255, 241, 190, 0.3) 0 1.5px, rgba(255, 241, 190, 0.08) 3px, transparent 7px),
+    radial-gradient(circle at 70% 35%, rgba(255, 255, 255, 0.3) 0 1px, rgba(255, 255, 255, 0.08) 3px, transparent 6px),
+    radial-gradient(circle at 88% 78%, rgba(255, 225, 151, 0.25) 0 1px, transparent 5px),
+    linear-gradient(112deg, transparent 34%, rgba(255, 255, 255, 0.065) 48%, rgba(255, 247, 214, 0.13) 50%, rgba(235, 207, 142, 0.035) 55%, transparent 68%);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 100%;
   transform: translateX(-58%) rotate(8deg);
-  animation: liquid-glass-sheen 9s ease-in-out infinite;
+  animation: liquid-glass-sheen 9s ease-in-out infinite, liquid-drop-drift 7s ease-in-out infinite;
 }
 
 .liquid-ui::after,
 .liquid-panel::after {
   content: "";
   position: absolute;
-  width: 38%;
+  width: 46%;
   aspect-ratio: 1;
-  top: -46%;
-  right: -10%;
-  z-index: -1;
+  top: 8%;
+  right: -18%;
+  z-index: 0;
   pointer-events: none;
   border-radius: 999px;
-  border: 1px solid rgba(255, 244, 207, 0.13);
-  background: radial-gradient(circle, rgba(255, 244, 207, 0.17) 0%, rgba(255, 218, 137, 0.045) 34%, transparent 69%);
-  filter: blur(4px);
-  animation: liquid-glass-breathe 6.5s ease-in-out infinite;
+  border: 1px solid rgba(255, 244, 207, 0.22);
+  background: radial-gradient(circle, rgba(255, 244, 207, 0.12) 0 3%, rgba(255, 218, 137, 0.035) 25%, transparent 62%);
+  filter: blur(0.6px);
+  animation: liquid-glass-breathe 6.5s ease-in-out infinite, liquid-drop-ripple 4.8s ease-in-out infinite;
 }
 
 .liquid-ui:hover {
@@ -306,6 +308,17 @@ body {
 @keyframes liquid-glass-breathe {
   0%, 100% { transform: scale(0.78); opacity: 0.2; }
   50% { transform: scale(1.3); opacity: 0.48; }
+}
+
+@keyframes liquid-drop-drift {
+  0%, 100% { background-position: 0 0, 0 0, 0 0, 0 0, -58% 0; }
+  50% { background-position: 3% -4%, -4% 5%, 4% 3%, -3% -3%, 58% 0; }
+}
+
+@keyframes liquid-drop-ripple {
+  0%, 100% { transform: scale(0.78); opacity: 0.2; }
+  42% { transform: scale(1); opacity: 0.44; }
+  68% { transform: scale(1.16); opacity: 0.08; }
 }
 
 @keyframes liquid-touch-ripple {
