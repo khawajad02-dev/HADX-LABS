@@ -232,15 +232,17 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
+  opacity: 0.96;
   background:
-    radial-gradient(circle at 12% 24%, rgba(255, 255, 255, 0.38) 0 1px, rgba(255, 255, 255, 0.12) 2px, transparent 5px),
-    radial-gradient(circle at 36% 74%, rgba(255, 241, 190, 0.3) 0 1.5px, rgba(255, 241, 190, 0.08) 3px, transparent 7px),
-    radial-gradient(circle at 70% 35%, rgba(255, 255, 255, 0.3) 0 1px, rgba(255, 255, 255, 0.08) 3px, transparent 6px),
-    radial-gradient(circle at 88% 78%, rgba(255, 225, 151, 0.25) 0 1px, transparent 5px),
-    linear-gradient(112deg, transparent 34%, rgba(255, 255, 255, 0.065) 48%, rgba(255, 247, 214, 0.13) 50%, rgba(235, 207, 142, 0.035) 55%, transparent 68%);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 100%;
+    radial-gradient(ellipse at 12% 24%, rgba(255, 255, 255, 0.72) 0 2px, rgba(255, 255, 255, 0.22) 3px, transparent 8px),
+    radial-gradient(ellipse at 36% 74%, rgba(255, 241, 190, 0.62) 0 3px, rgba(255, 241, 190, 0.16) 5px, transparent 12px),
+    radial-gradient(ellipse at 70% 35%, rgba(255, 255, 255, 0.64) 0 2px, rgba(255, 255, 255, 0.17) 4px, transparent 10px),
+    radial-gradient(ellipse at 88% 78%, rgba(255, 225, 151, 0.58) 0 2px, rgba(255, 225, 151, 0.12) 4px, transparent 10px),
+    radial-gradient(ellipse at 52% 12%, rgba(255, 255, 255, 0.42) 0 2px, transparent 8px),
+    linear-gradient(112deg, transparent 34%, rgba(255, 255, 255, 0.055) 48%, rgba(255, 247, 214, 0.12) 50%, rgba(235, 207, 142, 0.03) 55%, transparent 68%);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 180% 100%;
   transform: translateX(-58%) rotate(8deg);
   animation: liquid-glass-sheen 9s ease-in-out infinite, liquid-drop-drift 7s ease-in-out infinite;
 }
@@ -253,12 +255,14 @@ body {
   aspect-ratio: 1;
   top: 8%;
   right: -18%;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
   border-radius: 999px;
-  border: 1px solid rgba(255, 244, 207, 0.22);
-  background: radial-gradient(circle, rgba(255, 244, 207, 0.12) 0 3%, rgba(255, 218, 137, 0.035) 25%, transparent 62%);
-  filter: blur(0.6px);
+  border: 1px solid rgba(255, 244, 207, 0.38);
+  background:
+    radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.72) 0 2px, transparent 5px),
+    radial-gradient(circle, rgba(255, 244, 207, 0.14) 0 4%, rgba(255, 218, 137, 0.05) 24%, transparent 64%);
+  filter: blur(0.2px);
   animation: liquid-glass-breathe 6.5s ease-in-out infinite, liquid-drop-ripple 4.8s ease-in-out infinite;
 }
 
@@ -311,8 +315,9 @@ body {
 }
 
 @keyframes liquid-drop-drift {
-  0%, 100% { background-position: 0 0, 0 0, 0 0, 0 0, -58% 0; }
-  50% { background-position: 3% -4%, -4% 5%, 4% 3%, -3% -3%, 58% 0; }
+  0%, 100% { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, -58% 0; }
+  35% { background-position: 3% 5%, -4% -7%, 4% 3%, -3% 8%, 2% -5%, 0 0; }
+  70% { background-position: -4% -4%, 5% 4%, -3% -5%, 4% -3%, -3% 4%, 58% 0; }
 }
 
 @keyframes liquid-drop-ripple {
@@ -324,6 +329,13 @@ body {
 @keyframes liquid-touch-ripple {
   0% { transform: scale(0.55); opacity: 0.8; }
   100% { transform: scale(2.7); opacity: 0; }
+}
+
+/* Keep text and icons crisp above the animated droplet film. */
+.liquid-ui > *,
+.liquid-panel > * {
+  position: relative;
+  z-index: 2;
 }
 
 @media (prefers-reduced-motion: reduce) {
