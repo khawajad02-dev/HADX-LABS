@@ -34,7 +34,7 @@ export default function CyberOrb() {
   };
 
   return (
-    <div ref={orbRef} className="fixed bottom-[3%] right-4 z-[9999] flex flex-col items-end gap-3 sm:bottom-[4%] sm:right-6">
+    <div ref={orbRef} className="fixed bottom-[1.5%] right-3 z-[9999] flex flex-col items-end gap-2 sm:bottom-[2%] sm:right-5">
       {/* The actions remain in the same vertical floating panel; only the surface language is shared. */}
       <AnimatePresence>
         {isOpen && (
@@ -54,7 +54,7 @@ export default function CyberOrb() {
       </AnimatePresence>
 
       {/* Original circular HUD footprint: a compact core surrounded by visible orbital rings. */}
-      <div className="relative flex h-24 w-24 items-center justify-center sm:h-28 sm:w-28">
+      <div className="relative flex h-16 w-16 items-center justify-center sm:h-20 sm:w-20">
         <span className="pointer-events-none absolute inset-3 rounded-full border border-amber-200/20 shadow-[0_0_22px_rgba(218,173,76,0.12)]" />
         <span className="pointer-events-none absolute inset-1 rounded-full border border-amber-300/25" />
         <span className="pointer-events-none absolute -inset-1 rounded-full border border-dashed border-amber-300/30 animate-[orb-spin-reverse_22s_linear_infinite]" />
@@ -75,7 +75,7 @@ export default function CyberOrb() {
           onPointerDown={handleOrbPointerDown}
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.94 }}
-          className={`liquid-ui relative isolate flex h-[4.35rem] w-[4.35rem] items-center justify-center rounded-full border shadow-2xl sm:h-20 sm:w-20 ${
+          className={`liquid-ui relative isolate flex h-12 w-12 items-center justify-center rounded-full border shadow-2xl sm:h-16 sm:w-16 ${
             isOpen
               ? "border-amber-200/75 shadow-[0_0_34px_rgba(217,158,51,0.42)]"
               : "border-amber-200/40 shadow-[0_0_26px_rgba(217,158,51,0.22)]"
@@ -87,13 +87,13 @@ export default function CyberOrb() {
           <span className="pointer-events-none absolute inset-3 rounded-full border border-amber-300/15" />
 
           {/* Crosshair core and orbital micro-dots from the original HUD treatment. */}
-          <span className="pointer-events-none absolute h-px w-12 bg-amber-200/25 sm:w-14" />
-          <span className="pointer-events-none absolute h-12 w-px bg-amber-200/25 sm:h-14" />
-          <span className="relative flex h-9 w-9 items-center justify-center rounded-full border border-amber-200/45 bg-transparent shadow-[inset_0_0_16px_rgba(217,158,51,0.26)] sm:h-11 sm:w-11">
+          <span className="pointer-events-none absolute h-px w-8 bg-amber-200/25 sm:w-10" />
+          <span className="pointer-events-none absolute h-8 w-px bg-amber-200/25 sm:h-10" />
+          <span className="relative flex h-7 w-7 items-center justify-center rounded-full border border-amber-200/45 bg-transparent shadow-[inset_0_0_12px_rgba(217,158,51,0.26)] sm:h-9 sm:w-9">
             <span className="pointer-events-none absolute inset-1 rounded-full border border-amber-300/25" />
             <span className="pointer-events-none absolute -right-1 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-amber-200 shadow-[0_0_8px_rgba(255,222,139,0.95)]" />
             <span className="pointer-events-none absolute -bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-amber-400/90" />
-            <span className={`h-2.5 w-2.5 rounded-full transition-all duration-300 ${isOpen ? "scale-125 bg-amber-200 shadow-[0_0_18px_rgba(255,222,139,1)]" : "bg-amber-100/80 shadow-[0_0_12px_rgba(255,222,139,0.7)]"}`} />
+            <span className={`h-2 w-2 rounded-full transition-all duration-300 ${isOpen ? "scale-125 bg-amber-200 shadow-[0_0_18px_rgba(255,222,139,1)]" : "bg-amber-100/80 shadow-[0_0_12px_rgba(255,222,139,0.7)]"}`} />
           </span>
 
           <AnimatePresence mode="sync">

@@ -109,16 +109,11 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
 
       {visibleProducts.length === 0 ? (
         <div className="liquid-panel empty-state-liquid max-w-7xl mx-auto border-dashed border-white/10 rounded-xl p-20 text-center">
-          <span aria-hidden="true" className="empty-state-liquid__drop empty-state-liquid__drop--tl" />
-          <span aria-hidden="true" className="empty-state-liquid__drop empty-state-liquid__drop--tr" />
-          <span aria-hidden="true" className="empty-state-liquid__drop empty-state-liquid__drop--bl" />
-          <span aria-hidden="true" className="empty-state-liquid__drop empty-state-liquid__drop--br" />
-          <span aria-hidden="true" className="empty-state-liquid__trace" />
-          <span aria-hidden="true" className="empty-state-liquid__bead empty-state-liquid__bead--a" />
-          <span aria-hidden="true" className="empty-state-liquid__bead empty-state-liquid__bead--b" />
-          <span aria-hidden="true" className="empty-state-liquid__bead empty-state-liquid__bead--c" />
-          <span aria-hidden="true" className="empty-state-liquid__bead empty-state-liquid__bead--d" />
-          <span aria-hidden="true" className="empty-state-liquid__bead empty-state-liquid__bead--e" />
+          <span aria-hidden="true" className="empty-state-liquid__water-film" />
+          <span aria-hidden="true" className="empty-state-liquid__water-drop empty-state-liquid__water-drop--a" />
+          <span aria-hidden="true" className="empty-state-liquid__water-drop empty-state-liquid__water-drop--b" />
+          <span aria-hidden="true" className="empty-state-liquid__water-drop empty-state-liquid__water-drop--c" />
+          <span aria-hidden="true" className="empty-state-liquid__water-drop empty-state-liquid__water-drop--d" />
           <p className="text-zinc-500 text-xs font-mono uppercase tracking-widest">
             No products in this category yet
           </p>
