@@ -44,7 +44,22 @@ export default function LiquidGlassPhysics() {
     let hoveredSurface: HTMLElement | null = null;
     let pendingPointer: { clientX: number; clientY: number } | null = null;
     let rippleId = 0;
+    let surfaceRefreshRaf = 0;
     const lightningTimers = new WeakMap<HTMLElement, number>();
+    const surfaceCache = new Set<HTMLElement>();
+
+    const refreshSurfaceCache = () => {
+      surfaceCache.clear();
+      document.querySelectorAll<HTMLElement>(SURFACE_SELECTOR).forEach((surface) => surfaceCache.add(surface));
+    };
+
+    const scheduleSurfaceCacheRefresh = () => {
+      if (surfaceRefreshRaf !== 0) return;
+      surfaceRefreshRaf = window.requestAnimationFrame(() => {
+        surfaceRefreshRaf = 0;
+        refreshSurfaceCache();
+      });
+    };
 
     const schedule = () => {
       if (raf === 0) raf = window.requestAnimationFrame(tick);
@@ -125,8 +140,8 @@ export default function LiquidGlassPhysics() {
       if (!detail) return;
 
       const reach = Math.max(116, detail.radius + 88);
-      const surfaces = Array.from(document.querySelectorAll<HTMLElement>(SURFACE_SELECTOR));
-      for (const surface of surfaces) {
+      for (const surface of Array.from(surfaceCache)) {
+        if (!surface.isConnected) continue;
         const rect = surface.getBoundingClientRect();
         if (rect.width <= 0 || rect.height <= 0) continue;
         const distance = distanceToSegment(
@@ -191,8 +206,14 @@ export default function LiquidGlassPhysics() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("hadx:lightning", handleLightning);
 
+    const surfaceObserver = new MutationObserver(scheduleSurfaceCacheRefresh);
+    surfaceObserver.observe(document.body, { childList: true, subtree: true });
+    refreshSurfaceCache();
+
     return () => {
       if (raf) window.cancelAnimationFrame(raf);
+      if (surfaceRefreshRaf) window.cancelAnimationFrame(surfaceRefreshRaf);
+      surfaceObserver.disconnect();
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);

@@ -202,7 +202,8 @@ body {
 
 /* HADX LABS Liquid Glass UI: clear water-like surfaces with refraction and tactile ripples. */
 .liquid-ui,
-.liquid-panel {
+.liquid-panel,
+[data-liquid-surface] {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -217,7 +218,7 @@ body {
     linear-gradient(135deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012) 46%, rgba(255, 213, 133, 0.016)),
     radial-gradient(ellipse at 18% 0%, rgba(255, 255, 255, 0.055), transparent 44%);
   -webkit-backdrop-filter: blur(8px) saturate(118%);
-  backdrop-filter: url("#hadx-liquid-refraction") blur(8px) saturate(118%);
+  backdrop-filter: blur(8px) saturate(118%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     inset 0 -1px 0 rgba(0, 0, 0, 0.14),
@@ -535,11 +536,24 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .liquid-ui,
+  .liquid-panel,
+  [data-liquid-surface],
   .liquid-ui::before,
   .liquid-panel::before,
+  [data-liquid-surface]::before,
   .liquid-ui::after,
-  .liquid-panel::after {
+  .liquid-panel::after,
+  [data-liquid-surface]::after {
     animation: none;
     transition: none;
+  }
+}
+
+@supports ((backdrop-filter: url("#hadx-liquid-refraction") blur(8px)) or (-webkit-backdrop-filter: url("#hadx-liquid-refraction") blur(8px))) {
+  .liquid-ui,
+  .liquid-panel,
+  [data-liquid-surface] {
+    -webkit-backdrop-filter: url("#hadx-liquid-refraction") blur(8px) saturate(118%);
+    backdrop-filter: url("#hadx-liquid-refraction") blur(8px) saturate(118%);
   }
 }
