@@ -34,7 +34,7 @@ export default function CyberOrb() {
   };
 
   return (
-    <div ref={orbRef} className="fixed bottom-2 right-4 z-[9999] translate-y-5 flex flex-col items-end gap-3 sm:bottom-3 sm:right-6 sm:translate-y-5">
+    <div ref={orbRef} className="fixed bottom-[11%] right-4 z-[9999] flex flex-col items-end gap-3 sm:bottom-[12%] sm:right-6">
       {/* The actions remain in the same vertical floating panel; only the surface language is shared. */}
       <AnimatePresence>
         {isOpen && (

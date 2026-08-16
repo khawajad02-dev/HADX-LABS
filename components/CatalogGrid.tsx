@@ -108,7 +108,12 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
       </div>
 
       {visibleProducts.length === 0 ? (
-        <div className="liquid-panel max-w-7xl mx-auto border-dashed border-white/10 rounded-xl p-20 text-center">
+        <div className="liquid-panel empty-state-liquid max-w-7xl mx-auto border-dashed border-white/10 rounded-xl p-20 text-center">
+          <span aria-hidden="true" className="empty-state-liquid__drop empty-state-liquid__drop--tl" />
+          <span aria-hidden="true" className="empty-state-liquid__drop empty-state-liquid__drop--tr" />
+          <span aria-hidden="true" className="empty-state-liquid__drop empty-state-liquid__drop--bl" />
+          <span aria-hidden="true" className="empty-state-liquid__drop empty-state-liquid__drop--br" />
+          <span aria-hidden="true" className="empty-state-liquid__trace" />
           <p className="text-zinc-500 text-xs font-mono uppercase tracking-widest">
             No products in this category yet
           </p>
