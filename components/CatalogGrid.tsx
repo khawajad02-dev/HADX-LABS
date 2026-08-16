@@ -114,6 +114,11 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
           <span aria-hidden="true" className="empty-state-liquid__drop empty-state-liquid__drop--bl" />
           <span aria-hidden="true" className="empty-state-liquid__drop empty-state-liquid__drop--br" />
           <span aria-hidden="true" className="empty-state-liquid__trace" />
+          <span aria-hidden="true" className="empty-state-liquid__bead empty-state-liquid__bead--a" />
+          <span aria-hidden="true" className="empty-state-liquid__bead empty-state-liquid__bead--b" />
+          <span aria-hidden="true" className="empty-state-liquid__bead empty-state-liquid__bead--c" />
+          <span aria-hidden="true" className="empty-state-liquid__bead empty-state-liquid__bead--d" />
+          <span aria-hidden="true" className="empty-state-liquid__bead empty-state-liquid__bead--e" />
           <p className="text-zinc-500 text-xs font-mono uppercase tracking-widest">
             No products in this category yet
           </p>
