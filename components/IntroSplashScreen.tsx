@@ -63,7 +63,7 @@ export default function IntroSplashScreen() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.6 }}
-          className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden w-full h-[100dvh]"
+          className="fixed inset-0 isolate z-[100000] bg-black flex items-center justify-center overflow-hidden w-full h-[100dvh]"
         >
           {/* Second Picture: Golden Light Logo Pre-loader */}
           <div className={`absolute inset-0 z-[10002] flex items-center justify-center bg-black transition-opacity duration-500 ${videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -98,6 +98,7 @@ export default function IntroSplashScreen() {
               className="absolute bottom-6 right-6 sm:bottom-8 sm:right-8 z-[10005] pointer-events-auto"
             >
               <button
+                type="button"
                 onClick={handleDismiss}
                 data-liquid-surface
                 className="liquid-ui group relative overflow-hidden rounded-xl px-6 py-3 cursor-pointer"
