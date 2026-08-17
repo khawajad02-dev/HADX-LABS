@@ -63,7 +63,7 @@ export default function IntroSplashScreen() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.6 }}
-          className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden w-screen h-[100dvh]"
+          className="fixed inset-0 z-[10000] bg-black flex items-center justify-center overflow-hidden w-full h-[100dvh]"
         >
           {/* Second Picture: Golden Light Logo Pre-loader */}
           <div className={`absolute inset-0 z-[10002] flex items-center justify-center bg-black transition-opacity duration-500 ${videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>

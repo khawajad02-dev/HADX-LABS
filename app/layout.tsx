@@ -61,13 +61,15 @@ export default function RootLayout({
         `}} />
       </head>
       <body style={{ margin: 0, padding: 0, backgroundColor: '#050505', color: '#ffffff' }}>
-        <HadxAmbientEngine />
-        <LiquidGlassPhysics />
-        <IntroSplashScreen />
-        <NetworkErrorOverlay />
-        <PwaInstallBanner />
-        {children}
-        <CyberOrb />
+        <div id="hadx-root" className="relative min-h-screen w-full overflow-x-hidden">
+          <HadxAmbientEngine />
+          <LiquidGlassPhysics />
+          <IntroSplashScreen />
+          <NetworkErrorOverlay />
+          <PwaInstallBanner />
+          {children}
+          <CyberOrb />
+        </div>
       </body>
     </html>
   );

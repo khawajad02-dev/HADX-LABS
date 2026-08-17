@@ -92,7 +92,7 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[10007] bg-black flex flex-col items-center justify-center overflow-hidden w-screen h-[100dvh]"
+        className="fixed inset-0 z-[10007] bg-black flex flex-col items-center justify-center overflow-hidden w-full h-[100dvh]"
       >
         {/* Logo Placeholder with precise sizing */}
         <div className={`absolute inset-0 z-[10008] flex items-center justify-center bg-black transition-opacity duration-700 ${videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
