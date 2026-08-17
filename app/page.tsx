@@ -47,7 +47,7 @@ export default async function HomePage() {
       {products.length > 0 ? (
         <FeaturedShowcase products={products} />
       ) : (
-        <section className="pt-36 pb-20 px-6 text-center max-w-4xl mx-auto">
+        <section className="pt-36 pb-8 px-6 text-center max-w-4xl mx-auto">
           <span className="text-xs font-mono tracking-[0.3em] uppercase text-zinc-500 block mb-3">
             [ Database Connected • No Live Inventory ]
           </span>

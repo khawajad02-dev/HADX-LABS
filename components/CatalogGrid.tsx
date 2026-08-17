@@ -71,8 +71,8 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
   }
 
   return (
-    <section className="bg-transparent text-zinc-100 px-6 md:px-12 pt-20 pb-24 border-t border-white/10 relative z-10">
-      <div className="max-w-7xl mx-auto mb-12">
+    <section className={`bg-transparent text-zinc-100 px-6 md:px-12 ${productList.length === 0 ? "pt-0" : "pt-20"} pb-24 border-t border-white/10 relative z-10`}>
+      <div className="max-w-7xl mx-auto mb-8">
         <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-zinc-500 block mb-3">
           Full_Catalog
         </span>
@@ -108,7 +108,7 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
       </div>
 
       {visibleProducts.length === 0 ? (
-        <div className="liquid-panel empty-state-liquid max-w-7xl mx-auto border-dashed border-white/10 rounded-xl p-20 text-center">
+        <div className="liquid-panel empty-state-liquid max-w-7xl mx-auto overflow-hidden border-dashed border-white/10 rounded-xl p-6 text-center">
           <span aria-hidden="true" className="empty-state-liquid__water-film" />
           <span aria-hidden="true" className="empty-state-liquid__water-drop empty-state-liquid__water-drop--a" />
           <span aria-hidden="true" className="empty-state-liquid__water-drop empty-state-liquid__water-drop--b" />
@@ -127,7 +127,7 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
             return (
               <div
                 key={product.id}
-                className="liquid-panel group cursor-pointer rounded-2xl p-3 transition-all duration-300 hover:scale-[1.02]"
+                className="liquid-panel group cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02]"
               >
                 <div className="aspect-[4/5] bg-zinc-900/45 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
                   {displayImg ? (
