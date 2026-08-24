@@ -30,9 +30,11 @@ export async function POST(req: Request) {
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+    const publicAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+    const storageKey = serviceRoleKey || publicAnonKey;
     const bucket = process.env.SUPABASE_MEDIA_BUCKET?.trim() || "product-media";
-    if (!supabaseUrl || !serviceRoleKey) {
-      return NextResponse.json({ error: "Media storage is not configured on this server." }, { status: 503 });
+    if (!supabaseUrl || !storageKey) {
+      return NextResponse.json({ code: "MEDIA_STORAGE_CONFIGURATION", error: "Media storage is not configured on this server." }, { status: 503 });
     }
 
     const body = await req.json().catch(() => null);
@@ -44,19 +46,21 @@ export async function POST(req: Request) {
 
     const extension = fileName.includes(".") ? fileName.split(".").pop() : contentType.split("/").pop();
     const path = `products/${Date.now()}-${crypto.randomUUID()}.${extension || "bin"}`;
-    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+    const supabase = createClient(supabaseUrl, storageKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
-    const { data: existingBucket, error: bucketLookupError } = await supabase.storage.getBucket(bucket);
-    if (!existingBucket && bucketLookupError) {
-      const { error: bucketCreateError } = await supabase.storage.createBucket(bucket, {
-        public: true,
-        fileSizeLimit: "100MB",
-        allowedMimeTypes: Array.from(ALLOWED_TYPES),
-      });
-      if (bucketCreateError && !bucketCreateError.message.toLowerCase().includes("already exists")) {
-        console.error("Product media bucket error:", bucketCreateError.message);
-        return NextResponse.json({ error: "Product media storage is not ready on this server." }, { status: 503 });
+    if (serviceRoleKey) {
+      const { data: existingBucket, error: bucketLookupError } = await supabase.storage.getBucket(bucket);
+      if (!existingBucket && bucketLookupError) {
+        const { error: bucketCreateError } = await supabase.storage.createBucket(bucket, {
+          public: true,
+          fileSizeLimit: "100MB",
+          allowedMimeTypes: Array.from(ALLOWED_TYPES),
+        });
+        if (bucketCreateError && !bucketCreateError.message.toLowerCase().includes("already exists")) {
+          console.error("Product media bucket error:", bucketCreateError.message);
+          return NextResponse.json({ error: "Product media storage is not ready on this server." }, { status: 503 });
+        }
       }
     }
 

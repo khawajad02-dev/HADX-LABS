@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { decodeProductDescription } from "@/lib/product-meta";
 // Import types from @prisma/client, fallback to any if generation fails during CI
 // Use type-only imports for Prisma enums to avoid issues during static analysis
 /** 
@@ -52,6 +53,8 @@ export async function POST(req: Request) {
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
+
+    const parsedProduct = decodeProductDescription(product.description);
 
     if (product.stockQuantity < quantity) {
       return NextResponse.json({ error: "Insufficient stock" }, { status: 400 });
@@ -118,8 +121,8 @@ export async function POST(req: Request) {
                 currency: product.currency.toLowerCase(),
                 product_data: {
                   name: product.title,
-                  description: product.description || "",
-                  images: product.imageUrl ? [product.imageUrl] : [],
+                  description: parsedProduct.description || "",
+                  images: product.imageUrl ? [product.imageUrl] : parsedProduct.metadata.media?.filter((media) => media.type === "image").slice(0, 8).map((media) => media.url) || [],
                 },
                 unit_amount: product.priceInCents,
               },

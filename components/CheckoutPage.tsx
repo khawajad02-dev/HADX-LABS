@@ -23,11 +23,10 @@ export default function CheckoutPage({
     city: '',
   });
 
-  // Example Cart Items (In real app, fetch from cart state/context)
-  const cartItems = initialItems.length > 0 ? initialItems : [
-    { id: 'prod-001', name: 'HADX Obsidian Hoodie', price: 120, quantity: 1 },
-  ];
-  const totalAmount = initialTotal > 0 ? initialTotal : cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const cartItems = initialItems;
+  const activeCurrency = cartItems[0]?.currency || 'USD';
+  const currencySymbol = activeCurrency === 'PKR' ? 'PKR' : activeCurrency === 'INR' ? '₹' : '$';
+  const totalAmount = initialTotal > 0 ? initialTotal : cartItems.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 0), 0);
 
   // Live Checkout Execution Handler
   const handleRealCheckout = async (e: React.FormEvent) => {
@@ -61,6 +60,7 @@ export default function CheckoutPage({
           email: formData.email,
           phone: formData.phone,
           address: `${formData.address}, ${formData.city}`,
+          currency: activeCurrency,
           useStripe: false, // Default to COD as per spec unless specified
         }),
       });
@@ -173,7 +173,7 @@ export default function CheckoutPage({
           <div className="pt-4 border-t border-neutral-800 flex items-center justify-between">
             <div>
               <span className="text-[10px] text-neutral-500 uppercase block">Total Amount</span>
-              <span className="text-lg font-bold text-amber-400">${totalAmount.toFixed(2)}</span>
+              <span className="text-lg font-bold text-amber-400">{currencySymbol} {totalAmount.toLocaleString()}</span>
             </div>
 
             <button

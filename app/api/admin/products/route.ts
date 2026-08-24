@@ -3,10 +3,35 @@ import { Prisma, ProductStatus } from "@prisma/client";
 
 import { isAdminRequest } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { encodeProductDescription, normalizeRegionalPrices, serializeProduct, type ProductMedia } from "@/lib/product-meta";
 
 export const dynamic = "force-dynamic";
 
 const MAX_PAGE_SIZE = 50;
+
+function normalizeMedia(input: unknown, fallbackImageUrl?: unknown): ProductMedia[] {
+  const fromInput = Array.isArray(input)
+    ? input
+        .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object")
+        .map((entry) => ({
+          url: typeof entry.url === "string" ? entry.url.trim() : "",
+          type: entry.type === "video" ? "video" as const : "image" as const,
+          fileName: typeof entry.fileName === "string" ? entry.fileName : undefined,
+        }))
+        .filter((entry) => entry.url)
+    : [];
+  if (fromInput.length) return fromInput;
+  return typeof fallbackImageUrl === "string" && fallbackImageUrl.trim()
+    ? [{ url: fallbackImageUrl.trim(), type: "image" }]
+    : [];
+}
+
+function basePrice(body: any, regionalPrices: Record<string, number>) {
+  const explicit = Number(body?.price);
+  if (Number.isFinite(explicit) && explicit > 0) return explicit;
+  const usd = Number(regionalPrices.USD);
+  return Number.isFinite(usd) && usd > 0 ? usd : 0;
+}
 
 export async function POST(req: Request) {
   try {
@@ -17,26 +42,28 @@ export async function POST(req: Request) {
     const body = await req.json();
     const title = typeof body?.title === "string" ? body.title.trim() : "";
     const sku = typeof body?.sku === "string" ? body.sku.trim() : "";
-    const price = Number(body?.price);
-    if (!title || !sku || !Number.isFinite(price) || price <= 0) {
-      return NextResponse.json({ error: "Title, price, and SKU are required." }, { status: 400 });
+    const regionalPrices = normalizeRegionalPrices(body?.regionalPrices);
+    const price = basePrice(body, regionalPrices);
+    const media = normalizeMedia(body?.media, body?.imageUrl);
+    if (!title || !sku || !price) {
+      return NextResponse.json({ error: "Title, SKU, and a valid USD base price are required." }, { status: 400 });
     }
 
     const product = await prisma.product.create({
       data: {
         title,
-        description: typeof body?.description === "string" ? body.description.trim() || null : null,
+        description: encodeProductDescription(body?.description, { media, regionalPrices }),
         sku,
         priceInCents: Math.round(price * 100),
         currency: body?.currency === "PKR" ? "PKR" : body?.currency === "EUR" ? "EUR" : "USD",
-        imageUrl: typeof body?.imageUrl === "string" ? body.imageUrl.trim() || null : null,
+        imageUrl: media[0]?.url || null,
         category: typeof body?.category === "string" ? body.category.trim() || null : null,
         status: body?.status === "PUBLISHED" ? ProductStatus.PUBLISHED : ProductStatus.DRAFT,
         stockQuantity: Math.max(0, Math.floor(Number(body?.stockQuantity) || 0)),
       },
     });
 
-    return NextResponse.json({ message: "Product created successfully", product }, { status: 201 });
+    return NextResponse.json({ message: "Product created successfully", product: serializeProduct(product) }, { status: 201 });
   } catch (error: any) {
     console.error("Product creation error:", error);
     return NextResponse.json({ error: error?.code === "P2002" ? "That SKU already exists." : "Product could not be created." }, { status: 500 });
@@ -51,9 +78,7 @@ export async function GET(req: Request) {
 
     const url = new URL(req.url);
     const requestedPageSize = Number(url.searchParams.get("pageSize") || 24);
-    const pageSize = Number.isFinite(requestedPageSize)
-      ? Math.min(Math.max(Math.floor(requestedPageSize), 1), MAX_PAGE_SIZE)
-      : 24;
+    const pageSize = Number.isFinite(requestedPageSize) ? Math.min(Math.max(Math.floor(requestedPageSize), 1), MAX_PAGE_SIZE) : 24;
     const page = Math.max(Number(url.searchParams.get("page") || 1), 1);
     const query = url.searchParams.get("q")?.trim();
     const statusParam = url.searchParams.get("status")?.toUpperCase();
@@ -66,16 +91,14 @@ export async function GET(req: Request) {
         { category: { contains: query, mode: "insensitive" } },
       ];
     }
-    if (statusParam && Object.values(ProductStatus).includes(statusParam as ProductStatus)) {
-      where.status = statusParam as ProductStatus;
-    }
+    if (statusParam && Object.values(ProductStatus).includes(statusParam as ProductStatus)) where.status = statusParam as ProductStatus;
 
     const [items, total] = await Promise.all([
       prisma.product.findMany({ where, orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: pageSize, skip: (page - 1) * pageSize }),
       prisma.product.count({ where }),
     ]);
 
-    return NextResponse.json({ items, total, page, pageSize, hasMore: page * pageSize < total });
+    return NextResponse.json({ items: items.map(serializeProduct), total, page, pageSize, hasMore: page * pageSize < total });
   } catch (error) {
     console.error("Products fetch error:", error);
     return NextResponse.json({ error: "Products are temporarily unavailable." }, { status: 500 });

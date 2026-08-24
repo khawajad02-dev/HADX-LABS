@@ -7,8 +7,11 @@ export interface Product {
   name?: string;
   title?: string;
   price: number | string;
+  currency?: "USD" | "PKR" | "INR";
+  prices?: { USD?: number; PKR?: number; INR?: number };
   image_url?: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
+  media?: Array<{ url: string; type: "image" | "video"; fileName?: string }>;
   category?: string;
   stock?: number;
 }
@@ -22,6 +25,7 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
   const [loading, setLoading] = useState<boolean>(!initialProducts || initialProducts.length === 0);
   const [activeCategory, setActiveCategory] = useState("All");
   const [sortBy, setSortBy] = useState<"newest" | "price-low" | "price-high">("newest");
+  const [displayCurrency, setDisplayCurrency] = useState<"USD" | "PKR" | "INR">(initialProducts?.[0]?.currency || "USD");
 
   // Auto-fetch if products are not passed via props
   useEffect(() => {
@@ -55,10 +59,10 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
 
   const visibleProducts = useMemo(() => {
     let list = activeCategory === "All" ? productList : productList.filter((p) => p.category === activeCategory);
-    if (sortBy === "price-low") list = [...list].sort((a, b) => Number(a.price) - Number(b.price));
-    if (sortBy === "price-high") list = [...list].sort((a, b) => Number(b.price) - Number(a.price));
+    if (sortBy === "price-low") list = [...list].sort((a, b) => Number(a.prices?.[displayCurrency] ?? a.price) - Number(b.prices?.[displayCurrency] ?? b.price));
+    if (sortBy === "price-high") list = [...list].sort((a, b) => Number(b.prices?.[displayCurrency] ?? b.price) - Number(a.prices?.[displayCurrency] ?? a.price));
     return list;
-  }, [productList, activeCategory, sortBy]);
+  }, [productList, activeCategory, sortBy, displayCurrency]);
 
   if (loading) {
     return (
@@ -79,7 +83,7 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
         <h2 className="text-3xl md:text-5xl font-extralight tracking-tight">Shop All</h2>
       </div>
 
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10 border-b border-white/10 pb-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10 border-b border-white/10 pb-6">
         <div className="flex flex-wrap gap-2">
           {categories.map((cat) => (
             <button
@@ -96,7 +100,11 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
           ))}
         </div>
 
-        <select
+          <div className="flex flex-wrap gap-2 items-center">
+            {["USD", "PKR", "INR"].map((currency) => <button key={currency} onClick={() => setDisplayCurrency(currency as "USD" | "PKR" | "INR")} className={`liquid-ui px-3 py-1.5 rounded-full text-[10px] font-mono uppercase border ${displayCurrency === currency ? "border-amber-200 text-amber-100" : "border-white/15 text-zinc-400"}`}>{currency}</button>)}
+          </div>
+
+          <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
           className="liquid-ui border border-white/15 rounded-full px-4 py-1.5 text-[11px] font-mono uppercase text-zinc-300 tracking-wide focus:outline-none focus:border-white/40"
@@ -122,7 +130,12 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
           {visibleProducts.map((product) => {
             const displayTitle = product.title || product.name || "UNNAMED DROP";
-            const displayImg = product.imageUrl || product.image_url;
+            const displayMedia = product.media?.[0];
+            const displayImg = displayMedia?.type === "image" ? displayMedia.url : product.imageUrl || product.image_url;
+            const displayVideo = displayMedia?.type === "video" ? displayMedia.url : undefined;
+            const currency = displayCurrency;
+            const currencySymbol = currency === "PKR" ? "PKR" : currency === "INR" ? "₹" : "$";
+            const displayPrice = product.prices?.[currency] ?? product.price;
 
             return (
               <div
@@ -130,12 +143,10 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
                 className="liquid-panel group cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02]"
               >
                 <div className="aspect-[4/5] bg-zinc-900/45 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
-                  {displayImg ? (
-                    <img
-                      src={displayImg}
-                      alt={displayTitle}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                  {displayVideo ? (
+                    <video src={displayVideo} aria-label={displayTitle} controls muted playsInline className="w-full h-full object-cover" />
+                  ) : displayImg ? (
+                    <img src={displayImg} alt={displayTitle} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
                     <span className="text-zinc-700 text-[10px] font-mono uppercase">no image</span>
                   )}
@@ -144,7 +155,7 @@ export default function CatalogGrid({ products: initialProducts }: CatalogGridPr
                   {displayTitle}
                 </h3>
                 <p className="text-xs font-mono text-zinc-400">
-                  PKR {Number(product.price).toLocaleString()}
+                  {currencySymbol} {Number(displayPrice).toLocaleString()}
                 </p>
               </div>
             );

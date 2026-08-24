@@ -6,6 +6,7 @@ type CartItem = {
   id: string;
   name: string;
   price: number;
+  currency?: "USD" | "PKR" | "INR";
   quantity: number;
   imageUrl?: string | null;
 };
@@ -28,6 +29,8 @@ export default function CartDrawer({
   onCheckout,
 }: CartDrawerProps) {
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const activeCurrency = items[0]?.currency || "USD";
+  const currencySymbol = activeCurrency === "PKR" ? "PKR" : activeCurrency === "INR" ? "₹" : "$";
 
   // Lock background scroll and listen for Escape key press
   useEffect(() => {
@@ -114,7 +117,7 @@ export default function CartDrawer({
                       {item.name}
                     </h3>
                     <p className="text-[11px] font-mono text-hadx-gold">
-                      PKR {item.price.toLocaleString()}
+                      {item.currency === "PKR" ? "PKR" : item.currency === "INR" ? "₹" : "$"} {item.price.toLocaleString()}
                     </p>
                   </div>
 
@@ -148,7 +151,7 @@ export default function CartDrawer({
           <div className="flex justify-between items-center text-xs font-mono uppercase tracking-wide text-zinc-400">
             <span>Subtotal</span>
             <span className="text-hadx-gold-light text-base font-bold">
-              PKR {total.toLocaleString()}
+              {currencySymbol} {total.toLocaleString()}
             </span>
           </div>
 
