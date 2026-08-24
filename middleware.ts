@@ -1,18 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  // 1. Get the response
-  const response = NextResponse.next();
-
-  // 2. Get country from headers
-  const country = request.headers.get('x-vercel-ip-country') || 'US';
-
-  // 3. Set the region cookie
-  // Using a simple set to avoid any potential Edge Runtime issues with complex options
-  response.cookies.set('hadx_region', country);
-
-  return response;
+export function middleware(_request: NextRequest) {
+  // Region personalization is optional. Keep this edge middleware passive so
+  // a cookie mutation can never crash the entire storefront before render.
+  return NextResponse.next();
 }
 
 // 4. Very simple matcher to avoid regex errors
