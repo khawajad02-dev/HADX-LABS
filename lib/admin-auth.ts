@@ -13,6 +13,7 @@ type OwnerTokenPayload = {
 
 function getSigningSecret(): string | null {
   const secret = [
+    process.env.HADX_OWNER_SESSION_SECRET,
     process.env.HADX_ADMIN_SECRET,
     process.env.SUPABASE_SERVICE_ROLE_KEY,
     process.env.STRIPE_SECRET_KEY,
