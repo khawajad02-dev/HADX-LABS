@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isAdminRequest } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
-    const authHeader = req.headers.get("x-admin-secret");
-    const serverSecret = process.env.HADX_ADMIN_SECRET;
-
-    if (!serverSecret || authHeader !== serverSecret) {
+    if (!isAdminRequest(req)) {
       return NextResponse.json(
         { error: "Access Denied" },
         { status: 401 }
