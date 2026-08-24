@@ -40,8 +40,8 @@ export async function POST(req: Request) {
       );
     }
 
-    await resend.emails.send({
-      from: "orders@hadx-labs.com",
+    const sendResult = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL?.trim() || "onboarding@resend.dev",
       to: email,
       subject: "Your HADX LABS owner sign-in code",
       html: `
@@ -54,6 +54,14 @@ export async function POST(req: Request) {
         </div>
       `,
     });
+
+    if (sendResult?.error) {
+      console.error("Owner sign-in email provider rejected the message:", sendResult.error.name || "provider_error");
+      return NextResponse.json(
+        { error: "The sign-in email could not be delivered. Please try again shortly." },
+        { status: 502 },
+      );
+    }
 
     return NextResponse.json({ challenge, expiresInSeconds: 600 });
   } catch (error) {
