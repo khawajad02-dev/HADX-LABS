@@ -1,0 +1,83 @@
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+import { isAdminRequest } from "@/lib/admin-auth";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const ALLOWED_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "video/mp4",
+  "video/quicktime",
+  "video/webm",
+]);
+
+function safeFileName(value: unknown) {
+  const raw = typeof value === "string" ? value : "upload";
+  const cleaned = raw.toLowerCase().replace(/[^a-z0-9._-]/g, "-").replace(/-+/g, "-");
+  return cleaned || "upload";
+}
+
+export async function POST(req: Request) {
+  try {
+    if (!isAdminRequest(req)) {
+      return NextResponse.json({ error: "Access Denied" }, { status: 401 });
+    }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+    const bucket = process.env.SUPABASE_MEDIA_BUCKET?.trim() || "product-media";
+    if (!supabaseUrl || !serviceRoleKey) {
+      return NextResponse.json({ error: "Media storage is not configured on this server." }, { status: 503 });
+    }
+
+    const body = await req.json().catch(() => null);
+    const fileName = safeFileName(body?.fileName);
+    const contentType = typeof body?.contentType === "string" ? body.contentType.toLowerCase() : "";
+    if (!ALLOWED_TYPES.has(contentType)) {
+      return NextResponse.json({ error: "Only supported image and video files can be uploaded." }, { status: 400 });
+    }
+
+    const extension = fileName.includes(".") ? fileName.split(".").pop() : contentType.split("/").pop();
+    const path = `products/${Date.now()}-${crypto.randomUUID()}.${extension || "bin"}`;
+    const supabase = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const { data: existingBucket, error: bucketLookupError } = await supabase.storage.getBucket(bucket);
+    if (!existingBucket && bucketLookupError) {
+      const { error: bucketCreateError } = await supabase.storage.createBucket(bucket, {
+        public: true,
+        fileSizeLimit: "100MB",
+        allowedMimeTypes: Array.from(ALLOWED_TYPES),
+      });
+      if (bucketCreateError && !bucketCreateError.message.toLowerCase().includes("already exists")) {
+        console.error("Product media bucket error:", bucketCreateError.message);
+        return NextResponse.json({ error: "Product media storage is not ready on this server." }, { status: 503 });
+      }
+    }
+
+    const storage = supabase.storage.from(bucket);
+    const { data, error } = await storage.createSignedUploadUrl(path, { upsert: false });
+
+    if (error || !data?.signedUrl || !data.token) {
+      console.error("Signed media upload URL error:", error?.message || "no signed URL returned");
+      return NextResponse.json({ error: "Media storage could not create an upload URL." }, { status: 502 });
+    }
+
+    const { data: publicData } = storage.getPublicUrl(path);
+    return NextResponse.json({
+      signedUrl: data.signedUrl,
+      token: data.token,
+      path,
+      publicUrl: publicData.publicUrl,
+      contentType,
+    });
+  } catch (error) {
+    console.error("Media upload URL error:", error);
+    return NextResponse.json({ error: "Media upload is temporarily unavailable." }, { status: 500 });
+  }
+}
