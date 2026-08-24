@@ -12,8 +12,14 @@ type OwnerTokenPayload = {
 };
 
 function getSigningSecret(): string | null {
-  const secret = process.env.HADX_ADMIN_SECRET?.trim();
-  return secret ? secret : null;
+  const secret = [
+    process.env.HADX_ADMIN_SECRET,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    process.env.STRIPE_SECRET_KEY,
+    process.env.RESEND_API_KEY,
+    process.env.CRON_SECRET,
+  ].find((value) => value?.trim());
+  return secret?.trim() || null;
 }
 
 function encode(value: string): string {
