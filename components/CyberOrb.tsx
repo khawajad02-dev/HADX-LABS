@@ -45,6 +45,7 @@ export default function CyberOrb() {
             className="liquid-panel mb-1 flex flex-col items-end gap-3 rounded-2xl p-3 shadow-[0_0_35px_rgba(179,112,18,0.12)]"
           >
             <Link href="/catalog#catalog" onClick={() => setIsOpen(false)} className="liquid-ui rounded-lg px-6 py-3 text-[11px] font-mono uppercase tracking-[0.2em] text-hadx-gold-light transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]">SHOP ALL DROPS</Link>
+            <Link href="/favorites" onClick={() => setIsOpen(false)} className="liquid-ui rounded-lg px-6 py-3 text-[11px] font-mono uppercase tracking-[0.2em] text-hadx-gold-light transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]">FAVORITES</Link>
             <InstagramDMButton label="INSTAGRAM DM" />
             <AudioToggle />
           </motion.div>

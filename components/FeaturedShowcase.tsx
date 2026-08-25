@@ -128,7 +128,9 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
                     style={{
                       transform: `translate(-50%, -50%) translateX(${x}px) translateZ(${isActive ? 100 : -distance * 55}px) rotateY(${isActive ? 0 : side * -22}deg) scale(${isActive ? 1 : 1 - distance * 0.12})`,
                       zIndex: isActive ? 30 : 20 - distance,
-                      opacity: isActive ? 1 : distance === 1 ? 0.62 : 0.27,
+                      opacity: isActive ? 1 : distance === 1 ? 0.78 : 0.34,
+                      filter: isActive ? "drop-shadow(0 28px 44px rgba(0,0,0,0.48))" : `brightness(${distance === 1 ? 0.76 : 0.56}) saturate(${distance === 1 ? 0.88 : 0.72})`,
+                      boxShadow: isActive ? "0 30px 85px rgba(0,0,0,0.52)" : "0 18px 38px rgba(0,0,0,0.4)",
                       transformStyle: "preserve-3d",
                     }}
                   >
@@ -139,6 +141,7 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
                 );
               })}
             </motion.div>
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[19rem] w-[19rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[color:var(--stage-accent)]/25 opacity-80 [transform:translate(-50%,-50%)_rotateX(68deg)] [transform-style:preserve-3d] shadow-[0_0_34px_var(--stage-glow)] sm:h-[25rem] sm:w-[25rem]" />
             <div className="pointer-events-none absolute bottom-4 h-8 w-64 rounded-full bg-[color:var(--stage-glow)] blur-2xl" />
             <div className="pointer-events-none absolute bottom-1 h-3 w-44 rounded-[50%] border border-[color:var(--stage-accent)]/40 bg-black/60 shadow-[0_0_30px_var(--stage-glow)]" />
           </div>

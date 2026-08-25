@@ -594,3 +594,37 @@ body {
     opacity: 0.62;
   }
 }
+
+.favorite-glass-control {
+  background: rgba(255, 255, 255, 0.018) !important;
+  -webkit-backdrop-filter: blur(3px) saturate(112%);
+  backdrop-filter: blur(3px) saturate(112%);
+}
+
+.favorite-glass-control:hover,
+.favorite-glass-control[aria-pressed="true"] {
+  background: rgba(255, 213, 133, 0.055) !important;
+}
+
+.product-detail-glass {
+  background: rgba(5, 5, 5, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.16);
+  -webkit-backdrop-filter: blur(5px) saturate(112%);
+  backdrop-filter: blur(5px) saturate(112%);
+}
+
+.product-detail-glass::before {
+  opacity: 0.26;
+}
+
+.product-detail-glass::after {
+  opacity: 0.1;
+}
+
+@media (max-width: 640px) {
+  .product-detail-glass {
+    background: rgba(5, 5, 5, 0.08) !important;
+    -webkit-backdrop-filter: blur(3px) saturate(108%);
+    backdrop-filter: blur(3px) saturate(108%);
+  }
+}

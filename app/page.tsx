@@ -50,7 +50,7 @@ export default async function HomePage({ searchParams }: { searchParams?: { curr
       <div className="relative z-10">
         <nav className="liquid-panel fixed top-0 w-full z-50 border-b border-white/10 px-6 md:px-12 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3"><span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" /><h1 className="text-sm font-extrabold tracking-[0.35em] text-white uppercase">HADX <span className="text-zinc-500 font-light">LABS</span></h1></div>
-          <div className="flex items-center gap-3 text-[11px] font-mono tracking-[0.2em] text-zinc-400 uppercase"><span className="hidden sm:inline text-zinc-500">{displayCurrency === "PKR" ? "Pakistan / PKR" : displayCurrency === "INR" ? "India / INR" : "Global / USD"}</span><CurrencySwitcher /><StorefrontSearch /><Link href="/catalog#catalog" className="liquid-ui rounded-full px-4 py-2 hover:text-white transition-colors duration-300">COLLECTION</Link></div>
+          <div className="flex items-center gap-3 text-[11px] font-mono tracking-[0.2em] text-zinc-400 uppercase"><span className="hidden sm:inline text-zinc-500">{displayCurrency === "PKR" ? "Pakistan / PKR" : displayCurrency === "INR" ? "India / INR" : "Global / USD"}</span><CurrencySwitcher /><StorefrontSearch /><Link href="/catalog#catalog" className="liquid-ui rounded-full px-4 py-2 hover:text-white transition-colors duration-300">COLLECTION</Link><Link href="/favorites" className="liquid-ui rounded-full px-4 py-2 hover:text-white transition-colors duration-300">FAVORITES</Link></div>
         </nav>
 
         <LiveInventoryHero initialProducts={products} initialCurrency={displayCurrency} />
