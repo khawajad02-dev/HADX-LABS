@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hadx-labs-cache-v3';
+const CACHE_NAME = 'hadx-labs-cache-v4';
 const ASSETS_TO_CACHE = [
   '/',
   '/catalog',
@@ -45,14 +45,20 @@ self.addEventListener('fetch', (event) => {
   // For navigation requests, try network first, then cache, then root
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).catch(() => {
+      fetch(event.request, { cache: 'no-store' }).catch(() => {
         return caches.match(event.request).then(response => response || caches.match('/'));
       })
     );
     return;
   }
 
-  // For other assets, use Cache-First strategy
+  // API and data responses must always come from the network so live inventory cannot become stale.
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(fetch(event.request, { cache: 'no-store' }));
+    return;
+  }
+
+  // For other static assets, use Cache-First strategy.
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse;
