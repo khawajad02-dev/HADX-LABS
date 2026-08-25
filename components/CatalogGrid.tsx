@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 
 export interface Product {
@@ -55,9 +56,13 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
   const [loading, setLoading] = useState<boolean>(!initialProducts || initialProducts.length === 0);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
   const [sortBy, setSortBy] = useState<"newest" | "price-low" | "price-high">("newest");
   const [displayCurrency, setDisplayCurrency] = useState<"USD" | "PKR" | "INR">(initialProducts?.[0]?.currency || "USD");
+
+  useEffect(() => {
+    const initialQuery = new URLSearchParams(window.location.search).get("search");
+    if (initialQuery) setSearchQuery(initialQuery);
+  }, []);
 
   // Auto-fetch if products are not passed via props
   useEffect(() => {
@@ -108,23 +113,11 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
   }
 
   return (
-    <section className={`bg-transparent text-zinc-100 px-6 md:px-12 ${productList.length === 0 ? "pt-0" : "pt-20"} pb-24 border-t border-white/10 relative z-10`}>
+    <section id="catalog" className={`bg-transparent text-zinc-100 px-6 md:px-12 ${productList.length === 0 ? "pt-0" : "pt-20"} pb-24 border-t border-white/10 relative z-10`}>
       <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-zinc-500 block mb-3">Full_Catalog</span>
-            <h2 className="text-3xl md:text-5xl font-extralight tracking-tight">Shop All</h2>
-          </div>
-          <button type="button" aria-label="Open HADX Smart Search" aria-expanded={searchOpen} onClick={() => setSearchOpen((open) => !open)} className="liquid-ui group w-14 h-14 rounded-2xl border border-amber-200/30 flex items-center justify-center text-amber-100 hover:border-amber-100 hover:shadow-gold-glow transition-all">
-            <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true" className="transition-transform duration-300 group-hover:rotate-12">
-              <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.4" />
-              <path d="M16 16L22 22" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-              <path d="M7 11h8M11 7v8" stroke="currentColor" strokeWidth="1" opacity=".45" />
-              <circle cx="20.5" cy="5.5" r="2" fill="currentColor" opacity=".75" />
-            </svg>
-          </button>
-        </div>
-        {searchOpen ? <div className="mt-5 liquid-panel rounded-2xl border border-amber-200/25 p-3 flex items-center gap-3"><span className="text-amber-100 font-mono text-xs tracking-widest">⌕</span><input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} autoFocus placeholder="Search title, SKU or category — typos are okay" className="w-full bg-transparent outline-none text-sm text-white placeholder:text-zinc-500" /><button type="button" onClick={() => setSearchQuery("")} className="text-zinc-500 hover:text-white text-xs font-mono">CLEAR</button></div> : null}
+        <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-zinc-500 block mb-3">Full_Catalog</span>
+        <h2 className="text-3xl md:text-5xl font-extralight tracking-tight">Shop All</h2>
+        {searchQuery ? <p className="mt-3 text-[11px] font-mono uppercase tracking-widest text-amber-100/70">Smart search // {searchQuery}</p> : null}
       </div>
 
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10 border-b border-white/10 pb-6">
@@ -180,9 +173,11 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
             const displayPrice = product.prices?.[currency] ?? product.regionalPrices?.[currency] ?? product.price ?? (product.priceInCents || 0) / 100;
 
             return (
-              <div
+              <Link
                 key={product.id}
-                className="liquid-panel group cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02]"
+                href={`/product/${product.sku || product.id}`}
+                aria-label={`Open ${displayTitle}`}
+                className="liquid-panel group block cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-1 focus:ring-amber-200"
               >
                 <div className="aspect-[4/5] bg-zinc-900/45 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
                   {displayVideo ? (
@@ -199,7 +194,7 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
                 <p className="text-xs font-mono text-zinc-400">
                   {currencySymbol} {Number(displayPrice).toLocaleString()}
                 </p>
-              </div>
+              </Link>
             );
           })}
         </div>
