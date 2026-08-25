@@ -52,16 +52,24 @@ export async function POST(req: Request) {
       auth: { autoRefreshToken: false, persistSession: false },
     });
     if (serviceRoleKey) {
+      const bucketOptions = {
+        public: true,
+        // Supabase projects can enforce a lower global file-size limit. Keep the
+        // bucket at the common 50 MB ceiling so bucket creation itself succeeds.
+        fileSizeLimit: "50MB",
+        allowedMimeTypes: Array.from(ALLOWED_TYPES),
+      };
       const { data: existingBucket, error: bucketLookupError } = await supabase.storage.getBucket(bucket);
       if (!existingBucket && bucketLookupError) {
-        const { error: bucketCreateError } = await supabase.storage.createBucket(bucket, {
-          public: true,
-          fileSizeLimit: "100MB",
-          allowedMimeTypes: Array.from(ALLOWED_TYPES),
-        });
+        const { error: bucketCreateError } = await supabase.storage.createBucket(bucket, bucketOptions);
         if (bucketCreateError && !bucketCreateError.message.toLowerCase().includes("already exists")) {
           console.error("Product media bucket error:", bucketCreateError.message);
-          return NextResponse.json({ error: "Product media storage is not ready on this server." }, { status: 503 });
+          return NextResponse.json({ error: "Product media storage is not ready on this server. Try a file under 50 MB." }, { status: 503 });
+        }
+      } else if (existingBucket) {
+        const { error: bucketUpdateError } = await supabase.storage.updateBucket(bucket, bucketOptions);
+        if (bucketUpdateError) {
+          console.warn("Product media bucket settings could not be updated:", bucketUpdateError.message);
         }
       }
     }
