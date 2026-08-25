@@ -65,14 +65,11 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
 
   const ringCards = useMemo(() => {
     if (!products.length) return [];
-    const unique = new Map<string, { product: Product; offset: number }>();
-    for (const offset of [-2, -1, 0, 1, 2]) {
+    const offsets = products.length === 1 ? [0] : products.length === 2 ? [-1, 0, 1] : [-2, -1, 0, 1, 2];
+    return offsets.map((offset) => {
       const index = (activeIndex + offset + products.length) % products.length;
-      const product = products[index];
-      const existing = unique.get(product.id);
-      if (!existing || Math.abs(offset) < Math.abs(existing.offset) || offset === 0) unique.set(product.id, { product, offset });
-    }
-    return Array.from(unique.values()).sort((left, right) => left.offset - right.offset);
+      return { product: products[index], offset };
+    });
   }, [activeIndex, products]);
 
   if (!active) return null;
@@ -115,26 +112,27 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
           </motion.div>
 
           <div className="order-1 flex min-h-[25rem] items-center justify-center sm:min-h-[32rem] lg:order-2" style={{ perspective: "1400px" }}>
-            <motion.div className="relative flex w-full items-center justify-center gap-2 sm:gap-5" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.14} onDragEnd={onDragEnd} whileTap={{ cursor: "grabbing" }} style={{ transformStyle: "preserve-3d" }}>
+            <motion.div className="relative h-[25rem] w-full max-w-[34rem] touch-pan-y sm:h-[32rem]" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.14} onDragEnd={onDragEnd} whileTap={{ cursor: "grabbing" }} style={{ transformStyle: "preserve-3d" }}>
               {ringCards.map(({ product, offset }) => {
                 const distance = Math.abs(offset);
                 const isActive = offset === 0;
                 const side = offset < 0 ? -1 : 1;
+                const x = isActive ? 0 : side * distance * 135;
                 return (
                   <motion.button
                     type="button"
                     key={`${product.id}-${offset}`}
                     onClick={() => { setSelectedSize(""); setActiveIndex(products.findIndex((candidate) => candidate.id === product.id)); }}
                     aria-label={`Show ${product.title}`}
-                    className={`relative shrink-0 overflow-hidden rounded-[1.6rem] border text-left shadow-2xl transition-[height,width] duration-500 ${isActive ? "h-[25rem] w-[16rem] border-white/35 bg-black/70 sm:h-[31rem] sm:w-[21rem]" : "h-[18rem] w-[8rem] border-white/15 bg-black/45 sm:h-[23rem] sm:w-[12.5rem]"}`}
+                    className={`absolute left-1/2 top-1/2 shrink-0 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.6rem] border text-left shadow-2xl transition-[height,width] duration-500 ${isActive ? "h-[25rem] w-[16rem] border-white/35 bg-black/70 sm:h-[31rem] sm:w-[21rem]" : "h-[18rem] w-[8rem] border-white/15 bg-black/45 sm:h-[23rem] sm:w-[12.5rem]"}`}
                     style={{
-                      transform: isActive ? "translateZ(100px) scale(1)" : `translateX(${side * distance * 22}px) translateZ(-${distance * 55}px) rotateY(${side * -22}deg) scale(${1 - distance * 0.12})`,
-                      zIndex: 20 - distance,
+                      transform: `translate(-50%, -50%) translateX(${x}px) translateZ(${isActive ? 100 : -distance * 55}px) rotateY(${isActive ? 0 : side * -22}deg) scale(${isActive ? 1 : 1 - distance * 0.12})`,
+                      zIndex: isActive ? 30 : 20 - distance,
                       opacity: isActive ? 1 : distance === 1 ? 0.62 : 0.27,
                       transformStyle: "preserve-3d",
                     }}
                   >
-                    <MediaPreview product={product} className="h-full w-full object-cover" />
+                    <MediaPreview product={product} className={`h-full w-full ${isActive ? "object-contain bg-black/20 p-2" : "object-cover"}`} />
                     <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/45 to-transparent px-4 pb-4 pt-20 text-[9px] font-mono uppercase tracking-[0.18em] text-white/85">{product.title}</span>
                     {isActive ? <span className="absolute left-1/2 top-5 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[color:var(--stage-accent)] shadow-[0_0_18px_var(--stage-accent)]" /> : null}
                   </motion.button>
