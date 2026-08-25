@@ -1,23 +1,65 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+const FALLBACK_SIZES = ["S", "M", "L", "XL", "XXL"];
 
 type ProductPurchaseActionsProps = {
   productId: string;
   currency: "USD" | "PKR" | "INR";
+  availableSizes?: string[];
 };
 
-export default function ProductPurchaseActions({ productId, currency }: ProductPurchaseActionsProps) {
-  const checkoutHref = `/checkout?productId=${encodeURIComponent(productId)}&currency=${currency}`;
+export default function ProductPurchaseActions({ productId, currency, availableSizes = FALLBACK_SIZES }: ProductPurchaseActionsProps) {
+  const router = useRouter();
+  const sizes = availableSizes.length ? availableSizes : FALLBACK_SIZES;
+  const [selectedSize, setSelectedSize] = useState("");
+  const [notice, setNotice] = useState("");
+
+  const goToCheckout = () => {
+    if (!selectedSize) {
+      setNotice("Select a size before continuing.");
+      return;
+    }
+    const params = new URLSearchParams({ productId, currency, size: selectedSize });
+    router.push(`/checkout?${params.toString()}`);
+  };
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <Link href={checkoutHref} className="liquid-ui rounded-full border border-amber-200/60 bg-amber-100/10 px-6 py-3 text-xs font-bold tracking-[0.2em] uppercase text-amber-100 shadow-gold-glow transition-transform hover:scale-[1.02]">
-        Buy Now
-      </Link>
-      <Link href={checkoutHref} className="liquid-ui rounded-full border border-white/20 px-5 py-3 text-xs font-mono tracking-[0.15em] uppercase text-zinc-300 transition-colors hover:border-amber-200/60 hover:text-white">
-        Open Checkout
-      </Link>
+    <div className="space-y-4">
+      <div>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-zinc-400">Choose size</span>
+          <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-600">Required</span>
+        </div>
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Choose shirt size">
+          {sizes.map((size) => {
+            const active = selectedSize === size;
+            return (
+              <button
+                key={size}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                onClick={() => { setSelectedSize(size); setNotice(""); }}
+                className={`min-w-12 rounded-lg border px-4 py-2 text-xs font-mono tracking-widest transition-colors ${active ? "border-amber-200 bg-amber-100/15 text-amber-100 shadow-[0_0_18px_rgba(245,158,11,0.18)]" : "border-white/15 text-zinc-400 hover:border-amber-200/60 hover:text-white"}`}
+              >
+                {size}
+              </button>
+            );
+          })}
+        </div>
+        {notice ? <p role="alert" className="mt-2 text-[10px] font-mono uppercase tracking-widest text-amber-200">{notice}</p> : null}
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="button" onClick={goToCheckout} className="liquid-ui rounded-full border border-amber-200/60 bg-amber-100/10 px-6 py-3 text-xs font-bold tracking-[0.2em] uppercase text-amber-100 shadow-gold-glow transition-transform hover:scale-[1.02] active:scale-[0.98]">
+          Buy Now
+        </button>
+        <button type="button" onClick={goToCheckout} className="liquid-ui rounded-full border border-white/20 px-5 py-3 text-xs font-mono tracking-[0.15em] uppercase text-zinc-300 transition-colors hover:border-amber-200/60 hover:text-white active:scale-[0.98]">
+          Open Checkout
+        </button>
+      </div>
     </div>
   );
 }

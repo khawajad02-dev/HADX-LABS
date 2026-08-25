@@ -10,10 +10,22 @@ export type RegionalPrices = {
   INR?: number;
 };
 
+export const DEFAULT_PRODUCT_SIZES = ["S", "M", "L", "XL", "XXL"] as const;
+export type ProductSize = (typeof DEFAULT_PRODUCT_SIZES)[number] | "XXL";
+
 export type ProductMetadata = {
   media?: ProductMedia[];
   regionalPrices?: RegionalPrices;
+  sizes?: string[];
 };
+
+export function normalizeProductSizes(input: unknown): string[] {
+  if (!Array.isArray(input)) return [...DEFAULT_PRODUCT_SIZES];
+  const sizes = input
+    .map((value) => String(value).trim().toUpperCase())
+    .filter((value, index, values) => value.length > 0 && values.indexOf(value) === index);
+  return sizes.length ? sizes : [...DEFAULT_PRODUCT_SIZES];
+}
 
 const META_PREFIX = "__HADX_PRODUCT_META__";
 
@@ -59,5 +71,6 @@ export function serializeProduct<T extends { description?: string | null; imageU
     description: parsed.description,
     media,
     regionalPrices: parsed.metadata.regionalPrices || {},
+    availableSizes: normalizeProductSizes(parsed.metadata.sizes),
   };
 }

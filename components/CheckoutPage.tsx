@@ -21,9 +21,13 @@ export default function CheckoutPage({
     phone: '',
     address: '',
     city: '',
+    country: '',
   });
 
   const cartItems = initialItems;
+  const selectedProduct = cartItems[0];
+  const availableSizes = selectedProduct?.availableSizes?.length ? selectedProduct.availableSizes : ['S', 'M', 'L', 'XL', 'XXL'];
+  const [selectedSize, setSelectedSize] = useState(selectedProduct?.size || '');
   const activeCurrency = cartItems[0]?.currency || 'USD';
   const currencySymbol = activeCurrency === 'PKR' ? 'PKR' : activeCurrency === 'INR' ? '₹' : '$';
   const totalAmount = initialTotal > 0 ? initialTotal : cartItems.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 0), 0);
@@ -38,7 +42,7 @@ export default function CheckoutPage({
       return;
     }
 
-    if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.city) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.country || !selectedSize) {
       alert("Validation Error: All fields are required.");
       return;
     }
@@ -59,7 +63,10 @@ export default function CheckoutPage({
           fullName: formData.name,
           email: formData.email,
           phone: formData.phone,
-          address: `${formData.address}, ${formData.city}`,
+          address: formData.address,
+          city: formData.city,
+          country: formData.country,
+          size: selectedSize,
           currency: activeCurrency,
           useStripe: false, // Default to COD as per spec unless specified
         }),
@@ -89,8 +96,11 @@ export default function CheckoutPage({
   };
 
   return (
-    <div className="relative min-h-screen bg-transparent text-white p-6 sm:p-12 flex flex-col items-center justify-center space-y-12">
-      
+    <div className="relative min-h-screen bg-transparent text-white p-6 sm:p-12 flex flex-col items-center justify-center space-y-8">
+      <div className="w-full max-w-xl flex justify-start">
+        <a href="/catalog#catalog" className="liquid-ui rounded-full px-4 py-2 text-[10px] font-mono uppercase tracking-widest text-zinc-300 hover:text-white">← Back to catalog</a>
+      </div>
+
       {/* Title */}
       <div className="text-center space-y-2 max-w-lg">
         <span className="text-[10px] font-mono tracking-[0.3em] text-amber-500/80 uppercase block">
@@ -106,6 +116,28 @@ export default function CheckoutPage({
         <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400 border-b border-neutral-800 pb-3">
           {"//"} Shipping Details
         </h2>
+
+        {selectedProduct ? (
+          <div className="rounded-xl border border-amber-200/15 bg-amber-100/[0.03] p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <span className="block text-[10px] font-mono uppercase tracking-widest text-neutral-500">Selected piece</span>
+                <p className="mt-1 text-sm text-amber-100">{selectedProduct.name || 'HADX LABS piece'}</p>
+              </div>
+              <span className="text-sm font-mono text-amber-300">{currencySymbol} {Number(selectedProduct.price || 0).toLocaleString()}</span>
+            </div>
+            <div className="mt-4">
+              <span className="mb-2 block text-[10px] font-mono uppercase tracking-widest text-neutral-500">Choose size</span>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Choose shirt size">
+                {availableSizes.map((size: string) => (
+                  <button key={size} type="button" role="radio" aria-checked={selectedSize === size} onClick={() => setSelectedSize(size)} className={`min-w-12 rounded-lg border px-3 py-2 text-xs font-mono tracking-widest transition-colors ${selectedSize === size ? 'border-amber-200 bg-amber-100/15 text-amber-100' : 'border-white/15 text-zinc-400 hover:border-amber-200/60 hover:text-white'}`}>
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <form onSubmit={handleRealCheckout} className="space-y-4 font-mono text-xs">
           <div>
@@ -154,7 +186,7 @@ export default function CheckoutPage({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="checkout-address" className="block text-neutral-500 mb-1 uppercase">Address</label>
               <input
@@ -184,6 +216,30 @@ export default function CheckoutPage({
                 className="liquid-ui relative z-10 w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors touch-manipulation"
               />
             </div>
+          </div>
+
+          <div>
+            <label htmlFor="checkout-country" className="block text-neutral-500 mb-1 uppercase">Country</label>
+            <select
+              id="checkout-country"
+              name="country"
+              autoComplete="country-name"
+              required
+              value={formData.country}
+              onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+              className="liquid-ui relative z-10 w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors touch-manipulation"
+            >
+              <option value="" className="bg-zinc-950">Select country</option>
+              <option value="Pakistan" className="bg-zinc-950">Pakistan</option>
+              <option value="India" className="bg-zinc-950">India</option>
+              <option value="United States" className="bg-zinc-950">United States</option>
+              <option value="United Kingdom" className="bg-zinc-950">United Kingdom</option>
+              <option value="United Arab Emirates" className="bg-zinc-950">United Arab Emirates</option>
+              <option value="Saudi Arabia" className="bg-zinc-950">Saudi Arabia</option>
+              <option value="Canada" className="bg-zinc-950">Canada</option>
+              <option value="Australia" className="bg-zinc-950">Australia</option>
+              <option value="Other" className="bg-zinc-950">Other</option>
+            </select>
           </div>
 
           {/* Total & Submit */}

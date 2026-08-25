@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { decodeProductDescription } from "@/lib/product-meta";
+import { decodeProductDescription, normalizeProductSizes } from "@/lib/product-meta";
 // Import types from @prisma/client, fallback to any if generation fails during CI
 // Use type-only imports for Prisma enums to avoid issues during static analysis
 /** 
@@ -32,18 +32,26 @@ export async function POST(req: Request) {
       productId, 
       fullName, 
       email, 
-      phone, 
-      address, 
+      phone,
+      address,
+      city,
+      country,
+      size,
       quantity = 1,
       currency,
       useStripe = false
     } = body;
 
-    if (!productId || !fullName || !email || !address) {
+    if (!productId || !fullName || !email || !phone || !address || !city || !country || !size) {
       return NextResponse.json(
-        { error: "Missing required fields: productId, fullName, email, address" },
+        { error: "Missing required fields: productId, fullName, email, phone, address, city, country, size" },
         { status: 400 }
       );
+    }
+
+    const requestedQuantity = Number(quantity);
+    if (!Number.isInteger(requestedQuantity) || requestedQuantity < 1 || requestedQuantity > 20) {
+      return NextResponse.json({ error: "Quantity must be a whole number between 1 and 20." }, { status: 400 });
     }
 
     // Fetch product
@@ -56,6 +64,12 @@ export async function POST(req: Request) {
     }
 
     const parsedProduct = decodeProductDescription(product.description);
+    const availableSizes = normalizeProductSizes(parsedProduct.metadata.sizes);
+    const selectedSize = String(size).trim().toUpperCase();
+    if (!availableSizes.includes(selectedSize)) {
+      return NextResponse.json({ error: `Invalid size. Choose one of: ${availableSizes.join(", ")}.` }, { status: 400 });
+    }
+
     const requestedCurrency = typeof currency === "string" ? currency.toUpperCase() : undefined;
     const supportedCurrencies = new Set(["USD", "PKR", "INR"]);
     if (requestedCurrency && !supportedCurrencies.has(requestedCurrency)) {
@@ -74,11 +88,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `No owner-entered ${orderCurrency} price is configured for this product.` }, { status: 400 });
     }
 
-    if (product.stockQuantity < quantity) {
+    if (product.stockQuantity < requestedQuantity) {
       return NextResponse.json({ error: "Insufficient stock" }, { status: 400 });
     }
 
-    const totalAmountInCents = unitPriceInCents * quantity;
+    const totalAmountInCents = unitPriceInCents * requestedQuantity;
     const orderId = randomUUID();
     const orderReference = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
@@ -88,15 +102,18 @@ export async function POST(req: Request) {
         data: {
           id: orderId,
           orderReference,
-          fullName,
-          email,
-          phone: phone || "",
-          address,
+          fullName: String(fullName).trim(),
+          email: String(email).trim(),
+          phone: String(phone).trim(),
+          address: String(address).trim(),
+          city: String(city).trim(),
+          country: String(country).trim(),
+          size: selectedSize,
           productId: product.id,
           productSku: product.sku,
           productTitle: product.title,
           unitPriceInCents,
-          quantity,
+          quantity: requestedQuantity,
           totalAmountInCents,
           currency: orderCurrency,
           paymentMethod: (useStripe ? "CARD" : "COD") as PaymentMethod,
@@ -108,7 +125,7 @@ export async function POST(req: Request) {
 
       // Reserve stock with race condition prevention
       const currentProduct = await tx.product.findUnique({ where: { id: product.id } });
-      if (!currentProduct || currentProduct.stockQuantity < quantity) {
+      if (!currentProduct || currentProduct.stockQuantity < requestedQuantity) {
         throw new Error("INSUFFICIENT_STOCK");
       }
 
@@ -116,7 +133,7 @@ export async function POST(req: Request) {
         where: { id: product.id },
         data: {
           stockQuantity: {
-            decrement: quantity,
+            decrement: requestedQuantity,
           },
         },
       });
@@ -144,7 +161,7 @@ export async function POST(req: Request) {
                 },
                 unit_amount: unitPriceInCents,
               },
-              quantity,
+              quantity: requestedQuantity,
             },
           ],
           mode: "payment",

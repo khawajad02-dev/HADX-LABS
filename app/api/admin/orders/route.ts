@@ -31,6 +31,10 @@ export async function GET(req: Request) {
         { fullName: { contains: query, mode: "insensitive" } },
         { email: { contains: query, mode: "insensitive" } },
         { phone: { contains: query, mode: "insensitive" } },
+        { address: { contains: query, mode: "insensitive" } },
+        { city: { contains: query, mode: "insensitive" } },
+        { country: { contains: query, mode: "insensitive" } },
+        { size: { contains: query, mode: "insensitive" } },
         { productTitle: { contains: query, mode: "insensitive" } },
       ];
     }

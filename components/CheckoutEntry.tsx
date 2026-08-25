@@ -11,6 +11,7 @@ type CheckoutProduct = {
   price: number;
   currency: Currency;
   imageUrl?: string | null;
+  availableSizes: string[];
 };
 
 export default function CheckoutEntry() {
@@ -18,12 +19,14 @@ export default function CheckoutEntry() {
   const [message, setMessage] = useState("Loading secure checkout…");
   const [productId, setProductId] = useState<string | null>(null);
   const [currency, setCurrency] = useState<Currency>("USD");
+  const [selectedSize, setSelectedSize] = useState("");
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     const requestedCurrency = (query.get("currency") || "USD").toUpperCase();
     setProductId(query.get("productId"));
     setCurrency(requestedCurrency === "PKR" || requestedCurrency === "INR" ? requestedCurrency : "USD");
+    setSelectedSize((query.get("size") || "").trim().toUpperCase());
   }, []);
 
   useEffect(() => {
@@ -47,6 +50,7 @@ export default function CheckoutEntry() {
           price: Number(item.regionalPrices?.[currency] ?? item.price ?? Number(item.priceInCents || 0) / 100),
           currency,
           imageUrl: item.imageUrl ?? item.media?.[0]?.url ?? null,
+          availableSizes: Array.isArray(item.availableSizes) && item.availableSizes.length ? item.availableSizes : ["S", "M", "L", "XL", "XXL"],
         });
       } catch {
         setMessage("Checkout could not connect to the live catalog. Please try again.");
@@ -60,5 +64,5 @@ export default function CheckoutEntry() {
     return <main className="min-h-screen bg-transparent px-6 pt-36 text-center text-white"><p className="font-mono text-xs uppercase tracking-widest text-zinc-400">{message}</p><a href="/catalog#catalog" className="liquid-ui mt-8 inline-flex rounded-full px-5 py-3 text-xs font-mono uppercase tracking-widest text-amber-100">Return to catalog</a></main>;
   }
 
-  return <CheckoutPage items={[{ id: product.id, name: product.title, price: product.price, currency: product.currency, quantity: 1, imageUrl: product.imageUrl }]} total={product.price} />;
+  return <CheckoutPage items={[{ id: product.id, name: product.title, price: product.price, currency: product.currency, quantity: 1, imageUrl: product.imageUrl, availableSizes: product.availableSizes, size: selectedSize }]} total={product.price} />;
 }
