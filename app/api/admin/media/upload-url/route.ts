@@ -28,8 +28,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Access Denied" }, { status: 401 });
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+    // The HADX Supabase project URL is public; keep an env override for future migrations.
+    const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "https://bzrmiuslxlcghyajgsyu.supabase.co").trim();
+    // Accept the earlier dashboard name while the canonical name is adopted.
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || process.env.SUPABASE_ROLE_KEY?.trim();
     const publicAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
     const storageKey = serviceRoleKey || publicAnonKey;
     const bucket = process.env.SUPABASE_MEDIA_BUCKET?.trim() || "product-media";
