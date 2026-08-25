@@ -30,6 +30,7 @@ enum OrderStatus {
 enum Currency {
   USD
   PKR
+  INR
   EUR
 }
 

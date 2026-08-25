@@ -8,7 +8,7 @@ import { decodeProductDescription } from "@/lib/product-meta";
  * If Prisma client is not yet generated, these will fall back to 'any' via the ignore/fallback pattern.
  */
 // @ts-ignore
-import type { PaymentMethod, OrderStatus, PaymentStatus } from "@prisma/client";
+import type { Currency, PaymentMethod, OrderStatus, PaymentStatus } from "@prisma/client";
 import { randomUUID } from "crypto";
 import Stripe from 'stripe';
 
@@ -35,6 +35,7 @@ export async function POST(req: Request) {
       phone, 
       address, 
       quantity = 1,
+      currency,
       useStripe = false
     } = body;
 
@@ -55,12 +56,29 @@ export async function POST(req: Request) {
     }
 
     const parsedProduct = decodeProductDescription(product.description);
+    const requestedCurrency = typeof currency === "string" ? currency.toUpperCase() : undefined;
+    const supportedCurrencies = new Set(["USD", "PKR", "INR"]);
+    if (requestedCurrency && !supportedCurrencies.has(requestedCurrency)) {
+      return NextResponse.json({ error: "Unsupported currency. Choose USD, PKR, or INR." }, { status: 400 });
+    }
+
+    const orderCurrency = (requestedCurrency || product.currency) as Currency;
+    const regionalPrice = parsedProduct.metadata.regionalPrices?.[orderCurrency as "USD" | "PKR" | "INR"];
+    const unitPriceInCents = regionalPrice !== undefined
+      ? Math.round(regionalPrice * 100)
+      : requestedCurrency
+        ? null
+        : product.priceInCents;
+
+    if (unitPriceInCents === null || !Number.isFinite(unitPriceInCents) || unitPriceInCents <= 0) {
+      return NextResponse.json({ error: `No owner-entered ${orderCurrency} price is configured for this product.` }, { status: 400 });
+    }
 
     if (product.stockQuantity < quantity) {
       return NextResponse.json({ error: "Insufficient stock" }, { status: 400 });
     }
 
-    const totalAmountInCents = product.priceInCents * quantity;
+    const totalAmountInCents = unitPriceInCents * quantity;
     const orderId = randomUUID();
     const orderReference = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
@@ -77,10 +95,10 @@ export async function POST(req: Request) {
           productId: product.id,
           productSku: product.sku,
           productTitle: product.title,
-          unitPriceInCents: product.priceInCents,
+          unitPriceInCents,
           quantity,
           totalAmountInCents,
-          currency: product.currency,
+          currency: orderCurrency,
           paymentMethod: (useStripe ? "CARD" : "COD") as PaymentMethod,
           paymentStatus: (useStripe ? "PENDING_PAYMENT" : "UNPAID_COD") as PaymentStatus,
           orderStatus: "RESERVED" as OrderStatus,
@@ -118,13 +136,13 @@ export async function POST(req: Request) {
           line_items: [
             {
               price_data: {
-                currency: product.currency.toLowerCase(),
+                currency: orderCurrency.toLowerCase(),
                 product_data: {
                   name: product.title,
                   description: parsedProduct.description || "",
                   images: product.imageUrl ? [product.imageUrl] : parsedProduct.metadata.media?.filter((media) => media.type === "image").slice(0, 8).map((media) => media.url) || [],
                 },
-                unit_amount: product.priceInCents,
+                unit_amount: unitPriceInCents,
               },
               quantity,
             },
