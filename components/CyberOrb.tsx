@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import InstagramDMButton from "./InstagramDMButton";
 import VaultButton from "./VaultButton";
@@ -14,6 +15,8 @@ export default function CyberOrb() {
   const [lightningPulse, setLightningPulse] = useState(0);
   const orbRef = useRef<HTMLDivElement>(null);
   const [cartItems, setCartItems] = useState<any[]>([]);
+  const pathname = usePathname();
+  const isCheckoutRoute = pathname.startsWith("/checkout");
 
   useEffect(() => {
     const handlePointerDownOutside = (event: PointerEvent) => {
@@ -34,7 +37,7 @@ export default function CyberOrb() {
   };
 
   return (
-    <div ref={orbRef} className="pointer-events-auto fixed bottom-[30px] right-5 z-[99999] flex flex-col items-end gap-2">
+    <div ref={orbRef} className={`pointer-events-auto fixed z-[99999] flex flex-col items-end gap-2 ${isCheckoutRoute ? "top-4 right-5" : "bottom-[30px] right-5"}`}>
       {/* The actions remain in the same vertical floating panel; only the surface language is shared. */}
       <AnimatePresence>
         {isOpen && (

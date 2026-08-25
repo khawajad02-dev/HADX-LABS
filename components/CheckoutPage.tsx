@@ -109,8 +109,11 @@ export default function CheckoutPage({
 
         <form onSubmit={handleRealCheckout} className="space-y-4 font-mono text-xs">
           <div>
-            <label className="block text-neutral-500 mb-1 uppercase">Full Name</label>
+            <label htmlFor="checkout-name" className="block text-neutral-500 mb-1 uppercase">Full Name</label>
             <input
+              id="checkout-name"
+              name="name"
+              autoComplete="name"
               type="text"
               required
               placeholder="Daud Commando"
@@ -121,8 +124,11 @@ export default function CheckoutPage({
           </div>
 
           <div>
-            <label className="block text-neutral-500 mb-1 uppercase">Email Address</label>
+            <label htmlFor="checkout-email" className="block text-neutral-500 mb-1 uppercase">Email Address</label>
             <input
+              id="checkout-email"
+              name="email"
+              autoComplete="email"
               type="email"
               required
               placeholder="daud@hadx.labs"
@@ -133,8 +139,12 @@ export default function CheckoutPage({
           </div>
 
           <div>
-            <label className="block text-neutral-500 mb-1 uppercase">Phone Number</label>
+            <label htmlFor="checkout-phone" className="block text-neutral-500 mb-1 uppercase">Phone Number</label>
             <input
+              id="checkout-phone"
+              name="phone"
+              autoComplete="tel"
+              inputMode="tel"
               type="tel"
               required
               placeholder="+92 300 1234567"
@@ -146,8 +156,11 @@ export default function CheckoutPage({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-neutral-500 mb-1 uppercase">Address</label>
+              <label htmlFor="checkout-address" className="block text-neutral-500 mb-1 uppercase">Address</label>
               <input
+                id="checkout-address"
+                name="address"
+                autoComplete="street-address"
                 type="text"
                 required
                 placeholder="Sector 7"
@@ -157,14 +170,18 @@ export default function CheckoutPage({
               />
             </div>
             <div>
-              <label className="block text-neutral-500 mb-1 uppercase">City</label>
+              <label htmlFor="checkout-city" className="block text-neutral-500 mb-1 uppercase">City</label>
               <input
+                id="checkout-city"
+                name="city"
+                autoComplete="address-level2"
+                inputMode="text"
                 type="text"
                 required
                 placeholder="Cyber City"
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="liquid-ui w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
+                className="liquid-ui relative z-10 w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors touch-manipulation"
               />
             </div>
           </div>
@@ -187,42 +204,6 @@ export default function CheckoutPage({
             </button>
           </div>
         </form>
-      </div>
-
-      {/* Developer Test Suite (For Testing All Video States directly) */}
-      <div className="liquid-panel w-full max-w-xl border-dashed border-neutral-800 rounded-xl p-4 space-y-3">
-        <p className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest text-center">
-          [ DEV DEBUG TOOL: OVERRIDE MODAL STATES ]
-        </p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <button
-            onClick={() => setModalState('payment_failed')}
-            className="liquid-ui p-2 rounded-lg border border-red-500/30 text-red-300 hover:bg-red-900/50 font-mono text-[10px]"
-          >
-            Payment Failed
-          </button>
-          <button
-            onClick={() => setModalState('network_error')}
-            className="liquid-ui p-2 rounded-lg border border-amber-500/30 text-amber-300 hover:bg-amber-900/50 font-mono text-[10px]"
-          >
-            Network Error
-          </button>
-          <button
-            onClick={() => setModalState('timeout')}
-            className="liquid-ui p-2 rounded-lg border border-orange-500/30 text-orange-300 hover:bg-orange-900/50 font-mono text-[10px]"
-          >
-            Session Timeout
-          </button>
-          <button
-            onClick={() => {
-              setActiveOrderId('HADX-' + Math.floor(100000 + Math.random() * 900000));
-              setModalState('order_confirmed');
-            }}
-            className="liquid-ui p-2 rounded-lg border border-emerald-500/30 text-emerald-300 hover:bg-emerald-900/50 font-mono text-[10px]"
-          >
-            Order Confirmed
-          </button>
-        </div>
       </div>
 
       {/* Video Modal Component */}
