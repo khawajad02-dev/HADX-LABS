@@ -65,7 +65,7 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
 
   const ringCards = useMemo(() => {
     if (!products.length) return [];
-    const offsets = products.length === 1 ? [0] : products.length === 2 ? [-1, 0, 1] : [-2, -1, 0, 1, 2];
+    const offsets = products.length === 1 ? [0] : products.length === 2 ? [-1, 0] : [-2, -1, 0, 1, 2];
     return offsets.map((offset) => {
       const index = (activeIndex + offset + products.length) % products.length;
       return { product: products[index], offset };
@@ -132,7 +132,7 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
                       transformStyle: "preserve-3d",
                     }}
                   >
-                    <MediaPreview product={product} eager={isActive} className={`h-full w-full ${isActive ? "object-contain bg-black/20 p-2" : "object-cover"}`} />
+                    <MediaPreview product={product} eager={isActive} className="h-full w-full object-cover" />
                     <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/45 to-transparent px-4 pb-4 pt-20 text-[9px] font-mono uppercase tracking-[0.18em] text-white/85">{product.title}</span>
                     {isActive ? <span className="absolute left-1/2 top-5 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[color:var(--stage-accent)] shadow-[0_0_18px_var(--stage-accent)]" /> : null}
                   </motion.button>
