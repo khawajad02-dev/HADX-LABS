@@ -566,3 +566,31 @@ body {
     backdrop-filter: url("#hadx-liquid-refraction") blur(8px) saturate(118%);
   }
 }
+
+/* Mobile performance tier: keep the liquid material readable while reducing filter and blur work during touch. */
+@media (max-width: 640px) {
+  .liquid-ui,
+  .liquid-panel,
+  [data-liquid-surface] {
+    -webkit-backdrop-filter: blur(4px) saturate(108%);
+    backdrop-filter: blur(4px) saturate(108%);
+  }
+
+  .liquid-ui::before,
+  .liquid-panel::before,
+  [data-liquid-surface]::before {
+    filter: none;
+    animation-duration: 16s;
+  }
+
+  .liquid-ui::after,
+  .liquid-panel::after,
+  [data-liquid-surface]::after {
+    animation-duration: 7s;
+  }
+
+  .ambient-nebula-cloud {
+    filter: blur(14px);
+    opacity: 0.62;
+  }
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import FeaturedShowcase, { type Product } from "@/components/FeaturedShowcase";
 
@@ -32,10 +32,14 @@ function EmptyInventory({ currency }: { currency: DisplayCurrency }) {
 
 export default function LiveInventoryHero({ initialProducts, initialCurrency }: { initialProducts: Product[]; initialCurrency: DisplayCurrency }) {
   const [products, setProducts] = useState<Product[]>(initialProducts);
+  const lastRefreshAt = useRef(0);
 
   const refreshInventory = useCallback(async () => {
+    const now = Date.now();
+    if (now - lastRefreshAt.current < 10000) return;
+    lastRefreshAt.current = now;
     try {
-      const response = await fetch(`/api/products?currency=${initialCurrency}&_=${Date.now()}`, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await fetch(`/api/products?currency=${initialCurrency}&_=${now}`, { cache: "no-store", headers: { Accept: "application/json" } });
       const data = await response.json();
       if (response.ok && data.success && Array.isArray(data.products)) setProducts(normalizeProducts(data.products, initialCurrency));
     } catch (error) {
@@ -44,12 +48,15 @@ export default function LiveInventoryHero({ initialProducts, initialCurrency }: 
   }, [initialCurrency]);
 
   useEffect(() => {
-    void refreshInventory();
+    const refreshTimer = window.setTimeout(() => void refreshInventory(), 450);
     const onVisible = () => {
       if (document.visibilityState === "visible") void refreshInventory();
     };
     document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
+    return () => {
+      window.clearTimeout(refreshTimer);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [refreshInventory]);
 
   return products.length > 0 ? <FeaturedShowcase products={products} /> : <EmptyInventory currency={initialCurrency} />;

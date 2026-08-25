@@ -40,13 +40,13 @@ function mediaFor(product: Product) {
   return product.media?.[0] || (product.imageUrl ? { url: product.imageUrl, type: "image" as const } : null);
 }
 
-function MediaPreview({ product, className }: { product: Product; className: string }) {
+function MediaPreview({ product, className, eager = false }: { product: Product; className: string; eager?: boolean }) {
   const media = mediaFor(product);
   if (!media) return <span className="text-[9px] font-mono uppercase tracking-widest text-white/30">[ NO PREVIEW ]</span>;
   return media.type === "video" ? (
-    <video src={media.url} muted playsInline loop autoPlay className={className} aria-label={product.title} />
+    <video src={media.url} muted playsInline loop autoPlay={eager} preload={eager ? "metadata" : "none"} className={className} aria-label={product.title} />
   ) : (
-    <img src={media.url} alt={product.title} className={className} />
+    <img src={media.url} alt={product.title} loading={eager ? "eager" : "lazy"} decoding="async" fetchPriority={eager ? "high" : "auto"} className={className} />
   );
 }
 
@@ -132,7 +132,7 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
                       transformStyle: "preserve-3d",
                     }}
                   >
-                    <MediaPreview product={product} className={`h-full w-full ${isActive ? "object-contain bg-black/20 p-2" : "object-cover"}`} />
+                    <MediaPreview product={product} eager={isActive} className={`h-full w-full ${isActive ? "object-contain bg-black/20 p-2" : "object-cover"}`} />
                     <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/45 to-transparent px-4 pb-4 pt-20 text-[9px] font-mono uppercase tracking-[0.18em] text-white/85">{product.title}</span>
                     {isActive ? <span className="absolute left-1/2 top-5 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[color:var(--stage-accent)] shadow-[0_0_18px_var(--stage-accent)]" /> : null}
                   </motion.button>

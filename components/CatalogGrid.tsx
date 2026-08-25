@@ -186,9 +186,9 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
               >
                 <div className="aspect-[4/5] bg-zinc-900/45 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
                   {displayVideo ? (
-                    <video src={displayVideo} aria-label={displayTitle} controls muted playsInline className="w-full h-full object-cover" />
+                    <video src={displayVideo} aria-label={displayTitle} controls muted playsInline preload="none" className="w-full h-full object-cover" />
                   ) : displayImg ? (
-                    <img src={displayImg} alt={displayTitle} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={displayImg} alt={displayTitle} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
                     <span className="text-zinc-700 text-[10px] font-mono uppercase">no image</span>
                   )}

@@ -1,20 +1,16 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import InstagramDMButton from "./InstagramDMButton";
-import VaultButton from "./VaultButton";
 import AudioToggle from "./AudioToggle";
-import CartDrawer from "./CartDrawer";
-import SecureDropButton from "./SecureDropButton";
 
 export default function CyberOrb() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [lightningPulse, setLightningPulse] = useState(0);
   const orbRef = useRef<HTMLDivElement>(null);
-  const [cartItems, setCartItems] = useState<any[]>([]);
   const pathname = usePathname();
   const isCheckoutRoute = pathname.startsWith("/checkout");
 
@@ -42,14 +38,13 @@ export default function CyberOrb() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95, filter: "blur(6px)" }}
-            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: 20, scale: 0.95, filter: "blur(6px)" }}
-            transition={{ duration: 0.28, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.98 }}
+            transition={{ duration: 0.16, ease: "easeOut" }}
             className="liquid-panel mb-1 flex flex-col items-end gap-3 rounded-2xl p-3 shadow-[0_0_35px_rgba(179,112,18,0.12)]"
           >
-            <SecureDropButton label="EXECUTE ORDER" onClick={() => setIsCartOpen(true)} />
-            <VaultButton />
+            <Link href="/catalog#catalog" onClick={() => setIsOpen(false)} className="liquid-ui rounded-lg px-6 py-3 text-[11px] font-mono uppercase tracking-[0.2em] text-hadx-gold-light transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]">SHOP ALL DROPS</Link>
             <InstagramDMButton label="INSTAGRAM DM" />
             <AudioToggle />
           </motion.div>
@@ -142,14 +137,6 @@ export default function CyberOrb() {
         </motion.button>
       </div>
 
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cartItems}
-        onIncrement={(id) => setCartItems((prev) => prev.map((item) => (item.id === id ? { ...item, quantity: item.quantity + 1 } : item)))}
-        onDecrement={(id) => setCartItems((prev) => prev.map((item) => (item.id === id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item)))}
-        onCheckout={() => (window.location.href = "/checkout")}
-      />
 
       <style jsx global>{`
         @keyframes scanline {

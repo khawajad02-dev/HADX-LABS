@@ -200,7 +200,7 @@ export default function HadxAmbientEngine() {
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isSmallScreen = window.innerWidth < 700;
-    const particleCount = reducedMotion ? 24 : isSmallScreen ? 48 : 86;
+    const particleCount = reducedMotion ? 16 : isSmallScreen ? 30 : 64;
     let width = 0;
     let height = 0;
     let dpr = 1;
@@ -218,7 +218,7 @@ export default function HadxAmbientEngine() {
     const bolts: StormBolt[] = [];
 
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      dpr = Math.min(window.devicePixelRatio || 1, isSmallScreen ? 1.1 : 1.35);
       width = window.innerWidth;
       height = window.innerHeight;
       canvas.width = Math.floor(width * dpr);
@@ -248,7 +248,7 @@ export default function HadxAmbientEngine() {
           [0.38, 0.58, 0.86],
           [0.84, 0.74, 1.05],
           [0.18, 0.84, 0.76],
-        ].forEach(([x, y, scale], index) => {
+        ].slice(0, isSmallScreen ? 3 : 5).forEach(([x, y, scale], index) => {
           clouds.push({
             x,
             y,
@@ -310,6 +310,7 @@ export default function HadxAmbientEngine() {
         scrollEnergy = Math.max(scrollEnergy, velocity);
         spawnScrollLightning(velocity, delta >= 0 ? 1 : -1, now);
       }
+      scheduleRender();
       lastScrollY = window.scrollY;
       lastScrollTime = now;
     };
@@ -323,6 +324,7 @@ export default function HadxAmbientEngine() {
 
     const handlePointerMove = (event: PointerEvent) => {
       pointerPoint = { x: event.clientX, y: event.clientY };
+      scheduleRender();
       if (!pointerStart) return;
       const dx = event.clientX - pointerStart.x;
       const dy = event.clientY - pointerStart.y;
@@ -347,6 +349,7 @@ export default function HadxAmbientEngine() {
       } else {
         addBolt(createLightningBolt(start, end, intensity, now));
       }
+      scheduleRender();
       pointerMoved = false;
     };
 
@@ -356,6 +359,8 @@ export default function HadxAmbientEngine() {
     };
 
     const render = (now: number) => {
+      raf = 0;
+      if (document.visibilityState !== "visible") return;
       const dt = Math.min(32, now - lastFrame);
       lastFrame = now;
       const seconds = now / 1000;
@@ -409,21 +414,37 @@ export default function HadxAmbientEngine() {
         else drawStormBolt(ctx, bolts[index], now);
       }
 
+      if (!reducedMotion && document.visibilityState === "visible") raf = window.requestAnimationFrame(render);
+    };
+
+    const scheduleRender = () => {
+      if (document.visibilityState !== "visible" || raf !== 0) return;
       raf = window.requestAnimationFrame(render);
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") scheduleRender();
+      else if (raf) {
+        window.cancelAnimationFrame(raf);
+        raf = 0;
+      }
     };
 
     resize();
     window.addEventListener("resize", resize, { passive: true });
+    document.addEventListener("visibilitychange", handleVisibility);
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("pointerdown", handlePointerDown, { passive: true });
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     window.addEventListener("pointerup", handlePointerUp, { passive: true });
     window.addEventListener("pointercancel", handlePointerCancel, { passive: true });
-    raf = window.requestAnimationFrame(render);
+    if (reducedMotion) render(performance.now());
+    else scheduleRender();
 
     return () => {
       window.cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", handleVisibility);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("pointerdown", handlePointerDown);
       window.removeEventListener("pointermove", handlePointerMove);
