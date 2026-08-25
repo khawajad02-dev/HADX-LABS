@@ -60,6 +60,11 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
   const [displayCurrency, setDisplayCurrency] = useState<"USD" | "PKR" | "INR">(initialProducts?.[0]?.currency || "USD");
 
   useEffect(() => {
+    const requestedCurrency = new URLSearchParams(window.location.search).get("currency")?.toUpperCase();
+    if (requestedCurrency === "PKR" || requestedCurrency === "INR" || requestedCurrency === "USD") setDisplayCurrency(requestedCurrency);
+  }, []);
+
+  useEffect(() => {
     const initialQuery = new URLSearchParams(window.location.search).get("search");
     if (initialQuery) setSearchQuery(initialQuery);
   }, []);
@@ -175,7 +180,7 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
             return (
               <Link
                 key={product.id}
-                href={`/product/${product.sku || product.id}`}
+                href={`/product/${product.sku || product.id}?currency=${displayCurrency}`}
                 aria-label={`Open ${displayTitle}`}
                 className="liquid-panel group block cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-1 focus:ring-amber-200"
               >

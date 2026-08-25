@@ -11,7 +11,9 @@ import { serializeProduct } from "@/lib/product-meta";
 
 export const revalidate = 0;
 
-function detectCurrency(): DisplayCurrency {
+function detectCurrency(requested?: string): DisplayCurrency {
+  const explicit = requested?.toUpperCase();
+  if (explicit === "PKR" || explicit === "INR" || explicit === "USD") return explicit;
   const country = (headers().get("x-vercel-ip-country") || headers().get("cf-ipcountry") || "").toUpperCase();
   if (country === "PK") return "PKR";
   if (country === "IN") return "INR";
@@ -34,11 +36,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
+export default async function ProductPage({ params, searchParams }: { params: { slug: string }; searchParams?: { currency?: string } }) {
   const product = await prisma.product.findUnique({ where: { sku: params.slug } });
   if (!product || product.status !== "PUBLISHED") notFound();
   const parsed = serializeProduct(product);
-  const currency = detectCurrency();
+  const currency = detectCurrency(searchParams?.currency);
   const amount = regionalPrice(product.priceInCents, parsed.regionalPrices, currency);
   const primaryMedia = parsed.media[0];
 
