@@ -65,12 +65,14 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
 
   const ringCards = useMemo(() => {
     if (!products.length) return [];
-    return [-2, -1, 0, 1, 2]
-      .map((offset) => {
-        const index = (activeIndex + offset + products.length) % products.length;
-        return { product: products[index], offset };
-      })
-      .filter((item, index, all) => all.findIndex((candidate) => candidate.product.id === item.product.id) === index);
+    const unique = new Map<string, { product: Product; offset: number }>();
+    for (const offset of [-2, -1, 0, 1, 2]) {
+      const index = (activeIndex + offset + products.length) % products.length;
+      const product = products[index];
+      const existing = unique.get(product.id);
+      if (!existing || Math.abs(offset) < Math.abs(existing.offset) || offset === 0) unique.set(product.id, { product, offset });
+    }
+    return Array.from(unique.values()).sort((left, right) => left.offset - right.offset);
   }, [activeIndex, products]);
 
   if (!active) return null;
