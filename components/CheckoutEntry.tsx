@@ -64,5 +64,6 @@ export default function CheckoutEntry() {
     return <main className="min-h-screen bg-transparent px-6 pt-36 text-center text-white"><p className="font-mono text-xs uppercase tracking-widest text-zinc-400">{message}</p><a href="/catalog#catalog" className="liquid-ui mt-8 inline-flex rounded-full px-5 py-3 text-xs font-mono uppercase tracking-widest text-amber-100">Return to catalog</a></main>;
   }
 
-  return <CheckoutPage items={[{ id: product.id, name: product.title, price: product.price, currency: product.currency, quantity: 1, imageUrl: product.imageUrl, availableSizes: product.availableSizes, size: selectedSize }]} total={product.price} />;
+  const initialCountry = currency === "PKR" ? "Pakistan" : currency === "INR" ? "India" : "";
+  return <CheckoutPage items={[{ id: product.id, name: product.title, price: product.price, currency: product.currency, quantity: 1, imageUrl: product.imageUrl, availableSizes: product.availableSizes, size: selectedSize }]} total={product.price} initialCountry={initialCountry} />;
 }

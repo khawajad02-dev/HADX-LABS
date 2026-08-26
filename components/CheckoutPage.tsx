@@ -5,14 +5,17 @@ import { CheckoutVideoModal, CheckoutState } from './CheckoutVideoModal';
 
 export default function CheckoutPage({ 
   items: initialItems = [], 
-  total: initialTotal = 0 
-}: { 
-  items?: any[], 
-  total?: number 
+  total: initialTotal = 0,
+  initialCountry = ''
+}: {
+  items?: any[],
+  total?: number,
+  initialCountry?: string
 }) {
   const [modalState, setModalState] = useState<CheckoutState>(null);
   const [activeOrderId, setActiveOrderId] = useState<string>('HADX-984210');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [inlineMessage, setInlineMessage] = useState('');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -21,7 +24,7 @@ export default function CheckoutPage({
     phone: '',
     address: '',
     city: '',
-    country: '',
+    country: initialCountry,
   });
 
   const cartItems = initialItems;
@@ -30,6 +33,9 @@ export default function CheckoutPage({
   const [selectedSize, setSelectedSize] = useState(selectedProduct?.size || '');
   const activeCurrency = cartItems[0]?.currency || 'USD';
   const currencySymbol = activeCurrency === 'PKR' ? 'PKR' : activeCurrency === 'INR' ? '₹' : '$';
+  const isPakistan = formData.country.trim().toLowerCase() === 'pakistan';
+  const paymentMethod = formData.country ? (isPakistan ? 'COD' : 'CARD') : '';
+  const paymentLabel = paymentMethod === 'COD' ? 'Cash on delivery' : paymentMethod === 'CARD' ? 'Card payment' : 'Select country first';
   const totalAmount = initialTotal > 0 ? initialTotal : cartItems.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 0), 0);
 
   // Live Checkout Execution Handler
@@ -47,6 +53,7 @@ export default function CheckoutPage({
       return;
     }
 
+    setInlineMessage('');
     setIsSubmitting(true);
 
     const controller = new AbortController();
@@ -68,13 +75,19 @@ export default function CheckoutPage({
           country: formData.country,
           size: selectedSize,
           currency: activeCurrency,
-          useStripe: false, // Default to COD as per spec unless specified
+          paymentMethod,
+          useStripe: paymentMethod === 'CARD',
         }),
       });
 
       clearTimeout(timeoutId);
 
       const data = await res.json();
+
+      if (res.status === 503) {
+        setInlineMessage(data.error || 'Card payment is not activated yet. Please choose Cash on Delivery where available.');
+        return;
+      }
 
       if (res.ok && data.success) {
         setActiveOrderId(data.orderId || `HADX-${Math.floor(100000 + Math.random() * 900000)}`);
@@ -220,7 +233,7 @@ export default function CheckoutPage({
 
           <div>
             <label htmlFor="checkout-country" className="block text-neutral-500 mb-1 uppercase">Country</label>
-            <select
+              <select
               id="checkout-country"
               name="country"
               autoComplete="country-name"
@@ -239,8 +252,20 @@ export default function CheckoutPage({
               <option value="Canada" className="bg-zinc-950">Canada</option>
               <option value="Australia" className="bg-zinc-950">Australia</option>
               <option value="Other" className="bg-zinc-950">Other</option>
-            </select>
+              </select>
           </div>
+
+          <div className="rounded-xl border border-amber-200/15 bg-amber-100/[0.025] p-4" aria-live="polite">
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-500">Payment method</span>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-amber-200">{paymentLabel}</span>
+            </div>
+            {paymentMethod === 'COD' ? <p className="mt-2 text-[11px] leading-5 text-white/55">Pakistan orders use Cash on Delivery only.</p> : null}
+            {paymentMethod === 'CARD' ? <p className="mt-2 text-[11px] leading-5 text-white/55">Card checkout is used for India and international delivery.</p> : null}
+            {!paymentMethod ? <p className="mt-2 text-[11px] leading-5 text-white/45">Choose your delivery country to set the correct payment route.</p> : null}
+          </div>
+
+          {inlineMessage ? <div role="alert" className="rounded-xl border border-amber-300/20 bg-amber-100/[0.04] p-4 text-[11px] leading-5 text-amber-100">{inlineMessage}</div> : null}
 
           {/* Total & Submit */}
           <div className="pt-4 border-t border-neutral-800 flex items-center justify-between">

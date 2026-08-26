@@ -39,6 +39,7 @@ export async function POST(req: Request) {
       size,
       quantity = 1,
       currency,
+      paymentMethod: requestedPaymentMethod,
       useStripe = false
     } = body;
 
@@ -47,6 +48,20 @@ export async function POST(req: Request) {
         { error: "Missing required fields: productId, fullName, email, phone, address, city, country, size" },
         { status: 400 }
       );
+    }
+
+    const normalizedCountry = String(country).trim();
+    const isPakistan = normalizedCountry.toLowerCase() === "pakistan";
+    const selectedPaymentMethod = isPakistan ? "COD" : "CARD";
+    const requestedPayment = String(requestedPaymentMethod || (useStripe ? "CARD" : "COD")).trim().toUpperCase();
+    if (isPakistan && requestedPayment === "CARD") {
+      return NextResponse.json({ error: "Pakistan orders support Cash on Delivery only." }, { status: 400 });
+    }
+    if (!isPakistan && requestedPayment === "COD") {
+      return NextResponse.json({ error: "Card payment is required for India and international delivery." }, { status: 400 });
+    }
+    if (selectedPaymentMethod === "CARD" && !process.env.STRIPE_SECRET_KEY) {
+      return NextResponse.json({ error: "Card payment is ready but not activated yet. Please try again after the payment provider is configured." }, { status: 503 });
     }
 
     const requestedQuantity = Number(quantity);
@@ -107,7 +122,7 @@ export async function POST(req: Request) {
           phone: String(phone).trim(),
           address: String(address).trim(),
           city: String(city).trim(),
-          country: String(country).trim(),
+          country: normalizedCountry,
           size: selectedSize,
           productId: product.id,
           productSku: product.sku,
@@ -116,8 +131,8 @@ export async function POST(req: Request) {
           quantity: requestedQuantity,
           totalAmountInCents,
           currency: orderCurrency,
-          paymentMethod: (useStripe ? "CARD" : "COD") as PaymentMethod,
-          paymentStatus: (useStripe ? "PENDING_PAYMENT" : "UNPAID_COD") as PaymentStatus,
+          paymentMethod: selectedPaymentMethod as PaymentMethod,
+          paymentStatus: (selectedPaymentMethod === "CARD" ? "PENDING_PAYMENT" : "UNPAID_COD") as PaymentStatus,
           orderStatus: "RESERVED" as OrderStatus,
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
         },
@@ -142,7 +157,7 @@ export async function POST(req: Request) {
     });
 
     // If using Stripe, create checkout session
-    if (useStripe && process.env.STRIPE_SECRET_KEY) {
+    if (selectedPaymentMethod === "CARD") {
       try {
         const stripeInstance = getStripe();
         if (!stripeInstance) {
@@ -188,8 +203,22 @@ export async function POST(req: Request) {
         });
       } catch (stripeErr: any) {
         console.error("Stripe session creation failed:", stripeErr);
+        try {
+          await prisma.$transaction(async (tx) => {
+            await tx.order.update({
+              where: { id: order.id },
+              data: { orderStatus: "CANCELLED" as OrderStatus, paymentStatus: "FAILED" as PaymentStatus },
+            });
+            await tx.product.update({
+              where: { id: product.id },
+              data: { stockQuantity: { increment: requestedQuantity } },
+            });
+          });
+        } catch (rollbackErr) {
+          console.error("Failed to rollback card reservation:", rollbackErr);
+        }
         return NextResponse.json(
-          { error: "Failed to create payment session" },
+          { error: "Failed to create payment session. No card was charged." },
           { status: 500 }
         );
       }

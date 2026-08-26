@@ -59,6 +59,7 @@ export async function POST(req: Request) {
         where: { id: orderId },
         data: {
           paymentStatus: "COMPLETED",
+          orderStatus: "CONFIRMED",
           confirmedAt: new Date(),
         },
         include: {
