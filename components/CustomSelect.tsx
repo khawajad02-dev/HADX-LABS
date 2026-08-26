@@ -14,6 +14,10 @@ type CustomSelectProps = {
   placeholder?: string;
   ariaLabel: string;
   className?: string;
+  searchable?: boolean;
+  allowCustomOption?: boolean;
+  searchPlaceholder?: string;
+  onCustomSelect?: (value: string) => void;
 };
 
 export default function CustomSelect({
@@ -23,11 +27,21 @@ export default function CustomSelect({
   placeholder = 'Select option',
   ariaLabel,
   className = '',
+  searchable = false,
+  allowCustomOption = false,
+  searchPlaceholder = 'Type to search',
+  onCustomSelect,
 }: CustomSelectProps) {
   const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const rootRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
   const listboxId = useId();
   const selected = options.find((option) => option.value === value);
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const filteredOptions = searchable && normalizedQuery
+    ? options.filter((option) => option.label.toLowerCase().includes(normalizedQuery) || option.value.toLowerCase().includes(normalizedQuery))
+    : options;
 
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
@@ -52,7 +66,10 @@ export default function CustomSelect({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listboxId}
-        onClick={() => setOpen((current) => !current)}
+        onClick={() => {
+          setOpen((current) => !current);
+          setSearchQuery('');
+        }}
         className="flex w-full items-center justify-between gap-4 rounded-full border border-white/10 bg-[#0D0D0D]/90 px-4 py-2 text-left text-[11px] font-mono uppercase tracking-wide text-[#E0E0E0] shadow-[0_10px_30px_rgba(0,0,0,0.2)] backdrop-blur-[12px] transition-colors hover:border-[#D4AF37]/60 focus:outline-none focus:ring-1 focus:ring-[#D4AF37]/70"
       >
         <span className={selected ? 'text-[#E0E0E0]' : 'text-white/45'}>{selected?.label || placeholder}</span>
@@ -66,7 +83,28 @@ export default function CustomSelect({
           aria-label={ariaLabel}
           className="absolute left-0 right-0 top-[calc(100%+0.45rem)] z-[80] overflow-hidden rounded-xl border border-white/10 bg-[#0D0D0D]/95 p-1 shadow-[0_18px_50px_rgba(0,0,0,0.5)] backdrop-blur-[12px]"
         >
-          {options.map((option) => {
+          {searchable ? (
+            <div className="border-b border-white/10 p-2">
+              <input
+                ref={searchRef}
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && allowCustomOption && searchQuery.trim()) {
+                    event.preventDefault();
+                    onChange('Other');
+                    onCustomSelect?.(searchQuery.trim());
+                    setOpen(false);
+                  }
+                }}
+                autoFocus
+                placeholder={searchPlaceholder}
+                aria-label={`${ariaLabel} search`}
+                className="w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-[10px] font-mono uppercase tracking-[0.08em] text-[#E0E0E0] placeholder:text-white/35 focus:border-[#D4AF37]/70 focus:outline-none"
+              />
+            </div>
+          ) : null}
+          {filteredOptions.map((option) => {
             const active = option.value === value;
             return (
               <button
@@ -85,6 +123,23 @@ export default function CustomSelect({
               </button>
             );
           })}
+          {searchable && allowCustomOption && normalizedQuery && !filteredOptions.some((option) => option.label.toLowerCase() === normalizedQuery || option.value.toLowerCase() === normalizedQuery) ? (
+            <button
+              type="button"
+              role="option"
+              aria-selected={false}
+              onClick={() => {
+                onChange('Other');
+                onCustomSelect?.(searchQuery.trim());
+                setOpen(false);
+                setSearchQuery('');
+              }}
+              className="mt-1 flex w-full items-center justify-between rounded-lg border border-[#D4AF37]/25 bg-[#D4AF37]/[0.08] px-3 py-2.5 text-left text-[10px] font-mono uppercase tracking-[0.08em] text-[#D4AF37] hover:bg-[#D4AF37]/[0.16]"
+            >
+              <span>Use “{searchQuery.trim()}”</span>
+              <span aria-hidden="true">✓</span>
+            </button>
+          ) : null}
         </div>
       ) : null}
     </div>

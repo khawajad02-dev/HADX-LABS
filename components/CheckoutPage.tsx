@@ -248,6 +248,10 @@ export default function CheckoutPage({
                 { value: '', label: 'Select country' },
                 { value: 'Pakistan', label: 'Pakistan' },
                 { value: 'India', label: 'India' },
+                { value: 'Afghanistan', label: 'Afghanistan' },
+                { value: 'Sweden', label: 'Sweden' },
+                { value: 'Italy', label: 'Italy' },
+                { value: 'Indonesia', label: 'Indonesia' },
                 { value: 'United States', label: 'United States' },
                 { value: 'United Kingdom', label: 'United Kingdom' },
                 { value: 'United Arab Emirates', label: 'United Arab Emirates' },
@@ -258,6 +262,10 @@ export default function CheckoutPage({
               ]}
               placeholder="Select country"
               className="w-full"
+              searchable
+              allowCustomOption
+              searchPlaceholder="Type country name"
+              onCustomSelect={(value) => setOtherCountry(value)}
             />
             {isOtherCountry ? (
               <div className="mt-3">
@@ -268,8 +276,9 @@ export default function CheckoutPage({
                   autoComplete="country-name"
                   type="text"
                   required
-                  placeholder="Enter country name"
+                  placeholder="Type Afghanistan, Sweden, Italy..."
                   value={otherCountry}
+                  autoFocus
                   onChange={(e) => setOtherCountry(e.target.value)}
                   className="liquid-ui relative z-10 w-full rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none transition-colors"
                 />

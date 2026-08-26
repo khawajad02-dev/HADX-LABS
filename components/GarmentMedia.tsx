@@ -121,8 +121,42 @@ export default function GarmentMedia({ src, alt, className, eager = false }: Gar
       }
 
       context.putImageData(pixels, 0, 0);
+
+      // Normalize the visible garment bounds. Owner uploads can contain very
+      // different amounts of studio margin; cropping transparent pixels here
+      // lets the shared stage size the actual garment, not the source canvas.
+      let minX = width;
+      let minY = height;
+      let maxX = -1;
+      let maxY = -1;
+      for (let y = 0; y < height; y += 1) {
+        for (let x = 0; x < width; x += 1) {
+          if (pixels.data[(y * width + x) * 4 + 3] > 8) {
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
       try {
-        const pngDataUrl = canvas.toDataURL("image/png");
+        const hasVisiblePixels = maxX >= minX && maxY >= minY;
+        const padding = hasVisiblePixels ? Math.max(8, Math.round(Math.min(width, height) * 0.025)) : 0;
+        const cropX = hasVisiblePixels ? Math.max(0, minX - padding) : 0;
+        const cropY = hasVisiblePixels ? Math.max(0, minY - padding) : 0;
+        const cropRight = hasVisiblePixels ? Math.min(width - 1, maxX + padding) : width - 1;
+        const cropBottom = hasVisiblePixels ? Math.min(height - 1, maxY + padding) : height - 1;
+        const croppedCanvas = document.createElement("canvas");
+        croppedCanvas.width = cropRight - cropX + 1;
+        croppedCanvas.height = cropBottom - cropY + 1;
+        const croppedContext = croppedCanvas.getContext("2d");
+        if (!croppedContext) {
+          setState("fallback");
+          return;
+        }
+        croppedContext.putImageData(pixels, -cropX, -cropY);
+        const pngDataUrl = croppedCanvas.toDataURL("image/png");
         if (cancelled) return;
         setRenderedPng(pngDataUrl);
         setState("ready");

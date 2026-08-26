@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { motion, type PanInfo } from "framer-motion";
 
@@ -23,7 +23,7 @@ export type Product = {
 };
 
 type DisplayCurrency = "USD" | "PKR" | "INR";
-type HandoffGeometry = { left: number; top: number; width: number; height: number };
+type HandoffGeometry = { left: number; top: number; width: number; height: number; src: string; mediaType: "image" | "video" };
 
 const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL"];
 const GOLD = "#d8a94f";
@@ -69,6 +69,9 @@ function stagePosition(offset: number) {
   const distance = Math.abs(offset);
   const side = offset < 0 ? -1 : 1;
   if (offset === 0) {
+    // Keep the same slight lift used by the Doctor Doom reference. The CSS
+    // safe rectangle controls source-ratio normalization; this lift only
+    // compensates for the stage perspective depth (z: 120).
     return { x: 0, y: -18, z: 120, rotateY: 0, rotateZ: 0, scale: 1, opacity: 1 };
   }
   return {
@@ -88,7 +91,6 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
   const [direction, setDirection] = useState<1 | -1>(1);
   const [handoffProgress, setHandoffProgress] = useState(0);
   const [handoffGeometry, setHandoffGeometry] = useState<HandoffGeometry | null>(null);
-  const handoffFrame = useRef<number | null>(null);
   const active = products[activeIndex] || products[0];
   const sizes = active?.availableSizes?.length ? active.availableSizes : DEFAULT_SIZES;
   const displayCurrency = active?.currency || initialCurrency;
@@ -96,39 +98,65 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
   useEffect(() => {
     if (!active) return;
     const updateHandoff = () => {
-      handoffFrame.current = null;
       const stage = document.querySelector<HTMLElement>('.reference-product-stage');
-      const catalog = document.querySelector<HTMLElement>('#catalog');
-      if (!stage || !catalog) return;
-      const source = stage.querySelector<HTMLElement>('.reference-product-layer.is-active img, .reference-product-layer.is-active video');
       const target = document.querySelector<HTMLElement>(`[data-handoff-media="${active.id}"]`);
-      const stageTop = stage.getBoundingClientRect().top;
-      const catalogTop = catalog.getBoundingClientRect().top;
-      const travel = Math.max(240, catalogTop - stageTop);
-      const progress = Math.max(0, Math.min(1, ((window.innerHeight * 0.18) - stageTop) / (travel * 0.68)));
-      setHandoffProgress((current) => Math.abs(current - progress) > 0.005 ? progress : current);
-      if (source && target) {
-        const sourceRect = source.getBoundingClientRect();
-        const targetRect = target.getBoundingClientRect();
-        setHandoffGeometry({
-          left: sourceRect.left + (targetRect.left - sourceRect.left) * progress,
-          top: sourceRect.top + (targetRect.top - sourceRect.top) * progress,
-          width: sourceRect.width + (targetRect.width - sourceRect.width) * progress,
-          height: sourceRect.height + (targetRect.height - sourceRect.height) * progress,
-        });
+      if (!stage) return;
+      const source = stage.querySelector<HTMLElement>('.reference-product-layer.is-active img, .reference-product-layer.is-active video');
+      if (!source || !target) {
+        setHandoffProgress(0);
+        setHandoffGeometry(null);
+        window.dispatchEvent(new CustomEvent('hadx:product-handoff', { detail: { productId: active.id, progress: 0 } }));
+        return;
       }
+
+      const sourceRect = source.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const scrollY = window.scrollY || window.pageYOffset;
+      const startScroll = sourceRect.top + scrollY - window.innerHeight * 0.22;
+      const documentBottom = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const targetScroll = targetRect.top + scrollY - window.innerHeight * 0.44;
+      const endScroll = Math.min(targetScroll, documentBottom);
+      const progress = endScroll <= startScroll
+        ? (scrollY >= endScroll ? 1 : 0)
+        : Math.max(0, Math.min(1, (scrollY - startScroll) / (endScroll - startScroll)));
+      setHandoffProgress((current) => Math.abs(current - progress) > 0.003 ? progress : current);
+
+      const sourceElement = source as HTMLImageElement | HTMLVideoElement;
+      const sourceUrl = sourceElement instanceof HTMLVideoElement
+        ? sourceElement.currentSrc || sourceElement.src
+        : sourceElement.currentSrc || sourceElement.src;
+      setHandoffGeometry({
+        left: sourceRect.left + (targetRect.left - sourceRect.left) * progress,
+        top: sourceRect.top + (targetRect.top - sourceRect.top) * progress,
+        width: sourceRect.width + (targetRect.width - sourceRect.width) * progress,
+        height: sourceRect.height + (targetRect.height - sourceRect.height) * progress,
+        src: sourceUrl,
+        mediaType: sourceElement instanceof HTMLVideoElement ? "video" : "image",
+      });
       window.dispatchEvent(new CustomEvent('hadx:product-handoff', { detail: { productId: active.id, progress } }));
     };
+    let queued = false;
+    let cancelled = false;
     const onScroll = () => {
-      if (handoffFrame.current === null) handoffFrame.current = window.requestAnimationFrame(updateHandoff);
+      if (queued || cancelled) return;
+      queued = true;
+      window.requestAnimationFrame(() => {
+        queued = false;
+        if (!cancelled) updateHandoff();
+      });
     };
     onScroll();
+    updateHandoff();
+    const stage = document.querySelector<HTMLElement>('.reference-product-stage');
+    const stageObserver = stage ? new MutationObserver(onScroll) : null;
+    stageObserver?.observe(stage, { subtree: true, childList: true });
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     return () => {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
-      if (handoffFrame.current !== null) window.cancelAnimationFrame(handoffFrame.current);
+      stageObserver?.disconnect();
+      cancelled = true;
     };
   }, [active]);
 
@@ -206,8 +234,6 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
                 const isActive = offset === 0;
                 const handoffPosition = isActive ? {
                   ...position,
-                  y: position.y - handoffProgress * 18,
-                  scale: position.scale - handoffProgress * 0.34,
                   opacity: Math.max(0, position.opacity * (1 - handoffProgress)),
                 } : position;
                 return (
@@ -235,13 +261,17 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
                 );
               })}
             </motion.div>
-            {handoffGeometry && handoffProgress > 0.02 && handoffProgress < 0.98 && typeof document !== "undefined" ? createPortal(
+            {handoffGeometry && handoffGeometry.src && handoffProgress > 0.005 && handoffProgress < 1 && typeof document !== "undefined" ? createPortal(
               <div
                 className="reference-handoff-clone"
                 aria-hidden="true"
                 style={{ left: handoffGeometry.left, top: handoffGeometry.top, width: handoffGeometry.width, height: handoffGeometry.height }}
               >
-                <ProductMedia product={active} active />
+                {handoffGeometry.mediaType === "video" ? (
+                  <video src={handoffGeometry.src} muted playsInline autoPlay className="reference-product-media" />
+                ) : (
+                  <img src={handoffGeometry.src} alt="" className="reference-product-media" />
+                )}
               </div>,
               document.body,
             ) : null}
