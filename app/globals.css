@@ -976,3 +976,27 @@ body {
   .reference-controls { margin: 0.65rem 0.75rem 0.7rem; }
   .reference-controls > div:first-child span { display: none; }
 }
+
+
+/* Shared-element product handoff: one live garment travels from the hero into its catalogue card. */
+.reference-handoff-clone {
+  position: fixed;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  transform-origin: center center;
+  will-change: left, top, width, height;
+  filter: drop-shadow(0 0.75rem 1.1rem rgba(0, 0, 0, 0.38));
+}
+.reference-handoff-clone .reference-product-media {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+}
+.catalog-handoff-target {
+  outline: 1px solid rgba(216, 169, 79, 0.4);
+  outline-offset: 0.25rem;
+}

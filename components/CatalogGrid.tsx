@@ -197,7 +197,7 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
                 style={productHandoff?.productId === product.id ? { opacity: 0.78 + productHandoff.progress * 0.22, transform: `translateY(${(1 - productHandoff.progress) * -10}px) scale(${0.985 + productHandoff.progress * 0.015})` } : undefined}
                 data-handoff-progress={productHandoff?.productId === product.id ? productHandoff.progress.toFixed(2) : undefined}
               >
-                <div className="aspect-[4/5] bg-zinc-900/45 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
+                <div data-handoff-media={product.id} className="aspect-[4/5] bg-zinc-900/45 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
                   {displayVideo ? (
                     <video src={displayVideo} aria-label={displayTitle} controls muted playsInline preload="none" className="w-full h-full object-cover" />
                   ) : displayImg ? (

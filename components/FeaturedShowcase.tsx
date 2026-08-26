@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { motion, type PanInfo } from "framer-motion";
 
 import CurrencySwitcher from "@/components/CurrencySwitcher";
@@ -22,6 +23,7 @@ export type Product = {
 };
 
 type DisplayCurrency = "USD" | "PKR" | "INR";
+type HandoffGeometry = { left: number; top: number; width: number; height: number };
 
 const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL"];
 const GOLD = "#d8a94f";
@@ -85,6 +87,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
   const [selectedSize, setSelectedSize] = useState("");
   const [direction, setDirection] = useState<1 | -1>(1);
   const [handoffProgress, setHandoffProgress] = useState(0);
+  const [handoffGeometry, setHandoffGeometry] = useState<HandoffGeometry | null>(null);
   const handoffFrame = useRef<number | null>(null);
   const active = products[activeIndex] || products[0];
   const sizes = active?.availableSizes?.length ? active.availableSizes : DEFAULT_SIZES;
@@ -97,11 +100,23 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
       const stage = document.querySelector<HTMLElement>('.reference-product-stage');
       const catalog = document.querySelector<HTMLElement>('#catalog');
       if (!stage || !catalog) return;
+      const source = stage.querySelector<HTMLElement>('.reference-product-layer.is-active img, .reference-product-layer.is-active video');
+      const target = document.querySelector<HTMLElement>(`[data-handoff-media="${active.id}"]`);
       const stageTop = stage.getBoundingClientRect().top;
       const catalogTop = catalog.getBoundingClientRect().top;
       const travel = Math.max(240, catalogTop - stageTop);
       const progress = Math.max(0, Math.min(1, ((window.innerHeight * 0.18) - stageTop) / (travel * 0.68)));
-      setHandoffProgress((current) => Math.abs(current - progress) > 0.01 ? progress : current);
+      setHandoffProgress((current) => Math.abs(current - progress) > 0.005 ? progress : current);
+      if (source && target) {
+        const sourceRect = source.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        setHandoffGeometry({
+          left: sourceRect.left + (targetRect.left - sourceRect.left) * progress,
+          top: sourceRect.top + (targetRect.top - sourceRect.top) * progress,
+          width: sourceRect.width + (targetRect.width - sourceRect.width) * progress,
+          height: sourceRect.height + (targetRect.height - sourceRect.height) * progress,
+        });
+      }
       window.dispatchEvent(new CustomEvent('hadx:product-handoff', { detail: { productId: active.id, progress } }));
     };
     const onScroll = () => {
@@ -193,7 +208,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
                   ...position,
                   y: position.y - handoffProgress * 18,
                   scale: position.scale - handoffProgress * 0.34,
-                  opacity: position.opacity - handoffProgress * 0.56,
+                  opacity: Math.max(0, position.opacity * (1 - handoffProgress)),
                 } : position;
                 return (
                   <motion.button
@@ -220,6 +235,16 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
                 );
               })}
             </motion.div>
+            {handoffGeometry && handoffProgress > 0.02 && handoffProgress < 0.98 && typeof document !== "undefined" ? createPortal(
+              <div
+                className="reference-handoff-clone"
+                aria-hidden="true"
+                style={{ left: handoffGeometry.left, top: handoffGeometry.top, width: handoffGeometry.width, height: handoffGeometry.height }}
+              >
+                <ProductMedia product={active} active />
+              </div>,
+              document.body,
+            ) : null}
             <div className="reference-pedestal" aria-hidden="true"><span className="reference-pedestal-top" /><span className="reference-pedestal-base" /></div>
             <div className="reference-stage-caption"><span>SELECTED DROP</span><strong>{String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</strong></div>
           </div>
