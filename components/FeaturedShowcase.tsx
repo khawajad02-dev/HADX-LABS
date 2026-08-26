@@ -70,13 +70,13 @@ function stagePosition(offset: number) {
     return { x: 0, y: -18, z: 120, rotateY: 0, rotateZ: 0, scale: 1, opacity: 1 };
   }
   return {
-    x: side * (distance === 1 ? 250 : 390),
-    y: 28 + distance * 16,
-    z: -120 - (distance - 1) * 120,
-    rotateY: side * -34,
-    rotateZ: side * (distance === 1 ? 3 : 7),
-    scale: Math.max(0.42, 0.72 - (distance - 1) * 0.14),
-    opacity: distance === 1 ? 0.24 : 0.06,
+    x: side * (distance === 1 ? 175 : 310),
+    y: 56 + distance * 22,
+    z: -460 - (distance - 1) * 160,
+    rotateY: side * -22,
+    rotateZ: side * (distance === 1 ? 2 : 5),
+    scale: Math.max(0.34, 0.48 - (distance - 1) * 0.1),
+    opacity: distance === 1 ? 0.34 : 0.08,
   };
 }
 
@@ -195,7 +195,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
             <p className="reference-color-line">{active.category || "ATELIER"} / {displayCurrency} PRICING</p>
             <div className="reference-price-row"><strong>{formatMoney(active)}</strong><span>WORLDWIDE SHIPPING</span></div>
             <div className="reference-size-block"><span className="reference-label">CHOOSE SIZE</span><div className="reference-size-row">{sizes.map((size) => <button key={size} type="button" onClick={() => setSelectedSize(size)} aria-pressed={selectedSize === size} className={selectedSize === size ? "is-selected" : ""}>{size}</button>)}</div></div>
-            <Link href={selectedSize ? checkoutPath(active, selectedSize) : productPath(active)} className="reference-gold-cta"><span>{selectedSize ? "ADD TO CART" : "SELECT SIZE"}</span><b>↗</b></Link>
+            <Link href={selectedSize ? checkoutPath(active, selectedSize) : productPath(active)} className="reference-gold-cta"><span>{selectedSize ? "BUY NOW" : "SELECT SIZE"}</span><b>↗</b></Link>
             <div className="reference-order-meta"><div><span>EDITION</span><b>LIMITED / {activeIndex + 1}</b></div><div><span>MEDIA</span><b>{active.media?.length || 1} ASSETS</b></div><div><span>STATUS</span><b>AVAILABLE NOW</b></div></div>
           </motion.aside>
         </div>

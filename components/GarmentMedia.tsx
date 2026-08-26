@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 type GarmentMediaProps = {
   src: string;
@@ -21,7 +21,7 @@ function isLightStudioPixel(data: Uint8ClampedArray, index: number) {
 }
 
 export default function GarmentMedia({ src, alt, className, eager = false }: GarmentMediaProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [renderedPng, setRenderedPng] = useState<string | null>(null);
   const [state, setState] = useState<RenderState>("loading");
 
   useEffect(() => {
@@ -31,9 +31,8 @@ export default function GarmentMedia({ src, alt, className, eager = false }: Gar
     image.decoding = "async";
     image.loading = eager ? "eager" : "lazy";
 
-    const drawCutout = () => {
-      if (cancelled || !canvasRef.current) return;
-      const canvas = canvasRef.current;
+    const renderTransparentPng = () => {
+      if (cancelled) return;
       const sourceWidth = image.naturalWidth;
       const sourceHeight = image.naturalHeight;
       if (!sourceWidth || !sourceHeight) {
@@ -45,6 +44,7 @@ export default function GarmentMedia({ src, alt, className, eager = false }: Gar
       const scale = sourceWidth > maxWidth ? maxWidth / sourceWidth : 1;
       const width = Math.max(1, Math.round(sourceWidth * scale));
       const height = Math.max(1, Math.round(sourceHeight * scale));
+      const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
 
@@ -60,6 +60,7 @@ export default function GarmentMedia({ src, alt, className, eager = false }: Gar
       try {
         pixels = context.getImageData(0, 0, width, height);
       } catch {
+        // A remote source without CORS access must remain intact rather than becoming a broken image.
         setState("fallback");
         return;
       }
@@ -118,10 +119,17 @@ export default function GarmentMedia({ src, alt, className, eager = false }: Gar
       }
 
       context.putImageData(pixels, 0, 0);
-      setState("ready");
+      try {
+        const pngDataUrl = canvas.toDataURL("image/png");
+        if (cancelled) return;
+        setRenderedPng(pngDataUrl);
+        setState("ready");
+      } catch {
+        setState("fallback");
+      }
     };
 
-    image.onload = drawCutout;
+    image.onload = renderTransparentPng;
     image.onerror = () => {
       if (!cancelled) setState("fallback");
     };
@@ -138,5 +146,9 @@ export default function GarmentMedia({ src, alt, className, eager = false }: Gar
     return <img src={src} alt={alt} loading={eager ? "eager" : "lazy"} decoding="async" className={className} />;
   }
 
-  return <canvas ref={canvasRef} role="img" aria-label={alt} aria-busy={state === "loading"} className={className} />;
+  if (!renderedPng) {
+    return <span className={`${className} block animate-pulse bg-white/[0.02]`} role="img" aria-label={alt} aria-busy="true" />;
+  }
+
+  return <img src={renderedPng} alt={alt} loading={eager ? "eager" : "lazy"} decoding="async" className={className} data-garment-png="runtime-generated" />;
 }

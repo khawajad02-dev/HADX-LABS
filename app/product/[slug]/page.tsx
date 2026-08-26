@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
@@ -45,6 +46,9 @@ export default async function ProductPage({ params, searchParams }: { params: { 
   const amount = regionalPrice(product.priceInCents, parsed.regionalPrices, currency);
   return (
     <main className="relative min-h-screen bg-transparent text-zinc-100 pt-32 pb-24 px-6">
+      <div className="mx-auto mb-6 max-w-6xl">
+        <Link href="/#catalog" className="liquid-ui inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-[10px] font-mono uppercase tracking-[0.2em] text-white/60 transition-colors hover:border-amber-300/60 hover:text-white">← BACK TO ATELIER</Link>
+      </div>
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
         <ProductMediaGallery title={product.title} media={parsed.media} />
         <div data-liquid-surface className="liquid-panel product-detail-glass flex flex-col rounded-2xl p-6">
