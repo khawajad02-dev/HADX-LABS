@@ -881,12 +881,12 @@ body {
 
 .reference-product-stage { position: relative; min-height: 27rem; display: grid; place-items: center; perspective: 1200px; overflow: hidden; }
 .reference-stage-track { position: relative; z-index: 5; width: min(100%, 30rem); height: 21rem; touch-action: pan-y; transform-style: preserve-3d; }
-.reference-product-layer { position: absolute; inset: 0; display: grid; place-items: center; width: 100%; height: 100%; border: 0; outline: 0; background: transparent; cursor: grab; transform-style: preserve-3d; }
+.reference-product-layer { position: absolute; inset: 0; display: grid; place-items: end center; width: 100%; height: 100%; padding: 0 0 4.5rem; border: 0; outline: 0; background: transparent; cursor: grab; transform-style: preserve-3d; }
 .reference-product-layer:active { cursor: grabbing; }
 .reference-product-layer:focus-visible { outline: 1px solid rgba(228,180,85,0.82); outline-offset: 0.5rem; }
 .reference-product-layer.is-active { filter: drop-shadow(0 2rem 1.9rem rgba(0,0,0,0.54)); }
-.reference-product-media { display: block; width: min(82%, 20rem); height: min(88%, 20rem); max-width: calc(100% - 1rem); max-height: calc(100% - 1rem); object-fit: contain; mix-blend-mode: multiply; filter: drop-shadow(0 1.2rem 1rem rgba(0,0,0,0.42)); transform: scale(1); transform-origin: center 62%; }
-.reference-product-layer.is-active .reference-product-media { width: min(84%, 20rem); height: min(92%, 20rem); max-width: calc(100% - 0.8rem); max-height: calc(100% - 0.8rem); transform: scale(1); filter: drop-shadow(0 1.7rem 1.2rem rgba(0,0,0,0.5)) drop-shadow(0 0 1.5rem rgba(216,169,79,0.12)); }
+.reference-product-media { display: block; width: 80%; height: 75%; max-width: 80%; max-height: 75%; object-fit: contain; object-position: center bottom; mix-blend-mode: multiply; filter: drop-shadow(0 1.2rem 1rem rgba(0,0,0,0.42)); transform: scale(1); transform-origin: center bottom; }
+.reference-product-layer.is-active .reference-product-media { width: 80%; height: 75%; max-width: 80%; max-height: 75%; transform: scale(1); filter: drop-shadow(0 1.7rem 1.2rem rgba(0,0,0,0.5)) drop-shadow(0 0 1.5rem rgba(216,169,79,0.12)); }
 .reference-empty-media { color: rgba(255,255,255,0.32); font: 0.52rem/1 var(--font-mono), ui-monospace, monospace; letter-spacing: 0.18em; }
 .reference-halo { position: absolute; z-index: 1; top: 8%; left: 50%; width: min(22rem, 78%); aspect-ratio: 1; transform: translateX(-50%); border: 1px solid rgba(219,174,81,0.38); border-radius: 50%; box-shadow: 0 0 0 1rem rgba(211,160,62,0.035), 0 0 3rem rgba(211,160,62,0.22); opacity: 0.7; }
 .reference-halo::before { content: ""; position: absolute; inset: 7%; border: 1px solid rgba(255,216,134,0.13); border-radius: 50%; }
@@ -964,8 +964,8 @@ body {
   .reference-copy-panel { order: 2; width: 100%; }
   .reference-order-panel { order: 3; width: 100%; }
   .reference-stage-track { height: 17rem; }
-  .reference-product-media { width: min(78%, 16rem); height: min(88%, 16rem); max-width: calc(100% - 0.75rem); max-height: calc(100% - 0.75rem); transform: scale(1); }
-  .reference-product-layer.is-active .reference-product-media { width: min(80%, 16.25rem); height: min(92%, 16.25rem); max-width: calc(100% - 0.65rem); max-height: calc(100% - 0.65rem); transform: scale(1); }
+  .reference-product-layer { padding-bottom: 4rem; }
+  .reference-product-media, .reference-product-layer.is-active .reference-product-media { width: 80%; height: 75%; max-width: 80%; max-height: 75%; transform: scale(1); }
   .reference-halo { top: 2%; width: min(17rem, 80%); }
   .reference-pedestal { bottom: 2.2rem; width: min(19rem, 86%); }
   .reference-copy-panel h2 { font-size: 2.2rem; }
