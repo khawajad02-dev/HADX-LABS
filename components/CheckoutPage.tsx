@@ -113,9 +113,9 @@ export default function CheckoutPage({
   };
 
   return (
-    <div className="relative min-h-screen bg-transparent text-white p-6 sm:p-12 flex flex-col items-center justify-center space-y-8">
+    <div className="checkout-page-shell relative min-h-screen bg-transparent text-white p-6 sm:p-12 flex flex-col items-center justify-center space-y-8">
       <div className="w-full max-w-xl flex justify-start">
-        <a href="/catalog#catalog" className="liquid-ui rounded-full px-4 py-2 text-[10px] font-mono uppercase tracking-widest text-zinc-300 hover:text-white">← Back to catalog</a>
+        <a href="/catalog#catalog" className="liquid-ui checkout-back-link rounded-full px-4 py-2 text-[10px] font-mono uppercase tracking-widest">← Back to catalog</a>
       </div>
 
       {/* Title */}
@@ -130,24 +130,24 @@ export default function CheckoutPage({
 
       {/* Real Form & Order Summary Container */}
       <div className="checkout-glass-card liquid-panel w-full max-w-xl rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
-        <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400 border-b border-neutral-800 pb-3">
+        <h2 className="checkout-section-label font-mono text-xs uppercase tracking-widest border-b border-neutral-800 pb-3">
           {"//"} Shipping Details
         </h2>
 
         {selectedProduct ? (
-          <div className="rounded-xl border border-amber-200/15 bg-amber-100/[0.03] p-4">
+          <div className="liquid-panel checkout-subpanel rounded-xl p-4">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <span className="block text-[10px] font-mono uppercase tracking-widest text-neutral-500">Selected piece</span>
-                <p className="mt-1 text-sm text-amber-100">{selectedProduct.name || 'HADX LABS piece'}</p>
+                <span className="checkout-muted-label block text-[10px] font-mono uppercase tracking-widest">Selected piece</span>
+                <p className="checkout-piece-title relative z-[2] mt-1 text-sm">{selectedProduct.name || 'HADX LABS piece'}</p>
               </div>
-              <span className="text-sm font-mono text-amber-300">{currencySymbol} {Number(selectedProduct.price || 0).toLocaleString()}</span>
+              <span className="checkout-piece-price relative z-[2] text-sm font-mono">{currencySymbol} {Number(selectedProduct.price || 0).toLocaleString()}</span>
             </div>
             <div className="mt-4">
-              <span className="mb-2 block text-[10px] font-mono uppercase tracking-widest text-neutral-500">Choose size</span>
+              <span className="checkout-muted-label mb-2 block text-[10px] font-mono uppercase tracking-widest">Choose size</span>
               <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Choose shirt size">
                 {availableSizes.map((size: string) => (
-                  <button key={size} type="button" role="radio" aria-checked={selectedSize === size} onClick={() => setSelectedSize(size)} className={`min-w-12 rounded-lg border px-3 py-2 text-xs font-mono tracking-widest transition-colors ${selectedSize === size ? 'border-amber-200 bg-amber-100/15 text-amber-100' : 'border-white/15 text-zinc-400 hover:border-amber-200/60 hover:text-white'}`}>
+                  <button key={size} type="button" role="radio" aria-checked={selectedSize === size} onClick={() => setSelectedSize(size)} className={`liquid-ui checkout-size-button relative z-[2] min-w-12 rounded-lg border px-3 py-2 text-xs font-mono tracking-widest transition-colors ${selectedSize === size ? 'is-selected' : ''}`}>
                     {size}
                   </button>
                 ))}
@@ -168,7 +168,7 @@ export default function CheckoutPage({
               placeholder="Daud Commando"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="liquid-ui w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
+              className="liquid-ui checkout-field relative z-[2] w-full rounded-lg p-3 focus:outline-none focus:border-amber-500 transition-colors"
             />
           </div>
 
@@ -183,7 +183,7 @@ export default function CheckoutPage({
               placeholder="daud@hadx.labs"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="liquid-ui w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
+              className="liquid-ui checkout-field relative z-[2] w-full rounded-lg p-3 focus:outline-none focus:border-amber-500 transition-colors"
             />
           </div>
 
@@ -199,7 +199,7 @@ export default function CheckoutPage({
               placeholder="+92 300 1234567"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="liquid-ui w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
+              className="liquid-ui checkout-field relative z-[2] w-full rounded-lg p-3 focus:outline-none focus:border-amber-500 transition-colors"
             />
           </div>
 
@@ -215,7 +215,7 @@ export default function CheckoutPage({
                 placeholder="Sector 7"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="liquid-ui w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors"
+                className="liquid-ui checkout-field relative z-[2] w-full rounded-lg p-3 focus:outline-none focus:border-amber-500 transition-colors"
               />
             </div>
             <div>
@@ -230,13 +230,13 @@ export default function CheckoutPage({
                 placeholder="Cyber City"
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                className="liquid-ui relative z-10 w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors touch-manipulation"
+                className="liquid-ui checkout-field relative z-10 w-full rounded-lg p-3 focus:outline-none focus:border-amber-500 transition-colors touch-manipulation"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="checkout-country" className="mb-1 block text-neutral-500 uppercase">Country</label>
+            <label htmlFor="checkout-country" className="checkout-muted-label mb-1 block uppercase">Country</label>
             <CustomSelect
               value={formData.country}
               onChange={(value) => {
@@ -261,7 +261,7 @@ export default function CheckoutPage({
                 { value: 'Other', label: 'Other' },
               ]}
               placeholder="Select country"
-              className="w-full"
+              className="w-full checkout-country-control"
               searchable
               allowCustomOption
               searchPlaceholder="Type country name"
@@ -269,7 +269,7 @@ export default function CheckoutPage({
             />
             {isOtherCountry ? (
               <div className="mt-3">
-                <label htmlFor="checkout-other-country" className="mb-1 block text-neutral-500 uppercase">Specify your country</label>
+                <label htmlFor="checkout-other-country" className="checkout-muted-label mb-1 block uppercase">Specify your country</label>
                 <input
                   id="checkout-other-country"
                   name="otherCountry"
@@ -280,35 +280,35 @@ export default function CheckoutPage({
                   value={otherCountry}
                   autoFocus
                   onChange={(e) => setOtherCountry(e.target.value)}
-                  className="liquid-ui relative z-10 w-full rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none transition-colors"
+                  className="liquid-ui checkout-field relative z-10 w-full rounded-lg p-3 focus:border-amber-500 focus:outline-none transition-colors"
                 />
               </div>
             ) : null}
           </div>
 
-          <div className="rounded-xl border border-amber-200/15 bg-amber-100/[0.025] p-4" aria-live="polite">
+          <div className="liquid-panel checkout-payment-panel rounded-xl p-4" aria-live="polite">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-neutral-500">Payment method</span>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-amber-200">{paymentLabel}</span>
+              <span className="checkout-muted-label text-[10px] font-mono uppercase tracking-widest">Payment method</span>
+              <span className="checkout-payment-label relative z-[2] text-[10px] font-mono uppercase tracking-widest">{paymentLabel}</span>
             </div>
             {paymentMethod === 'COD' ? <p className="mt-2 text-[11px] leading-5 text-white/55">Pakistan orders use Cash on Delivery only.</p> : null}
             {paymentMethod === 'CARD' ? <p className="mt-2 text-[11px] leading-5 text-white/55">Card checkout is used for India and international delivery.</p> : null}
             {!paymentMethod ? <p className="mt-2 text-[11px] leading-5 text-white/45">Choose your delivery country to set the correct payment route.</p> : null}
           </div>
 
-          {inlineMessage ? <div role="alert" className="rounded-xl border border-amber-300/20 bg-amber-100/[0.04] p-4 text-[11px] leading-5 text-amber-100">{inlineMessage}</div> : null}
+          {inlineMessage ? <div role="alert" className="liquid-panel checkout-inline-message rounded-xl p-4 text-[11px] leading-5">{inlineMessage}</div> : null}
 
           {/* Total & Submit */}
-          <div className="pt-4 border-t border-neutral-800 flex items-center justify-between">
+          <div className="checkout-total-row pt-4 border-t border-neutral-800 flex items-center justify-between">
             <div>
-              <span className="text-[10px] text-neutral-500 uppercase block">Total Amount</span>
-              <span className="text-lg font-bold text-amber-400">{currencySymbol} {totalAmount.toLocaleString()}</span>
+              <span className="checkout-muted-label text-[10px] uppercase block">Total Amount</span>
+              <span className="checkout-total-amount text-lg font-bold">{currencySymbol} {totalAmount.toLocaleString()}</span>
             </div>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`liquid-ui px-6 py-3 rounded-xl text-amber-100 font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(245,158,11,0.3)] ${
+              className={`liquid-ui checkout-submit relative z-[2] px-6 py-3 rounded-xl font-bold uppercase tracking-wider ${
                 isSubmitting ? 'opacity-50 cursor-wait' : ''
               }`}
             >

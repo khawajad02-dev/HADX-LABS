@@ -1001,3 +1001,240 @@ body {
   outline: 1px solid rgba(216, 169, 79, 0.4);
   outline-offset: 0.25rem;
 }
+
+/* Shared HADX surface language for catalogue and checkout controls. Keep these surfaces translucent so ambient lightning remains visible beneath them. */
+.hadx-select-trigger,
+.hadx-select-menu,
+.hadx-select-search,
+.hadx-select-option,
+.catalog-filter,
+.catalog-product-card,
+.catalog-media-frame,
+.checkout-subpanel,
+.checkout-payment-panel,
+.checkout-inline-message,
+.checkout-field,
+.checkout-back-link,
+.checkout-size-button,
+.checkout-submit {
+  border-color: rgba(212, 175, 55, 0.22) !important;
+  color: rgba(255, 247, 231, 0.9);
+}
+
+.hadx-select-trigger,
+.catalog-filter,
+.checkout-back-link,
+.checkout-field,
+.checkout-size-button,
+.checkout-submit {
+  background: rgba(15, 15, 15, 0.22) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(145%);
+  backdrop-filter: blur(10px) saturate(145%);
+}
+
+.hadx-select-trigger:hover,
+.hadx-select-trigger:focus-visible,
+.catalog-filter:hover,
+.catalog-filter:focus-visible,
+.checkout-back-link:hover,
+.checkout-back-link:focus-visible,
+.checkout-field:focus,
+.checkout-size-button:hover,
+.checkout-submit:hover {
+  border-color: rgba(255, 231, 175, 0.72) !important;
+  background: rgba(212, 175, 55, 0.1) !important;
+  color: #fff4c9 !important;
+  box-shadow: 0 0 22px rgba(255, 198, 76, 0.12);
+}
+
+.hadx-select-menu {
+  border: 1px solid rgba(212, 175, 55, 0.24) !important;
+  background: rgba(8, 8, 8, 0.3) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(155%);
+  backdrop-filter: blur(16px) saturate(155%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 18px 50px rgba(0,0,0,0.42), 0 0 28px rgba(212,175,55,0.08);
+}
+
+.hadx-select-search-row {
+  position: relative;
+  z-index: 2;
+}
+
+.hadx-select-search {
+  border-color: rgba(212, 175, 55, 0.2) !important;
+  background: rgba(255, 255, 255, 0.035) !important;
+  color: #fff4c9 !important;
+}
+
+.hadx-select-option {
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: rgba(255, 247, 231, 0.78) !important;
+  box-shadow: none !important;
+}
+
+.hadx-select-option:hover,
+.hadx-select-option:focus-visible {
+  border-color: rgba(212, 175, 55, 0.3) !important;
+  background: rgba(212, 175, 55, 0.1) !important;
+  color: #fff4c9 !important;
+}
+
+.hadx-select-option.is-active {
+  border-color: rgba(212, 175, 55, 0.45) !important;
+  background: rgba(212, 175, 55, 0.17) !important;
+  color: #fff1b8 !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 232, 165, 0.08), 0 0 18px rgba(212,175,55,0.08) !important;
+}
+
+.hadx-select-fallback {
+  border-color: rgba(212, 175, 55, 0.36) !important;
+  background: rgba(212, 175, 55, 0.08) !important;
+  color: #f4d27d !important;
+}
+
+.catalog-section {
+  background: transparent;
+}
+
+.catalog-eyebrow {
+  color: rgba(226, 180, 87, 0.86) !important;
+}
+
+.catalog-title {
+  color: rgba(255, 247, 231, 0.94);
+  text-shadow: 0 0 24px rgba(212,175,55,0.08);
+}
+
+.catalog-search-note {
+  color: rgba(240, 204, 131, 0.74) !important;
+}
+
+.catalog-control-row {
+  border-color: rgba(212, 175, 55, 0.16) !important;
+}
+
+.catalog-filter {
+  color: rgba(255, 247, 231, 0.72) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 16px rgba(212,175,55,0.035) !important;
+}
+
+.catalog-filter.is-selected,
+.catalog-filter[aria-pressed="true"] {
+  border-color: rgba(255, 231, 175, 0.7) !important;
+  background: rgba(212, 175, 55, 0.14) !important;
+  color: #fff1b8 !important;
+  box-shadow: 0 0 22px rgba(255,198,76,0.14) !important;
+}
+
+.catalog-sort-select {
+  min-width: min(12rem, 100%);
+}
+
+.catalog-product-card {
+  background: rgba(15, 15, 15, 0.2) !important;
+  border-color: rgba(212, 175, 55, 0.18) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(135%);
+  backdrop-filter: blur(10px) saturate(135%);
+}
+
+.catalog-product-card:hover {
+  border-color: rgba(255, 231, 175, 0.58) !important;
+  background: rgba(212, 175, 55, 0.075) !important;
+}
+
+.catalog-media-frame {
+  border: 1px solid rgba(212, 175, 55, 0.16);
+  background: linear-gradient(135deg, rgba(255,255,255,0.045), rgba(15,15,15,0.16) 48%, rgba(212,175,55,0.04));
+}
+
+.catalog-product-title {
+  color: rgba(255, 247, 231, 0.9);
+}
+
+.catalog-product-price {
+  color: rgba(240, 204, 131, 0.82) !important;
+}
+
+.checkout-page-shell label,
+.checkout-section-label,
+.checkout-muted-label {
+  color: rgba(226, 180, 87, 0.72) !important;
+}
+
+.checkout-glass-card {
+  background: rgba(15, 15, 15, 0.28) !important;
+  border-color: rgba(212, 175, 55, 0.2) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+}
+
+.checkout-subpanel,
+.checkout-payment-panel,
+.checkout-inline-message {
+  background: rgba(15, 15, 15, 0.15) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
+}
+
+.checkout-piece-title {
+  color: #fff4c9;
+}
+
+.checkout-piece-price,
+.checkout-payment-label,
+.checkout-total-amount {
+  color: #f0cc83 !important;
+}
+
+.checkout-field {
+  border-color: rgba(212, 175, 55, 0.2) !important;
+  color: #fff7e7 !important;
+}
+
+.checkout-field::placeholder {
+  color: rgba(255, 247, 231, 0.3) !important;
+}
+
+.checkout-size-button {
+  color: rgba(255, 247, 231, 0.66) !important;
+}
+
+.checkout-size-button.is-selected {
+  border-color: rgba(255, 231, 175, 0.74) !important;
+  background: rgba(212, 175, 55, 0.16) !important;
+  color: #fff1b8 !important;
+  box-shadow: 0 0 18px rgba(255,198,76,0.12);
+}
+
+.checkout-total-row {
+  border-color: rgba(212, 175, 55, 0.2) !important;
+}
+
+.checkout-inline-message {
+  color: #fff1b8;
+}
+
+.checkout-submit {
+  border-color: rgba(236, 192, 103, 0.58) !important;
+  color: #ffe9a9 !important;
+  box-shadow: 0 0 20px rgba(245,158,11,0.15) !important;
+}
+
+.checkout-submit:hover {
+  box-shadow: 0 0 28px rgba(245, 178, 44, 0.28) !important;
+}
+
+@media (max-width: 640px) {
+  .catalog-sort-select {
+    width: 100%;
+  }
+
+  .catalog-sort-select .hadx-select-trigger {
+    min-height: 2.65rem;
+  }
+
+  .checkout-glass-card {
+    background: rgba(15, 15, 15, 0.2) !important;
+  }
+}

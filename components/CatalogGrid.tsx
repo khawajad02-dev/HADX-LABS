@@ -128,20 +128,20 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
   }
 
   return (
-    <section id="catalog" className={`bg-transparent text-zinc-100 px-6 md:px-12 ${productList.length === 0 ? "pt-0" : "pt-20"} pb-24 border-t border-white/10 relative z-10`}>
-      <div className="max-w-7xl mx-auto mb-8">
-        <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-zinc-500 block mb-3">Full_Catalog</span>
-        <h2 className="text-3xl md:text-5xl font-extralight tracking-tight">Shop All</h2>
-        {searchQuery ? <p className="mt-3 text-[11px] font-mono uppercase tracking-widest text-amber-100/70">Smart search // {searchQuery}</p> : null}
+    <section id="catalog" className={`catalog-section bg-transparent text-zinc-100 px-6 md:px-12 ${productList.length === 0 ? "pt-0" : "pt-20"} pb-24 border-t border-white/10 relative z-10`}>
+      <div className="catalog-heading max-w-7xl mx-auto mb-8">
+        <span className="catalog-eyebrow text-[10px] font-mono tracking-[0.3em] uppercase block mb-3">Full_Catalog</span>
+        <h2 className="catalog-title text-3xl md:text-5xl font-extralight tracking-tight">Shop All</h2>
+        {searchQuery ? <p className="catalog-search-note mt-3 text-[11px] font-mono uppercase tracking-widest">Smart search // {searchQuery}</p> : null}
       </div>
 
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10 border-b border-white/10 pb-6">
+        <div className="catalog-control-row max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10 border-b border-white/10 pb-6">
         <div className="flex flex-wrap gap-2">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`liquid-ui px-4 py-1.5 rounded-full text-[11px] font-mono tracking-wide uppercase border transition-colors ${
+              className={`liquid-ui catalog-filter px-4 py-1.5 rounded-full text-[11px] font-mono tracking-wide uppercase border transition-colors ${
                 activeCategory === cat
                   ? "border-amber-200 text-amber-100 shadow-gold-glow"
                   : "border-white/15 text-zinc-400 hover:border-white/40 hover:text-white"
@@ -153,13 +153,14 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
         </div>
 
           <div className="flex flex-wrap gap-2 items-center">
-            {["USD", "PKR", "INR"].map((currency) => <button key={currency} onClick={() => setDisplayCurrency(currency as "USD" | "PKR" | "INR")} className={`liquid-ui px-3 py-1.5 rounded-full text-[10px] font-mono uppercase border ${displayCurrency === currency ? "border-amber-200 text-amber-100" : "border-white/15 text-zinc-400"}`}>{currency}</button>)}
+            {["USD", "PKR", "INR"].map((currency) => <button key={currency} onClick={() => setDisplayCurrency(currency as "USD" | "PKR" | "INR")} className={`liquid-ui catalog-filter catalog-currency-filter px-3 py-1.5 rounded-full text-[10px] font-mono uppercase border ${displayCurrency === currency ? "is-selected" : ""}`}>{currency}</button>)}
           </div>
 
           <CustomSelect
             value={sortBy}
             onChange={(value) => setSortBy(value as typeof sortBy)}
             ariaLabel="Sort catalogue"
+            className="catalog-sort-select"
             options={[
               { value: "newest", label: "Newest" },
               { value: "price-low", label: "Price: Low to High" },
@@ -193,11 +194,11 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
                 key={product.id}
                 href={`/product/${product.sku || product.id}?currency=${displayCurrency}`}
                 aria-label={`Open ${displayTitle}`}
-                className={`liquid-panel group block cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-1 focus:ring-amber-200 ${productHandoff?.productId === product.id ? "catalog-handoff-target" : ""}`}
+                className={`liquid-panel catalog-product-card group block cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-1 focus:ring-amber-200 ${productHandoff?.productId === product.id ? "catalog-handoff-target" : ""}`}
                 style={productHandoff?.productId === product.id ? { opacity: 0.78 + productHandoff.progress * 0.22, transform: `translateY(${(1 - productHandoff.progress) * -10}px) scale(${0.985 + productHandoff.progress * 0.015})` } : undefined}
                 data-handoff-progress={productHandoff?.productId === product.id ? productHandoff.progress.toFixed(2) : undefined}
               >
-                <div data-handoff-media={product.id} className="aspect-[4/5] bg-zinc-900/45 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
+                <div data-handoff-media={product.id} className="catalog-media-frame aspect-[4/5] rounded-lg overflow-hidden mb-3 flex items-center justify-center">
                   {displayVideo ? (
                     <video src={displayVideo} aria-label={displayTitle} controls muted playsInline preload="none" className="w-full h-full object-cover" />
                   ) : displayImg ? (
@@ -206,10 +207,10 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
                     <span className="text-zinc-700 text-[10px] font-mono uppercase">no image</span>
                   )}
                 </div>
-                <h3 className="text-xs md:text-sm font-medium tracking-wide mb-1 group-hover:text-white transition-colors">
+                <h3 className="catalog-product-title text-xs md:text-sm font-medium tracking-wide mb-1 group-hover:text-white transition-colors">
                   {displayTitle}
                 </h3>
-                <p className="text-xs font-mono text-zinc-400">
+                <p className="catalog-product-price text-xs font-mono">
                   {currencySymbol} {Number(displayPrice).toLocaleString()}
                 </p>
               </Link>
