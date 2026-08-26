@@ -220,7 +220,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
         <div className="reference-hero-divider" aria-hidden="true" />
 
         <div className="reference-main-grid">
-          <motion.aside className="reference-glass-panel reference-copy-panel" initial={{ opacity: 0, x: -18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.42 }}>
+          <motion.aside className="reference-glass-panel liquid-panel reference-copy-panel" initial={{ opacity: 0, x: -18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.42 }}>
             <span className="reference-eyebrow">LUXURY DIGITAL</span>
             <h2>STREETWEAR<br /><em>ATELIER</em></h2>
             <p>A collectible garment system for people who move with intent. Heavyweight fabric, custom graphics, and a limited HADX production run.</p>
@@ -279,7 +279,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
             <div className="reference-stage-caption"><span>SELECTED DROP</span><strong>{String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</strong></div>
           </div>
 
-          <motion.aside className="reference-glass-panel reference-order-panel" key={active.id} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.42 }}>
+          <motion.aside className="reference-glass-panel liquid-panel reference-order-panel" key={active.id} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.42 }}>
             <div className="reference-order-heading"><span className="reference-eyebrow">LIMITED DROP</span><span className="reference-sku">{active.sku || "HADX DROP"}</span></div>
             <h3>{active.title}</h3>
             <p className="reference-color-line">{active.category || "ATELIER"} / {displayCurrency} PRICING</p>

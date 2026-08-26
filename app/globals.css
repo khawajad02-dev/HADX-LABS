@@ -1238,3 +1238,111 @@ body {
     background: rgba(15, 15, 15, 0.2) !important;
   }
 }
+
+/* Homepage panels: a clearer water-glass lens, not an opaque black card. */
+.reference-glass-panel {
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.008) 46%, rgba(255,213,133,0.012)),
+    radial-gradient(ellipse at 18% 0%, rgba(255,255,255,0.05), transparent 42%),
+    rgba(15,15,15,0.13) !important;
+  border-color: rgba(232, 194, 111, 0.28) !important;
+  -webkit-backdrop-filter: url("#hadx-liquid-refraction") blur(11px) saturate(138%);
+  backdrop-filter: url("#hadx-liquid-refraction") blur(11px) saturate(138%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.16),
+    inset 0 -1px 0 rgba(0,0,0,0.12),
+    0 18px 54px rgba(0,0,0,0.16),
+    0 0 28px rgba(226,177,70,0.05) !important;
+}
+
+.reference-glass-panel::before {
+  opacity: 0.28;
+  background:
+    radial-gradient(ellipse 5px 8px at var(--liquid-pointer-x) var(--liquid-pointer-y), rgba(255,255,255,0.48) 0 18%, rgba(255,224,148,0.18) 42%, transparent 74%),
+    linear-gradient(112deg, transparent 24%, rgba(255,255,255,0.025) 43%, rgba(255,247,214,0.1) 50%, transparent 62%),
+    radial-gradient(ellipse at 7% 8%, rgba(255,255,255,0.1), transparent 27%),
+    radial-gradient(ellipse at 94% 92%, rgba(224,164,54,0.1), transparent 32%);
+  background-size: 100% 100%, 220% 100%, 100% 100%, 100% 100%;
+  background-position: 0 0, -120% 0, 0 0, 0 0;
+  mix-blend-mode: screen;
+  animation: reference-water-film 12s ease-in-out infinite;
+}
+
+.reference-glass-panel::after {
+  opacity: 0.1;
+}
+
+@keyframes reference-water-film {
+  0%, 18% { background-position: 0 0, -120% 0, 0 0, 0 0; }
+  48% { background-position: 0 0, 0 0, 0 0, 0 0; }
+  78%, 100% { background-position: 0 0, 120% 0, 0 0, 0 0; }
+}
+
+.reference-copy-panel h2,
+.reference-order-panel h3 {
+  color: rgba(255,247,231,0.96);
+  text-shadow: 0 0 28px rgba(255,214,123,0.08);
+}
+
+.reference-copy-panel p,
+.reference-color-line {
+  color: rgba(255,247,231,0.62);
+}
+
+.reference-order-panel .reference-price-row strong {
+  color: #fff4cf;
+  text-shadow: 0 0 18px rgba(255,210,111,0.12);
+}
+
+.reference-order-panel .reference-order-meta {
+  border-top-color: rgba(232,194,111,0.18);
+}
+
+.reference-order-panel .reference-order-meta div {
+  border-bottom-color: rgba(232,194,111,0.13);
+}
+
+.reference-order-panel .reference-order-meta span {
+  color: rgba(255,247,231,0.46);
+}
+
+.reference-order-panel .reference-order-meta b {
+  color: rgba(255,235,182,0.8);
+}
+
+.reference-glass-panel:hover,
+.reference-glass-panel[data-liquid-near-light="true"] {
+  border-color: rgba(255,231,175,0.58) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.24),
+    0 0 30px rgba(255,198,76,0.11),
+    0 18px 54px rgba(0,0,0,0.14) !important;
+}
+
+.reference-glass-panel[data-liquid-active="true"],
+.reference-glass-panel[data-liquid-lightning="true"] {
+  background:
+    radial-gradient(circle at var(--liquid-pointer-x) var(--liquid-pointer-y), rgba(255,225,147,0.12), transparent 34%),
+    linear-gradient(135deg, rgba(255,255,255,0.065), rgba(255,255,255,0.012) 46%, rgba(255,213,133,0.025)),
+    rgba(15,15,15,0.1) !important;
+}
+
+@media (max-width: 640px) {
+  .reference-glass-panel {
+    background:
+      linear-gradient(135deg, rgba(255,255,255,0.035), rgba(255,255,255,0.006) 46%, rgba(255,213,133,0.01)),
+      rgba(15,15,15,0.09) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(122%);
+    backdrop-filter: blur(6px) saturate(122%);
+  }
+
+  .reference-glass-panel::before {
+    animation-duration: 16s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reference-glass-panel::before {
+    animation: none;
+  }
+}
