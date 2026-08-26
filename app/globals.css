@@ -655,7 +655,6 @@ body {
   background: transparent !important;
   box-shadow: none !important;
   overflow: visible !important;
-  isolation: isolate;
 }
 
 .garment-stage-card::before,
