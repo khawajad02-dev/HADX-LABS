@@ -781,7 +781,7 @@ body {
   position: relative;
   z-index: 10;
   display: grid;
-  grid-template-columns: minmax(9rem, 1fr) auto minmax(13rem, 1fr);
+  grid-template-columns: minmax(12rem, 1fr) auto minmax(13rem, 1fr);
   align-items: center;
   gap: 1rem;
   min-height: 3.5rem;
@@ -794,13 +794,17 @@ body {
 .reference-nav-tool,
 .reference-nav-links,
 .reference-nav-tools,
-.reference-brand-wordmark {
+.reference-brand-wordmark,
+.reference-center-wordmark {
   font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.47rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 .reference-brand-mark { display: inline-flex; align-items: center; gap: 0.55rem; color: rgba(255,255,255,0.83); }
+.reference-nav-left { display: flex; align-items: center; gap: clamp(0.8rem, 2vw, 1.8rem); min-width: 0; }
+.reference-center-wordmark { color: rgba(255,255,255,0.9); font-size: clamp(0.78rem, 1.3vw, 1.05rem); letter-spacing: 0.28em; white-space: nowrap; }
+.reference-center-wordmark b { color: rgba(255,255,255,0.42); font-size: 0.45em; letter-spacing: 0.3em; font-weight: 400; }
 .reference-brand-icon,
 .reference-bottom-emblem {
   display: grid;
@@ -879,8 +883,8 @@ body {
 .reference-product-layer:active { cursor: grabbing; }
 .reference-product-layer:focus-visible { outline: 1px solid rgba(228,180,85,0.82); outline-offset: 0.5rem; }
 .reference-product-layer.is-active { filter: drop-shadow(0 2rem 1.9rem rgba(0,0,0,0.54)); }
-.reference-product-media { display: block; width: min(75%, 18rem); height: 18rem; object-fit: contain; mix-blend-mode: multiply; filter: drop-shadow(0 1.2rem 1rem rgba(0,0,0,0.42)); }
-.reference-product-layer.is-active .reference-product-media { width: min(76%, 18.7rem); height: 18.7rem; filter: drop-shadow(0 1.7rem 1.2rem rgba(0,0,0,0.5)) drop-shadow(0 0 1.5rem rgba(216,169,79,0.12)); }
+.reference-product-media { display: block; width: min(84%, 21rem); height: 21rem; object-fit: contain; mix-blend-mode: multiply; filter: drop-shadow(0 1.2rem 1rem rgba(0,0,0,0.42)); transform: scale(1.08); transform-origin: center 62%; }
+.reference-product-layer.is-active .reference-product-media { width: min(86%, 22rem); height: 22rem; transform: scale(1.18); filter: drop-shadow(0 1.7rem 1.2rem rgba(0,0,0,0.5)) drop-shadow(0 0 1.5rem rgba(216,169,79,0.12)); }
 .reference-empty-media { color: rgba(255,255,255,0.32); font: 0.52rem/1 var(--font-mono), ui-monospace, monospace; letter-spacing: 0.18em; }
 .reference-halo { position: absolute; z-index: 1; top: 8%; left: 50%; width: min(22rem, 78%); aspect-ratio: 1; transform: translateX(-50%); border: 1px solid rgba(219,174,81,0.38); border-radius: 50%; box-shadow: 0 0 0 1rem rgba(211,160,62,0.035), 0 0 3rem rgba(211,160,62,0.22); opacity: 0.7; }
 .reference-halo::before { content: ""; position: absolute; inset: 7%; border: 1px solid rgba(255,216,134,0.13); border-radius: 50%; }
@@ -931,6 +935,7 @@ body {
 @media (max-width: 920px) {
   .reference-hero-shell { padding-top: 4.5rem; }
   .reference-nav { grid-template-columns: 1fr auto; }
+  .reference-center-wordmark { justify-self: center; }
   .reference-nav-links { display: none; }
   .reference-nav-tools { gap: 0.35rem; }
   .reference-main-grid { grid-template-columns: minmax(10rem, 0.78fr) minmax(18rem, 1.2fr); }
@@ -946,6 +951,8 @@ body {
   .reference-hero-canvas { min-height: 0; border-radius: 1rem; }
   .reference-hero-canvas::before { inset: 0.75rem; }
   .reference-nav { min-height: 3rem; padding: 0.55rem 0.75rem; }
+  .reference-nav-left { gap: 0.45rem; }
+  .reference-center-wordmark { font-size: 0.68rem; letter-spacing: 0.2em; }
   .reference-brand-wordmark { font-size: 0.4rem; }
   .reference-nav-tools > button, .reference-nav-tools > div { transform: scale(0.65); margin-right: -0.55rem; }
   .reference-nav-tool { display: none; }
@@ -955,8 +962,8 @@ body {
   .reference-copy-panel { order: 2; width: 100%; }
   .reference-order-panel { order: 3; width: 100%; }
   .reference-stage-track { height: 17rem; }
-  .reference-product-media { width: min(70%, 15rem); height: 15rem; }
-  .reference-product-layer.is-active .reference-product-media { width: min(72%, 15.5rem); height: 15.5rem; }
+  .reference-product-media { width: min(78%, 17rem); height: 17rem; transform: scale(1.04); }
+  .reference-product-layer.is-active .reference-product-media { width: min(80%, 17.5rem); height: 17.5rem; transform: scale(1.1); }
   .reference-halo { top: 2%; width: min(17rem, 80%); }
   .reference-pedestal { bottom: 2.2rem; width: min(19rem, 86%); }
   .reference-copy-panel h2 { font-size: 2.2rem; }

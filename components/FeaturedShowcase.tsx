@@ -126,17 +126,17 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
         <div className="reference-light-orb reference-light-orb-right" aria-hidden="true" />
 
         <header className="reference-nav">
-          <Link href="/" className="reference-brand-mark" aria-label="HADX LABS home">
-            <span className="reference-brand-icon">H</span>
-            <span className="reference-brand-wordmark">HADX <b>LABS</b></span>
-          </Link>
-          <nav className="reference-nav-links" aria-label="Primary navigation">
-            <Link href="#catalog">HOME</Link>
-            <Link href="#catalog">SHOP</Link>
-            <Link href="#catalog">ATELIER</Link>
-            <Link href="#catalog">ABOUT</Link>
-            <Link href="#catalog">JOURNAL</Link>
-          </nav>
+          <div className="reference-nav-left">
+            <Link href="/" className="reference-brand-mark" aria-label="HADX LABS home"><span className="reference-brand-icon">H</span></Link>
+            <nav className="reference-nav-links" aria-label="Primary navigation">
+              <Link href="#catalog">HOME</Link>
+              <Link href="#catalog">SHOP</Link>
+              <Link href="#catalog">ATELIER</Link>
+              <Link href="#catalog">ABOUT</Link>
+              <Link href="#catalog">JOURNAL</Link>
+            </nav>
+          </div>
+          <Link href="/" className="reference-center-wordmark" aria-label="HADX LABS home">HADX <b>LABS</b></Link>
           <div className="reference-nav-tools">
             <StorefrontSearch />
             <CurrencySwitcher />
