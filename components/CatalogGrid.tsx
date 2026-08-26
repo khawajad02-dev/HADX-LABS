@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import CustomSelect from "./CustomSelect";
 
+type ProductHandoff = { productId: string; progress: number };
+
 export interface Product {
   id: string;
   name?: string;
@@ -59,6 +61,13 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"newest" | "price-low" | "price-high">("newest");
   const [displayCurrency, setDisplayCurrency] = useState<"USD" | "PKR" | "INR">(initialProducts?.[0]?.currency || "USD");
+  const [productHandoff, setProductHandoff] = useState<ProductHandoff | null>(null);
+
+  useEffect(() => {
+    const onHandoff = (event: Event) => setProductHandoff((event as CustomEvent<ProductHandoff>).detail);
+    window.addEventListener("hadx:product-handoff", onHandoff);
+    return () => window.removeEventListener("hadx:product-handoff", onHandoff);
+  }, []);
 
   useEffect(() => {
     const requestedCurrency = new URLSearchParams(window.location.search).get("currency")?.toUpperCase();
@@ -184,7 +193,9 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
                 key={product.id}
                 href={`/product/${product.sku || product.id}?currency=${displayCurrency}`}
                 aria-label={`Open ${displayTitle}`}
-                className="liquid-panel group block cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-1 focus:ring-amber-200"
+                className={`liquid-panel group block cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-1 focus:ring-amber-200 ${productHandoff?.productId === product.id ? "catalog-handoff-target" : ""}`}
+                style={productHandoff?.productId === product.id ? { opacity: 0.78 + productHandoff.progress * 0.22, transform: `translateY(${(1 - productHandoff.progress) * -10}px) scale(${0.985 + productHandoff.progress * 0.015})` } : undefined}
+                data-handoff-progress={productHandoff?.productId === product.id ? productHandoff.progress.toFixed(2) : undefined}
               >
                 <div className="aspect-[4/5] bg-zinc-900/45 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
                   {displayVideo ? (

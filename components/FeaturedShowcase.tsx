@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { motion, type PanInfo } from "framer-motion";
 
 import CurrencySwitcher from "@/components/CurrencySwitcher";
@@ -84,9 +84,38 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [direction, setDirection] = useState<1 | -1>(1);
+  const [handoffProgress, setHandoffProgress] = useState(0);
+  const handoffFrame = useRef<number | null>(null);
   const active = products[activeIndex] || products[0];
   const sizes = active?.availableSizes?.length ? active.availableSizes : DEFAULT_SIZES;
   const displayCurrency = active?.currency || initialCurrency;
+
+  useEffect(() => {
+    if (!active) return;
+    const updateHandoff = () => {
+      handoffFrame.current = null;
+      const stage = document.querySelector<HTMLElement>('.reference-product-stage');
+      const catalog = document.querySelector<HTMLElement>('#catalog');
+      if (!stage || !catalog) return;
+      const stageTop = stage.getBoundingClientRect().top;
+      const catalogTop = catalog.getBoundingClientRect().top;
+      const travel = Math.max(240, catalogTop - stageTop);
+      const progress = Math.max(0, Math.min(1, ((window.innerHeight * 0.18) - stageTop) / (travel * 0.68)));
+      setHandoffProgress((current) => Math.abs(current - progress) > 0.01 ? progress : current);
+      window.dispatchEvent(new CustomEvent('hadx:product-handoff', { detail: { productId: active.id, progress } }));
+    };
+    const onScroll = () => {
+      if (handoffFrame.current === null) handoffFrame.current = window.requestAnimationFrame(updateHandoff);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (handoffFrame.current !== null) window.cancelAnimationFrame(handoffFrame.current);
+    };
+  }, [active]);
 
   const stageProducts = useMemo(() => products.map((product, index) => ({
     product,
@@ -160,6 +189,12 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
             <motion.div className="reference-stage-track" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0} onDragEnd={onDragEnd} style={{ perspective: "1200px", transformStyle: "preserve-3d" }}>
               {stageProducts.map(({ product, offset, position }) => {
                 const isActive = offset === 0;
+                const handoffPosition = isActive ? {
+                  ...position,
+                  y: position.y - handoffProgress * 18,
+                  scale: position.scale - handoffProgress * 0.34,
+                  opacity: position.opacity - handoffProgress * 0.56,
+                } : position;
                 return (
                   <motion.button
                     key={product.id}
@@ -167,7 +202,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
                     aria-label={`Show ${product.title}`}
                     className={`reference-product-layer ${isActive ? "is-active" : "is-secondary"}`}
                     initial={false}
-                    animate={position}
+                    animate={handoffPosition}
                     transition={{
                       x: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
                       y: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
