@@ -124,7 +124,7 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
                     key={`${product.id}-${offset}`}
                     onClick={() => { setSelectedSize(""); setActiveIndex(products.findIndex((candidate) => candidate.id === product.id)); }}
                     aria-label={`Show ${product.title}`}
-                    className={`absolute left-1/2 top-1/2 shrink-0 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.6rem] border text-left shadow-2xl transition-[height,width] duration-500 ${isActive ? "h-[25rem] w-[16rem] border-white/35 bg-black/70 sm:h-[31rem] sm:w-[21rem]" : "h-[18rem] w-[8rem] border-white/15 bg-black/45 sm:h-[23rem] sm:w-[12.5rem]"}`}
+                    className={`absolute left-1/2 top-1/2 shrink-0 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.6rem] border text-left shadow-2xl transition-[height,width] duration-500 ${isActive ? "h-[25rem] w-[16rem] border-white/35 bg-transparent sm:h-[31rem] sm:w-[21rem]" : "h-[18rem] w-[8rem] border-white/15 bg-transparent sm:h-[23rem] sm:w-[12.5rem]"}`}
                     style={{
                       transform: `translate(-50%, -50%) translateX(${x}px) translateZ(${isActive ? 100 : -distance * 55}px) rotateY(${isActive ? 0 : side * -22}deg) scale(${isActive ? 1 : 1 - distance * 0.12})`,
                       zIndex: isActive ? 30 : 20 - distance,
@@ -146,7 +146,7 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
             <div className="pointer-events-none absolute bottom-1 h-3 w-44 rounded-[50%] border border-[color:var(--stage-accent)]/40 bg-black/60 shadow-[0_0_30px_var(--stage-glow)]" />
           </div>
 
-          <motion.aside key={`${active.id}-panel`} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }} className="order-3 rounded-2xl border border-white/15 bg-black/35 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-md lg:p-6">
+          <motion.aside key={`${active.id}-panel`} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }} className="stage-transparent-panel order-3 rounded-2xl border border-white/15 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.35)] lg:p-6">
             <div className="flex items-start justify-between gap-4"><span className="text-[9px] font-mono uppercase tracking-[0.24em] text-[color:var(--stage-accent)]/80">Limited Drop</span><span className="text-[9px] font-mono text-white/35">{active.sku || "SIGNATURE"}</span></div>
             <h3 className="mt-4 text-2xl font-light uppercase leading-tight tracking-[-0.035em]">{active.title}</h3>
             <div className="mt-5 flex items-end justify-between gap-4"><span className="font-mono text-lg font-semibold text-white">{money(active)}</span><span className="text-[9px] font-mono uppercase tracking-[0.18em] text-white/35">Worldwide shipping</span></div>
