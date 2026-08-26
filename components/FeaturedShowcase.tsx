@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, type CSSProperties } from "react";
 import { motion, type PanInfo } from "framer-motion";
+import GarmentMedia from "./GarmentMedia";
 
 export type Product = {
   id: string;
@@ -45,7 +46,7 @@ function MediaPreview({ product, className, eager = false }: { product: Product;
   return media.type === "video" ? (
     <video src={media.url} muted playsInline loop autoPlay={eager} preload={eager ? "metadata" : "none"} className={className} aria-label={product.title} />
   ) : (
-    <img src={media.url} alt={product.title} loading={eager ? "eager" : "lazy"} decoding="async" fetchPriority={eager ? "high" : "auto"} className={className} />
+    <GarmentMedia src={media.url} alt={product.title} eager={eager} className={className} />
   );
 }
 
