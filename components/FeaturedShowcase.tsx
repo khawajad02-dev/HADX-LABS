@@ -39,8 +39,15 @@ function mediaFor(product: Product) {
   return product.media?.[0] || (product.imageUrl ? { url: product.imageUrl, type: "image" as const } : null);
 }
 
-function MediaPreview({ product, className, eager = false }: { product: Product; className: string; eager?: boolean }) {
-  const media = mediaFor(product);
+function garmentMediaFor(product: Product) {
+  const identity = `${product.title} ${product.sku || ""}`.toLowerCase();
+  if (identity.includes("armored architect")) return { url: "/product-cutouts/armored-architect-cutout.png", type: "image" as const };
+  if (identity.includes("honored one")) return { url: "/product-cutouts/honored-one-cutout.png", type: "image" as const };
+  return mediaFor(product);
+}
+
+function MediaPreview({ product, className, eager = false, garment = false }: { product: Product; className: string; eager?: boolean; garment?: boolean }) {
+  const media = garment ? garmentMediaFor(product) : mediaFor(product);
   if (!media) return <span className="text-[9px] font-mono uppercase tracking-widest text-white/30">[ NO PREVIEW ]</span>;
   return media.type === "video" ? (
     <video src={media.url} muted playsInline loop autoPlay={eager} preload={eager ? "metadata" : "none"} className={className} aria-label={product.title} />
@@ -177,7 +184,7 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
                       filter: { duration: 0.24, ease: "easeOut" },
                     }}
                     whileTap={{ scale: isActive ? 0.985 : 0.78 }}
-                    className={`absolute left-1/2 top-[44%] overflow-hidden rounded-[1.6rem] border text-left ${isActive ? "h-[14rem] w-[min(92vw,25rem)] border-white/45 sm:h-[18rem] sm:w-[32rem]" : "h-[9rem] w-[15rem] border-white/18 sm:h-[12rem] sm:w-[21rem]"}`}
+                    className={`garment-stage-card absolute left-1/2 top-[44%] overflow-visible rounded-[1.6rem] border border-transparent bg-transparent text-left ${isActive ? "h-[14rem] w-[min(92vw,25rem)] sm:h-[18rem] sm:w-[32rem]" : "h-[9rem] w-[15rem] sm:h-[12rem] sm:w-[21rem]"}`}
                     style={{
                       translate: "-50% -50%",
                       zIndex: isActive ? 40 : 20 - Math.abs(offset),
@@ -185,8 +192,8 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
                       boxShadow: position.boxShadow,
                     } as CSSProperties}
                   >
-                    <MediaPreview product={product} eager={isActive} className="h-full w-full object-cover" />
-                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent px-4 pb-4 pt-16 text-[9px] font-mono uppercase tracking-[0.18em] text-white/85">{product.title}</span>
+                    <MediaPreview product={product} eager={isActive} garment className="garment-cutout h-full w-full object-contain" />
+                    <span aria-hidden="true" className="garment-flow-sheen" />
                   </motion.button>
                 );
               })}

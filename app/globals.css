@@ -647,3 +647,69 @@ body {
 .stage-transparent-panel::after {
   opacity: 0.08;
 }
+
+
+/* Homepage garment stage: the source photo should read as a moving garment, not a boxed card. */
+.garment-stage-card {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  isolation: isolate;
+}
+
+.garment-stage-card::before,
+.garment-stage-card::after {
+  content: none !important;
+}
+
+.garment-cutout {
+  position: relative;
+  z-index: 2;
+  display: block;
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 26px 22px rgba(0, 0, 0, 0.42)) drop-shadow(0 0 22px rgba(222, 167, 65, 0.12));
+  transform-origin: 50% 72%;
+  transition: filter 220ms ease;
+}
+
+.garment-stage-card[style*="z-index: 40"] .garment-cutout {
+  filter: drop-shadow(0 30px 28px rgba(0, 0, 0, 0.48)) drop-shadow(0 0 28px rgba(234, 184, 79, 0.16));
+}
+
+.garment-flow-sheen {
+  position: absolute;
+  z-index: 3;
+  inset: 8% 13% 11%;
+  pointer-events: none;
+  border-radius: 42% 48% 30% 36%;
+  background: linear-gradient(106deg, transparent 20%, rgba(255, 239, 185, 0.08) 44%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 210, 112, 0.06) 56%, transparent 82%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transform: translateX(-34%) skewX(-8deg);
+}
+
+.garment-stage-card:hover .garment-flow-sheen,
+.garment-stage-card:focus-visible .garment-flow-sheen {
+  opacity: 0.55;
+  animation: garment-flow-sheen 720ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes garment-flow-sheen {
+  0% { transform: translateX(-34%) skewX(-8deg); opacity: 0; }
+  35% { opacity: 0.75; }
+  100% { transform: translateX(34%) skewX(-8deg); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .garment-stage-card:hover .garment-flow-sheen,
+  .garment-stage-card:focus-visible .garment-flow-sheen {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .garment-cutout {
+    filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.42));
+  }
+}
