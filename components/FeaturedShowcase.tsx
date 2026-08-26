@@ -129,7 +129,7 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
   } as CSSProperties;
 
   return (
-    <section className="featured-stage relative isolate min-h-[calc(100svh-4.5rem)] overflow-hidden bg-transparent pt-24 pb-10 text-white transition-[background-image] duration-700 ease-out" style={stageStyle}>
+    <section className="featured-stage relative min-h-[calc(100svh-4.5rem)] overflow-hidden bg-transparent pt-24 pb-10 text-white transition-[background-image] duration-700 ease-out" style={stageStyle}>
       <div className="pointer-events-none absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
 
       <div className="relative z-10 mx-auto flex w-full max-w-[1500px] flex-col gap-8 px-5 sm:px-8 lg:px-12">
