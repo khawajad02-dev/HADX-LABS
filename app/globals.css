@@ -663,7 +663,7 @@ body {
   content: none !important;
 }
 
-.garment-cutout {
+.garment-media {
   position: relative;
   z-index: 2;
   display: block;
@@ -673,7 +673,7 @@ body {
   transition: filter 220ms ease;
 }
 
-.garment-stage-card[style*="z-index: 40"] .garment-cutout {
+.garment-stage-card[style*="z-index: 40"] .garment-media {
   filter: drop-shadow(0 30px 28px rgba(0, 0, 0, 0.48)) drop-shadow(0 0 28px rgba(234, 184, 79, 0.16));
 }
 
@@ -709,7 +709,7 @@ body {
 }
 
 @media (max-width: 640px) {
-  .garment-cutout {
+  .garment-media {
     filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.42));
   }
 }

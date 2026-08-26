@@ -39,15 +39,8 @@ function mediaFor(product: Product) {
   return product.media?.[0] || (product.imageUrl ? { url: product.imageUrl, type: "image" as const } : null);
 }
 
-function garmentMediaFor(product: Product) {
-  const identity = `${product.title} ${product.sku || ""}`.toLowerCase();
-  if (identity.includes("armored architect")) return { url: "/product-cutouts/armored-architect-cutout.png", type: "image" as const };
-  if (identity.includes("honored one")) return { url: "/product-cutouts/honored-one-cutout.png", type: "image" as const };
-  return mediaFor(product);
-}
-
-function MediaPreview({ product, className, eager = false, garment = false }: { product: Product; className: string; eager?: boolean; garment?: boolean }) {
-  const media = garment ? garmentMediaFor(product) : mediaFor(product);
+function MediaPreview({ product, className, eager = false }: { product: Product; className: string; eager?: boolean }) {
+  const media = mediaFor(product);
   if (!media) return <span className="text-[9px] font-mono uppercase tracking-widest text-white/30">[ NO PREVIEW ]</span>;
   return media.type === "video" ? (
     <video src={media.url} muted playsInline loop autoPlay={eager} preload={eager ? "metadata" : "none"} className={className} aria-label={product.title} />
@@ -89,14 +82,14 @@ function catwalkPosition(offset: number) {
   const side = offset < 0 ? -1 : 1;
 
   return {
-    x: isActive ? 0 : side * (distance === 1 ? 300 : 455),
-    y: isActive ? -10 : 28 + distance * 14,
-    z: isActive ? 145 : -58 - distance * 92,
-    rotateY: isActive ? 0 : side * -32,
-    rotateZ: isActive ? 0 : side * (distance === 1 ? 3 : 7),
-    scale: isActive ? 1 : Math.max(0.48, 0.84 - (distance - 1) * 0.14),
-    opacity: isActive ? 1 : distance === 1 ? 0.78 : 0.3,
-    filter: isActive ? "brightness(1) saturate(1)" : `brightness(${distance === 1 ? 0.78 : 0.56}) saturate(${distance === 1 ? 0.88 : 0.72})`,
+    x: isActive ? 0 : side * (distance === 1 ? 360 : 540),
+    y: isActive ? -18 : 48 + distance * 18,
+    z: isActive ? 165 : -210 - (distance - 1) * 150,
+    rotateY: isActive ? 0 : side * -46,
+    rotateZ: isActive ? 0 : side * (distance === 1 ? 4 : 8),
+    scale: isActive ? 1 : Math.max(0.38, 0.66 - (distance - 1) * 0.18),
+    opacity: isActive ? 1 : distance === 1 ? 0.58 : 0.18,
+    filter: isActive ? "brightness(1) saturate(1)" : `brightness(${distance === 1 ? 0.72 : 0.52}) saturate(${distance === 1 ? 0.88 : 0.7})`,
     boxShadow: isActive ? "0 32px 86px rgba(0,0,0,0.52)" : "0 18px 42px rgba(0,0,0,0.38)",
   };
 }
@@ -174,14 +167,14 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
                     initial={false}
                     animate={position}
                     transition={{
-                      x: { type: "spring", stiffness: 230, damping: 26, mass: 0.82 },
-                      y: { type: "spring", stiffness: 210, damping: 25, mass: 0.86 },
-                      z: { type: "spring", stiffness: 220, damping: 27, mass: 0.8 },
-                      rotateY: { type: "spring", stiffness: 190, damping: 24, mass: 0.86 },
-                      rotateZ: { type: "spring", stiffness: 200, damping: 25, mass: 0.82 },
-                      scale: { type: "spring", stiffness: 230, damping: 26, mass: 0.82 },
-                      opacity: { duration: 0.24, ease: "easeOut" },
-                      filter: { duration: 0.24, ease: "easeOut" },
+                      x: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+                      y: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+                      z: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+                      rotateY: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+                      rotateZ: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+                      scale: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+                      opacity: { duration: 0.44, ease: "easeOut" },
+                      filter: { duration: 0.44, ease: "easeOut" },
                     }}
                     whileTap={{ scale: isActive ? 0.985 : 0.78 }}
                     className={`garment-stage-card absolute left-1/2 top-[44%] overflow-visible rounded-[1.6rem] border border-transparent bg-transparent text-left ${isActive ? "h-[14rem] w-[min(92vw,25rem)] sm:h-[18rem] sm:w-[32rem]" : "h-[9rem] w-[15rem] sm:h-[12rem] sm:w-[21rem]"}`}
@@ -192,7 +185,7 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
                       boxShadow: position.boxShadow,
                     } as CSSProperties}
                   >
-                    <MediaPreview product={product} eager={isActive} garment className="garment-cutout h-full w-full object-contain" />
+                    <MediaPreview product={product} eager={isActive} className="garment-media h-full w-full object-contain" />
                     <span aria-hidden="true" className="garment-flow-sheen" />
                   </motion.button>
                 );
