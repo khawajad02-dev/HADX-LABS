@@ -82,7 +82,7 @@ function catwalkPosition(offset: number) {
   const side = offset < 0 ? -1 : 1;
 
   return {
-    x: isActive ? 0 : side * (distance === 1 ? 148 : 222),
+    x: isActive ? 0 : side * (distance === 1 ? 300 : 455),
     y: isActive ? -10 : 28 + distance * 14,
     z: isActive ? 145 : -58 - distance * 92,
     rotateY: isActive ? 0 : side * -32,
