@@ -1244,10 +1244,10 @@ body {
   background:
     linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.008) 46%, rgba(255,213,133,0.012)),
     radial-gradient(ellipse at 18% 0%, rgba(255,255,255,0.05), transparent 42%),
-    rgba(15,15,15,0.13) !important;
+    rgba(15,15,15,0.07) !important;
   border-color: rgba(232, 194, 111, 0.28) !important;
-  -webkit-backdrop-filter: url("#hadx-liquid-refraction") blur(11px) saturate(138%);
-  backdrop-filter: url("#hadx-liquid-refraction") blur(11px) saturate(138%);
+  -webkit-backdrop-filter: url("#hadx-liquid-refraction") blur(5px) saturate(132%);
+  backdrop-filter: url("#hadx-liquid-refraction") blur(5px) saturate(132%);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.16),
     inset 0 -1px 0 rgba(0,0,0,0.12),
@@ -1256,7 +1256,7 @@ body {
 }
 
 .reference-glass-panel::before {
-  opacity: 0.28;
+  opacity: 0.17;
   background:
     radial-gradient(ellipse 5px 8px at var(--liquid-pointer-x) var(--liquid-pointer-y), rgba(255,255,255,0.48) 0 18%, rgba(255,224,148,0.18) 42%, transparent 74%),
     linear-gradient(112deg, transparent 24%, rgba(255,255,255,0.025) 43%, rgba(255,247,214,0.1) 50%, transparent 62%),
@@ -1269,7 +1269,7 @@ body {
 }
 
 .reference-glass-panel::after {
-  opacity: 0.1;
+  opacity: 0.06;
 }
 
 @keyframes reference-water-film {
@@ -1324,16 +1324,16 @@ body {
   background:
     radial-gradient(circle at var(--liquid-pointer-x) var(--liquid-pointer-y), rgba(255,225,147,0.12), transparent 34%),
     linear-gradient(135deg, rgba(255,255,255,0.065), rgba(255,255,255,0.012) 46%, rgba(255,213,133,0.025)),
-    rgba(15,15,15,0.1) !important;
+    rgba(15,15,15,0.055) !important;
 }
 
 @media (max-width: 640px) {
   .reference-glass-panel {
     background:
-      linear-gradient(135deg, rgba(255,255,255,0.035), rgba(255,255,255,0.006) 46%, rgba(255,213,133,0.01)),
-      rgba(15,15,15,0.09) !important;
-    -webkit-backdrop-filter: blur(6px) saturate(122%);
-    backdrop-filter: blur(6px) saturate(122%);
+      linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.005) 46%, rgba(255,213,133,0.008)),
+      rgba(15,15,15,0.045) !important;
+    -webkit-backdrop-filter: blur(4px) saturate(118%);
+    backdrop-filter: blur(4px) saturate(118%);
   }
 
   .reference-glass-panel::before {
