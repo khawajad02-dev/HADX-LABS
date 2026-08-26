@@ -59,5 +59,5 @@ export default function LiveInventoryHero({ initialProducts, initialCurrency }: 
     };
   }, [refreshInventory]);
 
-  return products.length > 0 ? <FeaturedShowcase products={products} /> : <EmptyInventory currency={initialCurrency} />;
+  return products.length > 0 ? <FeaturedShowcase products={products} initialCurrency={initialCurrency} /> : <EmptyInventory currency={initialCurrency} />;
 }

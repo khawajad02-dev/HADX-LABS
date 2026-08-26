@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useMemo, useState, type CSSProperties } from "react";
 import { motion, type PanInfo } from "framer-motion";
+
+import CurrencySwitcher from "@/components/CurrencySwitcher";
+import StorefrontSearch from "@/components/StorefrontSearch";
 import GarmentMedia from "./GarmentMedia";
 
 export type Product = {
@@ -18,102 +21,83 @@ export type Product = {
   availableSizes?: string[];
 };
 
-type StageTone = {
-  accent: string;
-  glow: string;
-};
+type DisplayCurrency = "USD" | "PKR" | "INR";
 
 const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL"];
-const STAGE_TONES: StageTone[] = [
-  { accent: "#e6b65b", glow: "rgba(212, 139, 30, 0.35)" },
-  { accent: "#b3c78f", glow: "rgba(109, 143, 75, 0.3)" },
-  { accent: "#c5a5dc", glow: "rgba(146, 96, 173, 0.28)" },
-  { accent: "#8ec9de", glow: "rgba(63, 135, 164, 0.28)" },
-];
+const GOLD = "#d8a94f";
 
-function money(product: Product) {
-  const symbol = product.currency === "PKR" ? "PKR" : product.currency === "INR" ? "₹" : "$";
-  return `${symbol} ${Number(product.price).toLocaleString()}`;
+function formatMoney(product: Product) {
+  const prefix = product.currency === "PKR" ? "PKR" : product.currency === "INR" ? "₹" : "$";
+  return `${prefix} ${Number(product.price).toLocaleString()}`;
 }
 
 function mediaFor(product: Product) {
   return product.media?.[0] || (product.imageUrl ? { url: product.imageUrl, type: "image" as const } : null);
 }
 
-function MediaPreview({ product, className, eager = false }: { product: Product; className: string; eager?: boolean }) {
+function ProductMedia({ product, active }: { product: Product; active: boolean }) {
   const media = mediaFor(product);
-  if (!media) return <span className="text-[9px] font-mono uppercase tracking-widest text-white/30">[ NO PREVIEW ]</span>;
-  return media.type === "video" ? (
-    <video src={media.url} muted playsInline loop autoPlay={eager} preload={eager ? "metadata" : "none"} className={className} aria-label={product.title} />
-  ) : (
-    <GarmentMedia src={media.url} alt={product.title} eager={eager} className={className} />
-  );
+  if (!media) return <span className="reference-empty-media">NO MEDIA</span>;
+  if (media.type === "video") {
+    return <video src={media.url} muted playsInline loop autoPlay={active} preload={active ? "metadata" : "none"} className="reference-product-media" aria-label={product.title} />;
+  }
+  return <GarmentMedia src={media.url} alt={product.title} eager={active} className="reference-product-media" />;
 }
 
-function productPath(product: Product, currency: string | undefined, size?: string) {
-  const params = new URLSearchParams({ currency: currency || "USD" });
+function productPath(product: Product, size?: string) {
+  const params = new URLSearchParams({ currency: product.currency || "USD" });
   if (size) params.set("size", size);
   return `/product/${product.sku || product.id}?${params.toString()}`;
 }
 
-function offsetsForCount(count: number) {
-  if (count <= 1) return [0];
-  if (count === 2) return [-1, 0];
-  if (count === 3) return [-1, 0, 1];
-  if (count === 4) return [-2, -1, 0, 1];
-  return [-2, -1, 0, 1, 2];
+function checkoutPath(product: Product, size: string) {
+  const params = new URLSearchParams({ productId: product.id, currency: product.currency || "USD", size });
+  return `/checkout?${params.toString()}`;
 }
 
 function relativeOffset(index: number, activeIndex: number, count: number, direction: 1 | -1) {
   if (index === activeIndex) return 0;
-
-  // With two products, the same item is both the previous and next item in a
-  // circular list. Direction chooses which side it retreats from so the
-  // incoming shirt visibly walks in from the swipe direction.
   if (count === 2) return direction === 1 ? -1 : 1;
-
   let offset = (index - activeIndex + count) % count;
   if (offset > count / 2) offset -= count;
   return offset;
 }
 
-function catwalkPosition(offset: number) {
+function stagePosition(offset: number) {
   const distance = Math.abs(offset);
-  const isActive = offset === 0;
   const side = offset < 0 ? -1 : 1;
-
+  if (offset === 0) {
+    return { x: 0, y: -18, z: 120, rotateY: 0, rotateZ: 0, scale: 1, opacity: 1 };
+  }
   return {
-    x: isActive ? 0 : side * (distance === 1 ? 360 : 540),
-    y: isActive ? -18 : 48 + distance * 18,
-    z: isActive ? 165 : -210 - (distance - 1) * 150,
-    rotateY: isActive ? 0 : side * -46,
-    rotateZ: isActive ? 0 : side * (distance === 1 ? 4 : 8),
-    scale: isActive ? 1 : Math.max(0.38, 0.66 - (distance - 1) * 0.18),
-    opacity: isActive ? 1 : distance === 1 ? 0.58 : 0.18,
-    filter: isActive ? "brightness(1) saturate(1)" : `brightness(${distance === 1 ? 0.72 : 0.52}) saturate(${distance === 1 ? 0.88 : 0.7})`,
-    boxShadow: isActive ? "0 32px 86px rgba(0,0,0,0.52)" : "0 18px 42px rgba(0,0,0,0.38)",
+    x: side * (distance === 1 ? 250 : 390),
+    y: 28 + distance * 16,
+    z: -120 - (distance - 1) * 120,
+    rotateY: side * -34,
+    rotateZ: side * (distance === 1 ? 3 : 7),
+    scale: Math.max(0.42, 0.72 - (distance - 1) * 0.14),
+    opacity: distance === 1 ? 0.24 : 0.06,
   };
 }
 
-export default function FeaturedShowcase({ products = [] }: { products: Product[] }) {
+export default function FeaturedShowcase({ products = [], initialCurrency = "USD" }: { products: Product[]; initialCurrency?: DisplayCurrency }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
-  const [direction, setDirection] = useState<1 | -1>(-1);
+  const [direction, setDirection] = useState<1 | -1>(1);
   const active = products[activeIndex] || products[0];
-  const tone = STAGE_TONES[activeIndex % STAGE_TONES.length];
   const sizes = active?.availableSizes?.length ? active.availableSizes : DEFAULT_SIZES;
+  const displayCurrency = active?.currency || initialCurrency;
 
-  const catwalkCards = useMemo(() => {
-    if (!products.length) return [];
-    return products.map((product, index) => {
-      const offset = relativeOffset(index, activeIndex, products.length, direction);
-      return { product, offset, position: catwalkPosition(offset) };
-    }).filter(({ offset }) => Math.abs(offset) <= 2);
-  }, [activeIndex, direction, products]);
+  const stageProducts = useMemo(() => products.map((product, index) => ({
+    product,
+    offset: relativeOffset(index, activeIndex, products.length, direction),
+    position: stagePosition(relativeOffset(index, activeIndex, products.length, direction)),
+  })).filter(({ offset }) => Math.abs(offset) <= 1), [activeIndex, direction, products]);
 
   if (!active) return null;
 
   const move = (nextDirection: 1 | -1) => {
+    if (products.length < 2) return;
     setSelectedSize("");
     setDirection(nextDirection);
     setActiveIndex((current) => (current + nextDirection + products.length) % products.length);
@@ -123,48 +107,65 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
     if (Math.abs(info.offset.x) > 36 || Math.abs(info.velocity.x) > 280) move(info.offset.x < 0 ? 1 : -1);
   };
 
+  const selectProduct = (index: number) => {
+    setSelectedSize("");
+    setDirection(index >= activeIndex ? 1 : -1);
+    setActiveIndex(index);
+  };
+
   const stageStyle = {
-    "--stage-accent": tone.accent,
-    "--stage-glow": tone.glow,
-    backgroundImage: "radial-gradient(circle at 50% 40%, rgba(255, 205, 100, 0.075), transparent 34%), linear-gradient(180deg, rgba(0, 0, 0, 0.035), transparent 52%, rgba(0, 0, 0, 0.045))",
+    "--reference-accent": GOLD,
+    "--reference-index": activeIndex,
   } as CSSProperties;
 
   return (
-    <section className="featured-stage relative min-h-[calc(100svh-4.5rem)] overflow-hidden bg-transparent pt-24 pb-10 text-white transition-[background-image] duration-700 ease-out" style={stageStyle}>
-      <div className="pointer-events-none absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
+    <section className="reference-hero-shell" style={stageStyle} aria-label="HADX LABS featured collection">
+      <div className="reference-hero-canvas">
+        <div className="reference-ambient-noise" aria-hidden="true" />
+        <div className="reference-light-orb reference-light-orb-left" aria-hidden="true" />
+        <div className="reference-light-orb reference-light-orb-right" aria-hidden="true" />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-[1500px] flex-col gap-8 px-5 sm:px-8 lg:px-12">
-        <div className="flex items-center justify-between border-b border-white/10 pb-4 text-[9px] font-mono uppercase tracking-[0.28em] text-white/55">
-          <span className="flex items-center gap-3"><span className="grid h-7 w-7 place-items-center rounded-full border border-[color:var(--stage-accent)]/60 text-[color:var(--stage-accent)]">H</span><span>HADX LABS / ATELIER</span></span>
-          <span className="hidden gap-5 sm:flex"><span className="rounded-full bg-white px-3 py-1 text-black">Products</span><span>About</span><span>Category</span><span>Contact</span></span>
-          <span className="text-[color:var(--stage-accent)]">Drop {String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</span>
-        </div>
+        <header className="reference-nav">
+          <Link href="/" className="reference-brand-mark" aria-label="HADX LABS home">
+            <span className="reference-brand-icon">H</span>
+            <span className="reference-brand-wordmark">HADX <b>LABS</b></span>
+          </Link>
+          <nav className="reference-nav-links" aria-label="Primary navigation">
+            <Link href="#catalog">HOME</Link>
+            <Link href="#catalog">SHOP</Link>
+            <Link href="#catalog">ATELIER</Link>
+            <Link href="#catalog">ABOUT</Link>
+            <Link href="#catalog">JOURNAL</Link>
+          </nav>
+          <div className="reference-nav-tools">
+            <StorefrontSearch />
+            <CurrencySwitcher />
+            <Link href="/favorites" className="reference-nav-tool">ACCOUNT</Link>
+            <Link href={selectedSize ? checkoutPath(active, selectedSize) : productPath(active)} className="reference-nav-tool reference-nav-cart">CART [ {selectedSize ? 1 : 0} ]</Link>
+          </div>
+        </header>
 
-        <div className="grid items-center gap-8 lg:grid-cols-[minmax(210px,0.78fr)_minmax(420px,1.35fr)_minmax(240px,0.82fr)] lg:gap-10">
-          <motion.div key={`${active.id}-copy`} initial={{ opacity: 0, x: -18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }} className="order-2 max-w-sm lg:order-1">
-            <span className="mb-5 block text-[9px] font-mono uppercase tracking-[0.34em] text-[color:var(--stage-accent)]/75">Luxury Digital / Limited Edition</span>
-            <h2 className="max-w-xs text-4xl font-light uppercase leading-[0.94] tracking-[-0.05em] sm:text-5xl">Streetwear<br /><span className="text-white/55">Atelier</span></h2>
-            <p className="mt-6 max-w-[18rem] text-xs leading-6 text-white/50">A collectible garment system for people who move with intent. Heavyweight fabric, custom graphics, and a limited HADX production run.</p>
-            <Link href="#catalog" className="mt-7 inline-flex items-center gap-3 text-[9px] font-mono uppercase tracking-[0.26em] text-white/70 transition-colors hover:text-white"><span className="grid h-8 w-8 place-items-center rounded-full border border-white/30">↘</span> Scroll to explore</Link>
-          </motion.div>
+        <div className="reference-hero-divider" aria-hidden="true" />
 
-          <div className="order-1 relative flex min-h-[30rem] items-center justify-center sm:min-h-[35rem] lg:order-2">
-            <div aria-hidden="true" className="pointer-events-none absolute bottom-8 left-1/2 z-0 h-16 w-[min(25rem,82vw)] -translate-x-1/2 rounded-[50%] bg-[color:var(--stage-glow)] opacity-30 blur-2xl" />
-            <div aria-hidden="true" className="pointer-events-none absolute bottom-5 left-1/2 z-0 h-8 w-[min(20rem,72vw)] -translate-x-1/2 rounded-[50%] border border-[color:var(--stage-accent)]/45 bg-black/15 shadow-[0_0_34px_var(--stage-glow)] [transform:perspective(900px)_rotateX(66deg)]" />
+        <div className="reference-main-grid">
+          <motion.aside className="reference-glass-panel reference-copy-panel" initial={{ opacity: 0, x: -18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.42 }}>
+            <span className="reference-eyebrow">LUXURY DIGITAL</span>
+            <h2>STREETWEAR<br /><em>ATELIER</em></h2>
+            <p>A collectible garment system for people who move with intent. Heavyweight fabric, custom graphics, and a limited HADX production run.</p>
+            <Link href="#catalog" className="reference-round-link" aria-label="Explore collection"><span>↗</span><small>PLAY SHOWREEL</small></Link>
+          </motion.aside>
 
-            <motion.div className="relative z-10 h-[30rem] w-full max-w-[34rem] touch-pan-y sm:h-[35rem]" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.12} onDragEnd={onDragEnd} whileTap={{ cursor: "grabbing" }} style={{ perspective: "1500px", transformStyle: "preserve-3d" }}>
-              {catwalkCards.map(({ product, offset, position }) => {
+          <div className="reference-product-stage">
+            <div className="reference-halo" aria-hidden="true" />
+            <motion.div className="reference-stage-track" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0} onDragEnd={onDragEnd} style={{ perspective: "1200px", transformStyle: "preserve-3d" }}>
+              {stageProducts.map(({ product, offset, position }) => {
                 const isActive = offset === 0;
                 return (
                   <motion.button
-                    type="button"
                     key={product.id}
-                    onClick={() => {
-                      setSelectedSize("");
-                      setDirection(product.id === active.id ? direction : product.id === products[(activeIndex + 1) % products.length]?.id ? 1 : -1);
-                      setActiveIndex(products.findIndex((candidate) => candidate.id === product.id));
-                    }}
+                    type="button"
                     aria-label={`Show ${product.title}`}
+                    className={`reference-product-layer ${isActive ? "is-active" : "is-secondary"}`}
                     initial={false}
                     animate={position}
                     transition={{
@@ -174,41 +175,42 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
                       rotateY: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
                       rotateZ: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
                       scale: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
-                      opacity: { duration: 0.44, ease: "easeOut" },
-                      filter: { duration: 0.44, ease: "easeOut" },
+                      opacity: { duration: 0.42, ease: "easeOut" },
                     }}
-                    whileTap={{ scale: isActive ? 0.985 : 0.78 }}
-                    className={`garment-stage-card absolute left-1/2 top-[44%] overflow-visible rounded-[1.6rem] border border-transparent bg-transparent text-left ${isActive ? "h-[14rem] w-[min(92vw,25rem)] sm:h-[18rem] sm:w-[32rem]" : "h-[9rem] w-[15rem] sm:h-[12rem] sm:w-[21rem]"}`}
-                    style={{
-                      translate: "-50% -50%",
-                      zIndex: isActive ? 40 : 20 - Math.abs(offset),
-                      transformStyle: "preserve-3d",
-                      boxShadow: position.boxShadow,
-                    } as CSSProperties}
+                    onClick={() => selectProduct(products.findIndex((candidate) => candidate.id === product.id))}
+                    style={{ zIndex: isActive ? 20 : 10, transformStyle: "preserve-3d" }}
                   >
-                    <MediaPreview product={product} eager={isActive} className="garment-media h-full w-full object-contain" />
-                    <span aria-hidden="true" className="garment-flow-sheen" />
+                    <ProductMedia product={product} active={isActive} />
                   </motion.button>
                 );
               })}
             </motion.div>
+            <div className="reference-pedestal" aria-hidden="true"><span className="reference-pedestal-top" /><span className="reference-pedestal-base" /></div>
+            <div className="reference-stage-caption"><span>SELECTED DROP</span><strong>{String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</strong></div>
           </div>
 
-          <motion.aside key={`${active.id}-panel`} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }} className="stage-transparent-panel order-3 rounded-2xl border border-white/15 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.35)] lg:p-6">
-            <div className="flex items-start justify-between gap-4"><span className="text-[9px] font-mono uppercase tracking-[0.24em] text-[color:var(--stage-accent)]/80">Limited Drop</span><span className="text-[9px] font-mono text-white/35">{active.sku || "SIGNATURE"}</span></div>
-            <h3 className="mt-4 text-2xl font-light uppercase leading-tight tracking-[-0.035em]">{active.title}</h3>
-            <div className="mt-5 flex items-end justify-between gap-4"><span className="font-mono text-lg font-semibold text-white">{money(active)}</span><span className="text-[9px] font-mono uppercase tracking-[0.18em] text-white/35">Worldwide shipping</span></div>
-            <div className="mt-6"><div className="mb-3 flex items-center justify-between"><span className="text-[9px] font-mono uppercase tracking-[0.2em] text-white/45">Choose size</span><span className="text-[9px] font-mono uppercase tracking-[0.2em] text-[color:var(--stage-accent)]">{selectedSize || "Required"}</span></div><div className="grid grid-cols-5 gap-1.5">{sizes.map((size) => <button key={size} type="button" onClick={() => setSelectedSize(size)} aria-pressed={selectedSize === size} className={`rounded-md border px-2 py-2 text-[9px] font-mono transition-colors ${selectedSize === size ? "border-white bg-white text-black" : "border-white/20 text-white/65 hover:border-white/60 hover:text-white"}`}>{size}</button>)}</div></div>
-            <Link href={productPath(active, active.currency, selectedSize || undefined)} className="liquid-ui mt-6 flex w-full items-center justify-between rounded-full bg-white px-4 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"><span>{selectedSize ? "Buy now" : "View drop"}</span><span>↗</span></Link>
-            <div className="mt-5 divide-y divide-white/10 border-t border-white/10 text-[9px] font-mono uppercase tracking-[0.18em] text-white/45"><div className="flex items-center justify-between py-3"><span>Edition</span><span className="text-white/75">Limited / {activeIndex + 1}</span></div><div className="flex items-center justify-between py-3"><span>Media</span><span className="text-white/75">{active.media?.length || 1} assets</span></div></div>
+          <motion.aside className="reference-glass-panel reference-order-panel" key={active.id} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.42 }}>
+            <div className="reference-order-heading"><span className="reference-eyebrow">LIMITED DROP</span><span className="reference-sku">{active.sku || "HADX DROP"}</span></div>
+            <h3>{active.title}</h3>
+            <p className="reference-color-line">{active.category || "ATELIER"} / {displayCurrency} PRICING</p>
+            <div className="reference-price-row"><strong>{formatMoney(active)}</strong><span>WORLDWIDE SHIPPING</span></div>
+            <div className="reference-size-block"><span className="reference-label">CHOOSE SIZE</span><div className="reference-size-row">{sizes.map((size) => <button key={size} type="button" onClick={() => setSelectedSize(size)} aria-pressed={selectedSize === size} className={selectedSize === size ? "is-selected" : ""}>{size}</button>)}</div></div>
+            <Link href={selectedSize ? checkoutPath(active, selectedSize) : productPath(active)} className="reference-gold-cta"><span>{selectedSize ? "ADD TO CART" : "SELECT SIZE"}</span><b>↗</b></Link>
+            <div className="reference-order-meta"><div><span>EDITION</span><b>LIMITED / {activeIndex + 1}</b></div><div><span>MEDIA</span><b>{active.media?.length || 1} ASSETS</b></div><div><span>STATUS</span><b>AVAILABLE NOW</b></div></div>
           </motion.aside>
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-5 border-t border-white/10 pt-5 sm:flex-row">
-          <div className="flex items-center gap-3 text-[9px] font-mono uppercase tracking-[0.22em] text-white/45"><button type="button" onClick={() => move(-1)} aria-label="Previous featured product" className="liquid-ui grid h-9 w-9 place-items-center rounded-full text-[color:var(--stage-accent)]">←</button><span>Swipe / drag to rotate</span><button type="button" onClick={() => move(1)} aria-label="Next featured product" className="liquid-ui grid h-9 w-9 place-items-center rounded-full text-[color:var(--stage-accent)]">→</button></div>
-          <div className="flex flex-wrap items-center justify-center gap-2">{products.map((product, index) => <button key={product.id} type="button" onClick={() => { setSelectedSize(""); setDirection(index > activeIndex ? 1 : -1); setActiveIndex(index); }} aria-label={`Select ${product.title}`} className={`h-1.5 rounded-full transition-all duration-300 ${index === activeIndex ? "w-10 bg-[color:var(--stage-accent)]" : "w-2 bg-white/25 hover:bg-white/60"}`} />)}</div>
-          <div className="grid grid-cols-3 gap-3 text-[8px] font-mono uppercase tracking-[0.18em] text-white/40 sm:gap-5"><span>Premium quality</span><span>Global shipping</span><span>Secure checkout</span></div>
+        <div className="reference-explore-row"><span className="reference-explore-arrow">↘</span><span>SCROLL TO EXPLORE</span><div className="reference-explore-line" /></div>
+
+        <div className="reference-bottom-strip">
+          <div className="reference-feature"><span>◈</span><div><b>LIMITED EDITIONS</b><small>Exclusive drops / numbered runs</small></div></div>
+          <div className="reference-feature"><span>♢</span><div><b>PREMIUM QUALITY</b><small>Heavyweight cotton / built to last</small></div></div>
+          <div className="reference-bottom-emblem">H</div>
+          <div className="reference-feature"><span>✧</span><div><b>GLOBAL SHIPPING</b><small>Worldwide delivery / tracked</small></div></div>
+          <div className="reference-feature"><span>◇</span><div><b>SECURE PAYMENTS</b><small>Protected checkout / regional rates</small></div></div>
         </div>
+
+        <div className="reference-controls"><div><button type="button" onClick={() => move(-1)} aria-label="Previous featured product">←</button><span>SWIPE / DRAG TO ROTATE</span><button type="button" onClick={() => move(1)} aria-label="Next featured product">→</button></div><div className="reference-dots">{products.map((product, index) => <button key={product.id} type="button" onClick={() => selectProduct(index)} aria-label={`Select ${product.title}`} className={index === activeIndex ? "is-active" : ""} />)}</div></div>
       </div>
     </section>
   );
