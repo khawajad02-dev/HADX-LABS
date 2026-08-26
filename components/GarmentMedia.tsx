@@ -17,7 +17,8 @@ function isLightStudioPixel(data: Uint8ClampedArray, index: number) {
   const blue = data[index + 2];
   const brightness = (red + green + blue) / 3;
   const saturation = Math.max(red, green, blue) - Math.min(red, green, blue);
-  return brightness > 142 && saturation < 78;
+  // Keep this broad enough for warm studio whites, but only edge-connected pixels are removed below.
+  return brightness > 118 && saturation < 116;
 }
 
 export default function GarmentMedia({ src, alt, className, eager = false }: GarmentMediaProps) {
@@ -114,7 +115,8 @@ export default function GarmentMedia({ src, alt, className, eager = false }: Gar
           (y > 0 && background[pixel - width]) ||
           (y + 1 < height && background[pixel + width]);
         if (touchesBackground && isLightStudioPixel(pixels.data, pixel * 4)) {
-          pixels.data[alphaIndex] = Math.min(pixels.data[alphaIndex], 110);
+          // Preserve bright printed signs at the garment edge; only soften the anti-aliased halo.
+          pixels.data[alphaIndex] = Math.min(pixels.data[alphaIndex], 220);
         }
       }
 
