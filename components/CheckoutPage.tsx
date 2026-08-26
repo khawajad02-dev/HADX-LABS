@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CheckoutVideoModal, CheckoutState } from './CheckoutVideoModal';
+import CustomSelect from './CustomSelect';
 
 export default function CheckoutPage({ 
   items: initialItems = [], 
@@ -26,6 +27,7 @@ export default function CheckoutPage({
     city: '',
     country: initialCountry,
   });
+  const [otherCountry, setOtherCountry] = useState('');
 
   const cartItems = initialItems;
   const selectedProduct = cartItems[0];
@@ -33,8 +35,10 @@ export default function CheckoutPage({
   const [selectedSize, setSelectedSize] = useState(selectedProduct?.size || '');
   const activeCurrency = cartItems[0]?.currency || 'USD';
   const currencySymbol = activeCurrency === 'PKR' ? 'PKR' : activeCurrency === 'INR' ? '₹' : '$';
-  const isPakistan = formData.country.trim().toLowerCase() === 'pakistan';
-  const paymentMethod = formData.country ? (isPakistan ? 'COD' : 'CARD') : '';
+  const isOtherCountry = formData.country.trim().toLowerCase() === 'other';
+  const effectiveCountry = isOtherCountry ? otherCountry.trim() : formData.country.trim();
+  const isPakistan = effectiveCountry.toLowerCase() === 'pakistan';
+  const paymentMethod = effectiveCountry ? (isPakistan ? 'COD' : 'CARD') : '';
   const paymentLabel = paymentMethod === 'COD' ? 'Cash on delivery' : paymentMethod === 'CARD' ? 'Card payment' : 'Select country first';
   const totalAmount = initialTotal > 0 ? initialTotal : cartItems.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 0), 0);
 
@@ -48,7 +52,7 @@ export default function CheckoutPage({
       return;
     }
 
-    if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.country || !selectedSize) {
+    if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.address.trim() || !formData.city.trim() || !effectiveCountry || !selectedSize) {
       alert("Validation Error: All fields are required.");
       return;
     }
@@ -72,7 +76,7 @@ export default function CheckoutPage({
           phone: formData.phone,
           address: formData.address,
           city: formData.city,
-          country: formData.country,
+          country: effectiveCountry,
           size: selectedSize,
           currency: activeCurrency,
           paymentMethod,
@@ -125,7 +129,7 @@ export default function CheckoutPage({
       </div>
 
       {/* Real Form & Order Summary Container */}
-      <div className="liquid-panel w-full max-w-xl rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
+      <div className="checkout-glass-card liquid-panel w-full max-w-xl rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6">
         <h2 className="font-mono text-xs uppercase tracking-widest text-neutral-400 border-b border-neutral-800 pb-3">
           {"//"} Shipping Details
         </h2>
@@ -232,27 +236,45 @@ export default function CheckoutPage({
           </div>
 
           <div>
-            <label htmlFor="checkout-country" className="block text-neutral-500 mb-1 uppercase">Country</label>
-              <select
-              id="checkout-country"
-              name="country"
-              autoComplete="country-name"
-              required
+            <label htmlFor="checkout-country" className="mb-1 block text-neutral-500 uppercase">Country</label>
+            <CustomSelect
               value={formData.country}
-              onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-              className="liquid-ui relative z-10 w-full rounded-lg p-3 text-white focus:outline-none focus:border-amber-500 transition-colors touch-manipulation"
-            >
-              <option value="" className="bg-zinc-950">Select country</option>
-              <option value="Pakistan" className="bg-zinc-950">Pakistan</option>
-              <option value="India" className="bg-zinc-950">India</option>
-              <option value="United States" className="bg-zinc-950">United States</option>
-              <option value="United Kingdom" className="bg-zinc-950">United Kingdom</option>
-              <option value="United Arab Emirates" className="bg-zinc-950">United Arab Emirates</option>
-              <option value="Saudi Arabia" className="bg-zinc-950">Saudi Arabia</option>
-              <option value="Canada" className="bg-zinc-950">Canada</option>
-              <option value="Australia" className="bg-zinc-950">Australia</option>
-              <option value="Other" className="bg-zinc-950">Other</option>
-              </select>
+              onChange={(value) => {
+                setFormData({ ...formData, country: value });
+                if (value !== 'Other') setOtherCountry('');
+              }}
+              ariaLabel="Shipping country"
+              options={[
+                { value: '', label: 'Select country' },
+                { value: 'Pakistan', label: 'Pakistan' },
+                { value: 'India', label: 'India' },
+                { value: 'United States', label: 'United States' },
+                { value: 'United Kingdom', label: 'United Kingdom' },
+                { value: 'United Arab Emirates', label: 'United Arab Emirates' },
+                { value: 'Saudi Arabia', label: 'Saudi Arabia' },
+                { value: 'Canada', label: 'Canada' },
+                { value: 'Australia', label: 'Australia' },
+                { value: 'Other', label: 'Other' },
+              ]}
+              placeholder="Select country"
+              className="w-full"
+            />
+            {isOtherCountry ? (
+              <div className="mt-3">
+                <label htmlFor="checkout-other-country" className="mb-1 block text-neutral-500 uppercase">Specify your country</label>
+                <input
+                  id="checkout-other-country"
+                  name="otherCountry"
+                  autoComplete="country-name"
+                  type="text"
+                  required
+                  placeholder="Enter country name"
+                  value={otherCountry}
+                  onChange={(e) => setOtherCountry(e.target.value)}
+                  className="liquid-ui relative z-10 w-full rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none transition-colors"
+                />
+              </div>
+            ) : null}
           </div>
 
           <div className="rounded-xl border border-amber-200/15 bg-amber-100/[0.025] p-4" aria-live="polite">

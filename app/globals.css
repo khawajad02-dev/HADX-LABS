@@ -837,14 +837,16 @@ body {
   padding: clamp(2rem, 5vw, 4.2rem) clamp(1.1rem, 4.4vw, 4rem) 1.25rem;
 }
 
-.reference-glass-panel {
+.reference-glass-panel,
+.checkout-glass-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(212, 175, 55, 0.15);
   border-radius: 0.8rem;
-  background: linear-gradient(145deg, rgba(20, 19, 16, 0.24), rgba(6, 7, 6, 0.06));
+  background: rgba(15, 15, 15, 0.45);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 18px 54px rgba(0,0,0,0.22);
-  backdrop-filter: blur(6px) saturate(0.92);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
 }
 .reference-glass-panel::after {
   content: "";

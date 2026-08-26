@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
+import CustomSelect from "./CustomSelect";
 
 export interface Product {
   id: string;
@@ -146,15 +147,16 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
             {["USD", "PKR", "INR"].map((currency) => <button key={currency} onClick={() => setDisplayCurrency(currency as "USD" | "PKR" | "INR")} className={`liquid-ui px-3 py-1.5 rounded-full text-[10px] font-mono uppercase border ${displayCurrency === currency ? "border-amber-200 text-amber-100" : "border-white/15 text-zinc-400"}`}>{currency}</button>)}
           </div>
 
-          <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-          className="liquid-ui border border-white/15 rounded-full px-4 py-1.5 text-[11px] font-mono uppercase text-zinc-300 tracking-wide focus:outline-none focus:border-white/40"
-        >
-          <option value="newest">Newest</option>
-          <option value="price-low">Price: Low to High</option>
-          <option value="price-high">Price: High to Low</option>
-        </select>
+          <CustomSelect
+            value={sortBy}
+            onChange={(value) => setSortBy(value as typeof sortBy)}
+            ariaLabel="Sort catalogue"
+            options={[
+              { value: "newest", label: "Newest" },
+              { value: "price-low", label: "Price: Low to High" },
+              { value: "price-high", label: "Price: High to Low" },
+            ]}
+          />
       </div>
 
       {visibleProducts.length === 0 ? (
