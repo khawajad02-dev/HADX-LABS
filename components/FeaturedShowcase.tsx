@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import Link from "next/link";
 import { useMemo, useState, type CSSProperties } from "react";
@@ -20,15 +20,14 @@ export type Product = {
 type StageTone = {
   accent: string;
   glow: string;
-  background: string;
 };
 
 const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL"];
 const STAGE_TONES: StageTone[] = [
-  { accent: "#e6b65b", glow: "rgba(212, 139, 30, 0.35)", background: "#080603" },
-  { accent: "#b3c78f", glow: "rgba(109, 143, 75, 0.3)", background: "#050805" },
-  { accent: "#c5a5dc", glow: "rgba(146, 96, 173, 0.28)", background: "#08050b" },
-  { accent: "#8ec9de", glow: "rgba(63, 135, 164, 0.28)", background: "#04080b" },
+  { accent: "#e6b65b", glow: "rgba(212, 139, 30, 0.35)" },
+  { accent: "#b3c78f", glow: "rgba(109, 143, 75, 0.3)" },
+  { accent: "#c5a5dc", glow: "rgba(146, 96, 173, 0.28)" },
+  { accent: "#8ec9de", glow: "rgba(63, 135, 164, 0.28)" },
 ];
 
 function money(product: Product) {
@@ -56,27 +55,67 @@ function productPath(product: Product, currency: string | undefined, size?: stri
   return `/product/${product.sku || product.id}?${params.toString()}`;
 }
 
+function offsetsForCount(count: number) {
+  if (count <= 1) return [0];
+  if (count === 2) return [-1, 0];
+  if (count === 3) return [-1, 0, 1];
+  if (count === 4) return [-2, -1, 0, 1];
+  return [-2, -1, 0, 1, 2];
+}
+
+function relativeOffset(index: number, activeIndex: number, count: number, direction: 1 | -1) {
+  if (index === activeIndex) return 0;
+
+  // With two products, the same item is both the previous and next item in a
+  // circular list. Direction chooses which side it retreats from so the
+  // incoming shirt visibly walks in from the swipe direction.
+  if (count === 2) return direction === 1 ? -1 : 1;
+
+  let offset = (index - activeIndex + count) % count;
+  if (offset > count / 2) offset -= count;
+  return offset;
+}
+
+function catwalkPosition(offset: number) {
+  const distance = Math.abs(offset);
+  const isActive = offset === 0;
+  const side = offset < 0 ? -1 : 1;
+
+  return {
+    x: isActive ? 0 : side * (distance === 1 ? 148 : 222),
+    y: isActive ? -10 : 28 + distance * 14,
+    z: isActive ? 145 : -58 - distance * 92,
+    rotateY: isActive ? 0 : side * -32,
+    rotateZ: isActive ? 0 : side * (distance === 1 ? 3 : 7),
+    scale: isActive ? 1 : Math.max(0.48, 0.84 - (distance - 1) * 0.14),
+    opacity: isActive ? 1 : distance === 1 ? 0.78 : 0.3,
+    filter: isActive ? "brightness(1) saturate(1)" : `brightness(${distance === 1 ? 0.78 : 0.56}) saturate(${distance === 1 ? 0.88 : 0.72})`,
+    boxShadow: isActive ? "0 32px 86px rgba(0,0,0,0.52)" : "0 18px 42px rgba(0,0,0,0.38)",
+  };
+}
+
 export default function FeaturedShowcase({ products = [] }: { products: Product[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
+  const [direction, setDirection] = useState<1 | -1>(-1);
   const active = products[activeIndex] || products[0];
   const tone = STAGE_TONES[activeIndex % STAGE_TONES.length];
   const sizes = active?.availableSizes?.length ? active.availableSizes : DEFAULT_SIZES;
 
-  const ringCards = useMemo(() => {
+  const catwalkCards = useMemo(() => {
     if (!products.length) return [];
-    const offsets = products.length === 1 ? [0] : products.length === 2 ? [-1, 0] : [-2, -1, 0, 1, 2];
-    return offsets.map((offset) => {
-      const index = (activeIndex + offset + products.length) % products.length;
-      return { product: products[index], offset };
-    });
-  }, [activeIndex, products]);
+    return products.map((product, index) => {
+      const offset = relativeOffset(index, activeIndex, products.length, direction);
+      return { product, offset, position: catwalkPosition(offset) };
+    }).filter(({ offset }) => Math.abs(offset) <= 2);
+  }, [activeIndex, direction, products]);
 
   if (!active) return null;
 
-  const move = (direction: 1 | -1) => {
+  const move = (nextDirection: 1 | -1) => {
     setSelectedSize("");
-    setActiveIndex((current) => (current + direction + products.length) % products.length);
+    setDirection(nextDirection);
+    setActiveIndex((current) => (current + nextDirection + products.length) % products.length);
   };
 
   const onDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
@@ -86,15 +125,12 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
   const stageStyle = {
     "--stage-accent": tone.accent,
     "--stage-glow": tone.glow,
-    backgroundColor: tone.background,
-    backgroundImage: `radial-gradient(circle at 50% 44%, ${tone.glow}, transparent 34%), radial-gradient(circle at 14% 86%, rgba(255,255,255,0.04), transparent 30%), linear-gradient(135deg, ${tone.background}, #020202 72%)`,
+    backgroundImage: "radial-gradient(circle at 50% 40%, rgba(255, 205, 100, 0.075), transparent 34%), linear-gradient(180deg, rgba(0, 0, 0, 0.035), transparent 52%, rgba(0, 0, 0, 0.045))",
   } as CSSProperties;
 
   return (
-    <section className="relative isolate min-h-[calc(100svh-4.5rem)] overflow-hidden pt-24 pb-10 text-white transition-[background-color,background-image] duration-700 ease-out" style={stageStyle}>
-      <div className="pointer-events-none absolute inset-0 opacity-45 [background-image:linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
-      <div className="pointer-events-none absolute left-1/2 top-[43%] h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10 opacity-80 shadow-[0_0_100px_var(--stage-glow)] sm:h-[38rem] sm:w-[38rem]" />
-      <div className="pointer-events-none absolute left-1/2 top-[43%] h-[18rem] w-[18rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[color:var(--stage-accent)]/20 opacity-90 sm:h-[26rem] sm:w-[26rem]" />
+    <section className="featured-stage relative isolate min-h-[calc(100svh-4.5rem)] overflow-hidden bg-transparent pt-24 pb-10 text-white transition-[background-image] duration-700 ease-out" style={stageStyle}>
+      <div className="pointer-events-none absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
 
       <div className="relative z-10 mx-auto flex w-full max-w-[1500px] flex-col gap-8 px-5 sm:px-8 lg:px-12">
         <div className="flex items-center justify-between border-b border-white/10 pb-4 text-[9px] font-mono uppercase tracking-[0.28em] text-white/55">
@@ -111,38 +147,50 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
             <Link href="#catalog" className="mt-7 inline-flex items-center gap-3 text-[9px] font-mono uppercase tracking-[0.26em] text-white/70 transition-colors hover:text-white"><span className="grid h-8 w-8 place-items-center rounded-full border border-white/30">↘</span> Scroll to explore</Link>
           </motion.div>
 
-          <div className="order-1 flex min-h-[25rem] items-center justify-center sm:min-h-[32rem] lg:order-2" style={{ perspective: "1400px" }}>
-            <motion.div className="relative h-[25rem] w-full max-w-[34rem] touch-pan-y sm:h-[32rem]" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.14} onDragEnd={onDragEnd} whileTap={{ cursor: "grabbing" }} style={{ transformStyle: "preserve-3d" }}>
-              {ringCards.map(({ product, offset }) => {
-                const distance = Math.abs(offset);
+          <div className="order-1 relative flex min-h-[30rem] items-center justify-center sm:min-h-[35rem] lg:order-2">
+            <div aria-hidden="true" className="pointer-events-none absolute bottom-8 left-1/2 z-0 h-16 w-[min(25rem,82vw)] -translate-x-1/2 rounded-[50%] bg-[color:var(--stage-glow)] opacity-30 blur-2xl" />
+            <div aria-hidden="true" className="pointer-events-none absolute bottom-5 left-1/2 z-0 h-8 w-[min(20rem,72vw)] -translate-x-1/2 rounded-[50%] border border-[color:var(--stage-accent)]/45 bg-black/15 shadow-[0_0_34px_var(--stage-glow)] [transform:perspective(900px)_rotateX(66deg)]" />
+
+            <motion.div className="relative z-10 h-[30rem] w-full max-w-[34rem] touch-pan-y sm:h-[35rem]" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.12} onDragEnd={onDragEnd} whileTap={{ cursor: "grabbing" }} style={{ perspective: "1500px", transformStyle: "preserve-3d" }}>
+              {catwalkCards.map(({ product, offset, position }) => {
                 const isActive = offset === 0;
-                const side = offset < 0 ? -1 : 1;
-                const x = isActive ? 0 : side * distance * 135;
                 return (
                   <motion.button
                     type="button"
-                    key={`${product.id}-${offset}`}
-                    onClick={() => { setSelectedSize(""); setActiveIndex(products.findIndex((candidate) => candidate.id === product.id)); }}
-                    aria-label={`Show ${product.title}`}
-                    className={`absolute left-1/2 top-1/2 shrink-0 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[1.6rem] border text-left shadow-2xl transition-[height,width] duration-500 ${isActive ? "h-[25rem] w-[16rem] border-white/35 bg-transparent sm:h-[31rem] sm:w-[21rem]" : "h-[18rem] w-[8rem] border-white/15 bg-transparent sm:h-[23rem] sm:w-[12.5rem]"}`}
-                    style={{
-                      transform: `translate(-50%, -50%) translateX(${x}px) translateZ(${isActive ? 100 : -distance * 55}px) rotateY(${isActive ? 0 : side * -22}deg) scale(${isActive ? 1 : 1 - distance * 0.12})`,
-                      zIndex: isActive ? 30 : 20 - distance,
-                      opacity: isActive ? 1 : distance === 1 ? 0.78 : 0.34,
-                      filter: isActive ? "drop-shadow(0 28px 44px rgba(0,0,0,0.48))" : `brightness(${distance === 1 ? 0.76 : 0.56}) saturate(${distance === 1 ? 0.88 : 0.72})`,
-                      boxShadow: isActive ? "0 30px 85px rgba(0,0,0,0.52)" : "0 18px 38px rgba(0,0,0,0.4)",
-                      transformStyle: "preserve-3d",
+                    key={product.id}
+                    onClick={() => {
+                      setSelectedSize("");
+                      setDirection(product.id === active.id ? direction : product.id === products[(activeIndex + 1) % products.length]?.id ? 1 : -1);
+                      setActiveIndex(products.findIndex((candidate) => candidate.id === product.id));
                     }}
+                    aria-label={`Show ${product.title}`}
+                    initial={false}
+                    animate={position}
+                    transition={{
+                      x: { type: "spring", stiffness: 230, damping: 26, mass: 0.82 },
+                      y: { type: "spring", stiffness: 210, damping: 25, mass: 0.86 },
+                      z: { type: "spring", stiffness: 220, damping: 27, mass: 0.8 },
+                      rotateY: { type: "spring", stiffness: 190, damping: 24, mass: 0.86 },
+                      rotateZ: { type: "spring", stiffness: 200, damping: 25, mass: 0.82 },
+                      scale: { type: "spring", stiffness: 230, damping: 26, mass: 0.82 },
+                      opacity: { duration: 0.24, ease: "easeOut" },
+                      filter: { duration: 0.24, ease: "easeOut" },
+                    }}
+                    whileTap={{ scale: isActive ? 0.985 : 0.78 }}
+                    className={`absolute left-1/2 top-[44%] overflow-hidden rounded-[1.6rem] border text-left ${isActive ? "h-[23rem] w-[15rem] border-white/45 sm:h-[29rem] sm:w-[19.5rem]" : "h-[17rem] w-[8.5rem] border-white/18 sm:h-[22rem] sm:w-[12rem]"}`}
+                    style={{
+                      translate: "-50% -50%",
+                      zIndex: isActive ? 40 : 20 - Math.abs(offset),
+                      transformStyle: "preserve-3d",
+                      boxShadow: position.boxShadow,
+                    } as CSSProperties}
                   >
-                    <MediaPreview product={product} eager={isActive} className="h-full w-full object-cover" />
-                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/45 to-transparent px-4 pb-4 pt-20 text-[9px] font-mono uppercase tracking-[0.18em] text-white/85">{product.title}</span>
+                    <MediaPreview product={product} eager={isActive} className="h-full w-full object-contain p-1.5" />
+                    <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent px-4 pb-4 pt-16 text-[9px] font-mono uppercase tracking-[0.18em] text-white/85">{product.title}</span>
                   </motion.button>
                 );
               })}
             </motion.div>
-            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[19rem] w-[19rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[color:var(--stage-accent)]/25 opacity-80 [transform:translate(-50%,-50%)_rotateX(68deg)] [transform-style:preserve-3d] shadow-[0_0_34px_var(--stage-glow)] sm:h-[25rem] sm:w-[25rem]" />
-            <div className="pointer-events-none absolute bottom-4 h-8 w-64 rounded-full bg-[color:var(--stage-glow)] blur-2xl" />
-            <div className="pointer-events-none absolute bottom-1 h-3 w-44 rounded-[50%] border border-[color:var(--stage-accent)]/40 bg-black/60 shadow-[0_0_30px_var(--stage-glow)]" />
           </div>
 
           <motion.aside key={`${active.id}-panel`} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35 }} className="stage-transparent-panel order-3 rounded-2xl border border-white/15 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.35)] lg:p-6">
@@ -157,7 +205,7 @@ export default function FeaturedShowcase({ products = [] }: { products: Product[
 
         <div className="flex flex-col items-center justify-between gap-5 border-t border-white/10 pt-5 sm:flex-row">
           <div className="flex items-center gap-3 text-[9px] font-mono uppercase tracking-[0.22em] text-white/45"><button type="button" onClick={() => move(-1)} aria-label="Previous featured product" className="liquid-ui grid h-9 w-9 place-items-center rounded-full text-[color:var(--stage-accent)]">←</button><span>Swipe / drag to rotate</span><button type="button" onClick={() => move(1)} aria-label="Next featured product" className="liquid-ui grid h-9 w-9 place-items-center rounded-full text-[color:var(--stage-accent)]">→</button></div>
-          <div className="flex flex-wrap items-center justify-center gap-2">{products.map((product, index) => <button key={product.id} type="button" onClick={() => { setSelectedSize(""); setActiveIndex(index); }} aria-label={`Select ${product.title}`} className={`h-1.5 rounded-full transition-all duration-300 ${index === activeIndex ? "w-10 bg-[color:var(--stage-accent)]" : "w-2 bg-white/25 hover:bg-white/60"}`} />)}</div>
+          <div className="flex flex-wrap items-center justify-center gap-2">{products.map((product, index) => <button key={product.id} type="button" onClick={() => { setSelectedSize(""); setDirection(index > activeIndex ? 1 : -1); setActiveIndex(index); }} aria-label={`Select ${product.title}`} className={`h-1.5 rounded-full transition-all duration-300 ${index === activeIndex ? "w-10 bg-[color:var(--stage-accent)]" : "w-2 bg-white/25 hover:bg-white/60"}`} />)}</div>
           <div className="grid grid-cols-3 gap-3 text-[8px] font-mono uppercase tracking-[0.18em] text-white/40 sm:gap-5"><span>Premium quality</span><span>Global shipping</span><span>Secure checkout</span></div>
         </div>
       </div>
