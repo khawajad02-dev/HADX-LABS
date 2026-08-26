@@ -195,7 +195,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
             <p className="reference-color-line">{active.category || "ATELIER"} / {displayCurrency} PRICING</p>
             <div className="reference-price-row"><strong>{formatMoney(active)}</strong><span>WORLDWIDE SHIPPING</span></div>
             <div className="reference-size-block"><span className="reference-label">CHOOSE SIZE</span><div className="reference-size-row">{sizes.map((size) => <button key={size} type="button" onClick={() => setSelectedSize(size)} aria-pressed={selectedSize === size} className={selectedSize === size ? "is-selected" : ""}>{size}</button>)}</div></div>
-            <Link href={selectedSize ? checkoutPath(active, selectedSize) : productPath(active)} className="reference-gold-cta"><span>{selectedSize ? "BUY NOW" : "SELECT SIZE"}</span><b>↗</b></Link>
+            <Link href={selectedSize ? checkoutPath(active, selectedSize) : productPath(active)} className="reference-gold-cta"><span>SECURE DROP</span><b>↗</b></Link>
             <div className="reference-order-meta"><div><span>EDITION</span><b>LIMITED / {activeIndex + 1}</b></div><div><span>MEDIA</span><b>{active.media?.length || 1} ASSETS</b></div><div><span>STATUS</span><b>AVAILABLE NOW</b></div></div>
           </motion.aside>
         </div>
