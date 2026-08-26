@@ -2,6 +2,7 @@
 
 import { useRef, useState, type PointerEvent } from "react";
 import type { ProductMedia } from "@/lib/product-meta";
+import GarmentMedia from "./GarmentMedia";
 
 export default function ProductMediaGallery({ title, media }: { title: string; media: ProductMedia[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -46,7 +47,7 @@ export default function ProductMediaGallery({ title, media }: { title: string; m
           {activeMedia.type === "video" ? (
             <video src={activeMedia.url} controls playsInline preload="metadata" className="h-full w-full object-contain" aria-label={title} />
           ) : (
-            <img src={activeMedia.url} alt={`${title}, image ${activeIndex + 1} of ${media.length}`} loading={activeIndex === 0 ? "eager" : "lazy"} fetchPriority={activeIndex === 0 ? "high" : "auto"} decoding="async" className="h-full w-full object-contain" />
+            <GarmentMedia src={activeMedia.url} alt={`${title}, image ${activeIndex + 1} of ${media.length}`} eager={activeIndex === 0} className="h-full w-full object-contain" />
           )}
         </div>
 
