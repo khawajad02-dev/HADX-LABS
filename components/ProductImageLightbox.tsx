@@ -160,7 +160,7 @@ export default function ProductImageLightbox({ src, alt, open, onClose }: Produc
       role="dialog"
       aria-modal="true"
       aria-label={`${alt} full-screen image viewer`}
-      className="fixed inset-0 z-[20000] flex h-[100dvh] w-full flex-col overflow-hidden bg-black/98 text-white"
+      className="fixed inset-0 z-[20000] flex h-[100dvh] w-full flex-col overflow-hidden bg-[#020202] text-white"
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.08),transparent_58%)]" />
       <header className="relative z-[2] flex items-center justify-end px-4 pb-2 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-7">
