@@ -28,7 +28,11 @@ export default function ProductPurchaseActions({ productId, sku, name, price, cu
       setNotice("Select a size before adding this piece.");
       return;
     }
-    addItem({ productId, sku, name, price, currency, imageUrl, availableSizes: sizes, size: selectedSize, quantity: 1 });
+    const added = addItem({ productId, sku, name, price, currency, imageUrl, availableSizes: sizes, size: selectedSize, quantity: 1 });
+    if (!added) {
+      setNotice("Your bag uses another currency. Finish or clear it before adding this piece.");
+      return;
+    }
     setNotice(checkoutAfterAdd ? "Piece added. Opening your loadout…" : "Piece added to your loadout bag.");
     if (checkoutAfterAdd) router.push("/checkout");
   };

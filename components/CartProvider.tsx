@@ -12,7 +12,7 @@ type CartContextValue = {
   itemCount: number;
   hydrated: boolean;
   isOpen: boolean;
-  addItem: (item: AddCartInput) => void;
+  addItem: (item: AddCartInput) => boolean;
   removeItem: (key: string) => void;
   increment: (key: string) => void;
   decrement: (key: string) => void;
@@ -51,14 +51,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = useCallback((input: AddCartInput) => {
     const normalized = normalizeCartItem({ ...input, key: cartItemKey(input.productId, input.size, input.currency), quantity: input.quantity || 1 });
-    if (!normalized) return;
+    if (!normalized || (items.length > 0 && items[0].currency !== normalized.currency)) return false;
     setItems((current) => {
       const existing = current.find((item) => item.key === normalized.key);
       if (!existing) return [...current, normalized];
       return current.map((item) => item.key === normalized.key ? { ...item, quantity: Math.min(20, item.quantity + normalized.quantity) } : item);
     });
     setIsOpen(true);
-  }, []);
+    return true;
+  }, [items]);
 
   const removeItem = useCallback((key: string) => setItems((current) => current.filter((item) => item.key !== key)), []);
   const increment = useCallback((key: string) => setItems((current) => current.map((item) => item.key === key ? { ...item, quantity: Math.min(20, item.quantity + 1) } : item)), []);
