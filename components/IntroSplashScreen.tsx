@@ -82,7 +82,7 @@ export default function IntroSplashScreen() {
               ref={videoRef}
               playsInline
               preload="auto"
-              src="/videos/hadx_labs_intro_no_plain_logo.mp4"
+              src="/videos/hadx_labs_intro.mp4"
               className="w-full h-full object-contain bg-black"
               onPlaying={() => setVideoStarted(true)}
               onEnded={handleDismiss}

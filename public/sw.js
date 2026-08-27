@@ -5,7 +5,8 @@ const ASSETS_TO_CACHE = [
   '/checkout',
   '/manifest.webmanifest',
   '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/icons/icon-512.png',
+  '/videos/network-error.mp4'
 ];
 
 self.addEventListener('install', (event) => {

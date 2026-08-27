@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import CheckoutPage from "@/components/CheckoutPage";
+import { CheckoutVideoModal, type CheckoutState } from "@/components/CheckoutVideoModal";
 
 type Currency = "USD" | "PKR" | "INR";
 type CheckoutProduct = {
@@ -20,6 +21,7 @@ export default function CheckoutEntry() {
   const [productId, setProductId] = useState<string | null>(null);
   const [currency, setCurrency] = useState<Currency>("USD");
   const [selectedSize, setSelectedSize] = useState("");
+  const [videoState, setVideoState] = useState<CheckoutState>(null);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -27,6 +29,7 @@ export default function CheckoutEntry() {
     setProductId(query.get("productId"));
     setCurrency(requestedCurrency === "PKR" || requestedCurrency === "INR" ? requestedCurrency : "USD");
     setSelectedSize((query.get("size") || "").trim().toUpperCase());
+    if (query.get("payment") === "failed") setVideoState("payment_failed");
   }, []);
 
   useEffect(() => {
@@ -54,16 +57,19 @@ export default function CheckoutEntry() {
         });
       } catch {
         setMessage("Checkout could not connect to the live catalog. Please try again.");
+        setVideoState("network_error");
       }
     };
 
     void load();
   }, [currency, productId]);
 
+  const networkVideo = <CheckoutVideoModal state={videoState} onClose={() => setVideoState(null)} />;
+
   if (!product) {
-    return <main className="min-h-screen bg-transparent px-6 pt-36 text-center text-white"><p className="font-mono text-xs uppercase tracking-widest text-zinc-400">{message}</p><a href="/catalog#catalog" className="liquid-ui mt-8 inline-flex rounded-full px-5 py-3 text-xs font-mono uppercase tracking-widest text-amber-100">Return to catalog</a></main>;
+    return <><main className="min-h-screen bg-transparent px-6 pt-36 text-center text-white"><p className="font-mono text-xs uppercase tracking-widest text-zinc-400">{message}</p><a href="/catalog#catalog" className="liquid-ui mt-8 inline-flex rounded-full px-5 py-3 text-xs font-mono uppercase tracking-widest text-amber-100">Return to catalog</a></main>{networkVideo}</>;
   }
 
   const initialCountry = currency === "PKR" ? "Pakistan" : currency === "INR" ? "India" : "";
-  return <CheckoutPage items={[{ id: product.id, name: product.title, price: product.price, currency: product.currency, quantity: 1, imageUrl: product.imageUrl, availableSizes: product.availableSizes, size: selectedSize }]} total={product.price} initialCountry={initialCountry} />;
+  return <>{networkVideo}<CheckoutPage items={[{ id: product.id, name: product.title, price: product.price, currency: product.currency, quantity: 1, imageUrl: product.imageUrl, availableSizes: product.availableSizes, size: selectedSize }]} total={product.price} initialCountry={initialCountry} /></>;
 }

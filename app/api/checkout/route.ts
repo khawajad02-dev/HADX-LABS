@@ -181,7 +181,7 @@ export async function POST(req: Request) {
           ],
           mode: "payment",
           success_url: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/checkout`,
+          cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/checkout?payment=failed&productId=${encodeURIComponent(product.id)}&currency=${orderCurrency}&size=${encodeURIComponent(selectedSize)}`,
           customer_email: email,
           metadata: {
             order_id: order.id,
