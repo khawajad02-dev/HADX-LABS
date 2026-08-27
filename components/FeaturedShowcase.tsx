@@ -72,12 +72,13 @@ function stagePosition(offset: number) {
     // Keep the same slight lift used by the Doctor Doom reference. The CSS
     // safe rectangle controls source-ratio normalization; this lift only
     // compensates for the stage perspective depth (z: 120).
-    return { x: 0, y: -18, z: 120, rotateY: 0, rotateZ: 0, scale: 1, opacity: 1 };
+    return { x: 0, y: -18, z: 120, rotateX: 0, rotateY: 0, rotateZ: 0, scale: 1, opacity: 1 };
   }
   return {
     x: side * (distance === 1 ? 175 : 310),
     y: 56 + distance * 22,
     z: -460 - (distance - 1) * 160,
+    rotateX: distance === 1 ? 3 : 6,
     rotateY: side * -22,
     rotateZ: side * (distance === 1 ? 2 : 5),
     scale: Math.max(0.34, 0.48 - (distance - 1) * 0.1),
@@ -229,12 +230,25 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
 
           <div className="reference-product-stage">
             <div className="reference-halo" aria-hidden="true" />
+            <motion.div className="reference-exchange-orbit" aria-hidden="true" animate={{ opacity: 0.28 + handoffProgress * 0.52, rotate: handoffProgress * 10, scale: 0.96 + handoffProgress * 0.04 }} transition={{ type: "spring", stiffness: 180, damping: 26 }} />
             <motion.div className="reference-stage-track" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0} onDragEnd={onDragEnd} style={{ perspective: "1200px", transformStyle: "preserve-3d" }}>
               {stageProducts.map(({ product, offset, position }) => {
                 const isActive = offset === 0;
+                const isEntering = !isActive && offset === direction;
+                const exchangeProgress = isEntering ? Math.min(1, handoffProgress * 1.18) : 0;
                 const handoffPosition = isActive ? {
                   ...position,
                   opacity: Math.max(0, position.opacity * (1 - handoffProgress)),
+                } : isEntering ? {
+                  ...position,
+                  x: position.x * (1 - exchangeProgress),
+                  y: position.y * (1 - exchangeProgress) - 18 * exchangeProgress,
+                  z: position.z * (1 - exchangeProgress) + 120 * exchangeProgress,
+                  rotateX: position.rotateX * (1 - exchangeProgress),
+                  rotateY: position.rotateY * (1 - exchangeProgress),
+                  rotateZ: position.rotateZ * (1 - exchangeProgress),
+                  scale: position.scale + (1 - position.scale) * exchangeProgress,
+                  opacity: Math.max(position.opacity, 0.08 + 0.92 * exchangeProgress),
                 } : position;
                 return (
                   <motion.button
@@ -245,16 +259,15 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
                     initial={false}
                     animate={handoffPosition}
                     transition={{
-                      x: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
-                      y: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
-                      z: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
-                      rotateY: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
-                      rotateZ: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
-                      scale: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
-                      opacity: { duration: 0.42, ease: "easeOut" },
+                      type: "spring",
+                      stiffness: 210,
+                      damping: 24,
+                      mass: 0.72,
+                      opacity: { duration: 0.32, ease: "easeOut" },
                     }}
                     onClick={() => selectProduct(products.findIndex((candidate) => candidate.id === product.id))}
                     style={{ zIndex: isActive ? 20 : 10, transformStyle: "preserve-3d" }}
+                    data-exchange-progress={isEntering ? handoffProgress.toFixed(2) : undefined}
                   >
                     <ProductMedia product={product} active={isActive} />
                   </motion.button>
@@ -276,7 +289,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
               document.body,
             ) : null}
             <div className="reference-pedestal" aria-hidden="true"><span className="reference-pedestal-top" /><span className="reference-pedestal-base" /></div>
-            <div className="reference-stage-caption"><span>SELECTED DROP</span><strong>{String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</strong></div>
+            <div className="reference-stage-caption"><span>{handoffProgress > 0.04 && handoffProgress < 0.96 ? "SCROLL TO EXCHANGE" : "SELECTED DROP"}</span><strong>{String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</strong></div>
           </div>
 
           <motion.aside className="reference-glass-panel liquid-panel reference-order-panel" key={active.id} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.42 }}>
