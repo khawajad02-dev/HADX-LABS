@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from "react";
 import type { ProductMedia } from "@/lib/product-meta";
+import ProductImageLightbox from "./ProductImageLightbox";
 
 export default function ProductMediaGallery({ title, media }: { title: string; media: ProductMedia[] }) {
   const galleryMedia = useMemo(
@@ -9,6 +10,7 @@ export default function ProductMediaGallery({ title, media }: { title: string; m
     [media],
   );
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
   const startX = useRef<number | null>(null);
   const activeMedia = galleryMedia[activeIndex];
 
@@ -60,7 +62,7 @@ export default function ProductMediaGallery({ title, media }: { title: string; m
           {activeMedia.type === "video" ? (
             <video src={activeMedia.url} controls playsInline preload="metadata" className="h-full w-full object-contain" aria-label={title} />
           ) : (
-            <img src={activeMedia.url} alt={`${title}, image ${activeIndex + 1} of ${galleryMedia.length}`} loading={activeIndex === 0 ? "eager" : "lazy"} decoding="async" className="h-full w-full object-contain" />
+            <img src={activeMedia.url} alt={`${title}, image ${activeIndex + 1} of ${galleryMedia.length}`} loading={activeIndex === 0 ? "eager" : "lazy"} decoding="async" className={`h-full w-full object-contain ${activeMedia.type === "image" ? "cursor-zoom-in" : ""}`} onClick={activeMedia.type === "image" ? () => setIsViewerOpen(true) : undefined} />
           )}
         </div>
 
@@ -76,10 +78,12 @@ export default function ProductMediaGallery({ title, media }: { title: string; m
         ) : null}
       </div>
 
+      {activeMedia.type === "image" ? <ProductImageLightbox src={activeMedia.url} alt={`${title}, image ${activeIndex + 1}`} open={isViewerOpen} onClose={() => setIsViewerOpen(false)} /> : null}
+
       {galleryMedia.length > 1 ? (
         <div className="mt-3 flex gap-2 overflow-x-auto px-1 pb-1" aria-label="Product media thumbnails">
           {galleryMedia.map((item, index) => (
-            <button type="button" key={`${item.url}-${index}`} onClick={() => setActiveIndex(index)} aria-label={`Show ${title} media ${index + 1}`} aria-pressed={index === activeIndex} className={`relative h-16 w-14 shrink-0 overflow-hidden rounded-lg border transition-colors ${index === activeIndex ? "border-amber-200/80" : "border-white/10 hover:border-white/40"}`}>
+            <button type="button" key={`${item.url}-${index}`} onClick={() => { setActiveIndex(index); setIsViewerOpen(false); }} aria-label={`Show ${title} media ${index + 1}`} aria-pressed={index === activeIndex} className={`relative h-16 w-14 shrink-0 overflow-hidden rounded-lg border transition-colors ${index === activeIndex ? "border-amber-200/80" : "border-white/10 hover:border-white/40"}`}>
               {item.type === "video" ? <video src={item.url} muted playsInline preload="none" className="h-full w-full object-cover" aria-hidden="true" /> : <img src={item.url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />}
               <span className="absolute inset-x-0 bottom-0 bg-black/55 py-1 text-center text-[8px] font-mono text-white/70">{index + 1}</span>
             </button>
