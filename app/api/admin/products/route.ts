@@ -3,7 +3,7 @@ import { Prisma, ProductStatus } from "@prisma/client";
 
 import { isAdminRequest } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
-import { encodeProductDescription, normalizeRegionalPrices, serializeProduct, type ProductMedia } from "@/lib/product-meta";
+import { encodeProductDescription, normalizeProductSizes, normalizeRegionalPrices, serializeProduct, type ProductMedia } from "@/lib/product-meta";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +45,7 @@ export async function POST(req: Request) {
     const regionalPrices = normalizeRegionalPrices(body?.regionalPrices);
     const price = basePrice(body, regionalPrices);
     const media = normalizeMedia(body?.media, body?.imageUrl);
+    const sizes = normalizeProductSizes(body?.sizes);
     if (!title || !sku || !price) {
       return NextResponse.json({ error: "Title, SKU, and a valid USD base price are required." }, { status: 400 });
     }
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
     const product = await prisma.product.create({
       data: {
         title,
-        description: encodeProductDescription(body?.description, { media, regionalPrices }),
+        description: encodeProductDescription(body?.description, { media, regionalPrices, sizes }),
         sku,
         priceInCents: Math.round(price * 100),
         currency: body?.currency === "PKR" ? "PKR" : body?.currency === "EUR" ? "EUR" : "USD",

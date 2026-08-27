@@ -3,7 +3,7 @@ import { ProductStatus } from "@prisma/client";
 
 import { isAdminRequest } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
-import { decodeProductDescription, encodeProductDescription, normalizeRegionalPrices, serializeProduct, type ProductMedia } from "@/lib/product-meta";
+import { decodeProductDescription, encodeProductDescription, normalizeProductSizes, normalizeRegionalPrices, serializeProduct, type ProductMedia } from "@/lib/product-meta";
 
 type RouteContext = { params: { id: string } };
 
@@ -52,13 +52,14 @@ export async function PUT(req: Request, { params }: RouteContext) {
 
     const media = body?.media === undefined ? parsed.metadata.media || normalizeMedia(undefined, current.imageUrl) : normalizeMedia(body.media, body.imageUrl);
     const regionalPrices = body?.regionalPrices === undefined ? parsed.metadata.regionalPrices || {} : normalizeRegionalPrices(body.regionalPrices);
+    const sizes = body?.sizes === undefined ? normalizeProductSizes(parsed.metadata.sizes) : normalizeProductSizes(body.sizes);
     const description = body?.description === undefined ? parsed.description : String(body.description || "").trim() || null;
 
     const product = await prisma.product.update({
       where: { id: params.id },
       data: {
         title,
-        description: encodeProductDescription(description, { media, regionalPrices }),
+        description: encodeProductDescription(description, { media, regionalPrices, sizes }),
         ...(body?.sku ? { sku: String(body.sku).trim() } : {}),
         priceInCents: Math.round(price * 100),
         ...(body?.imageUrl !== undefined || body?.media !== undefined ? { imageUrl: media[0]?.url || null } : {}),
