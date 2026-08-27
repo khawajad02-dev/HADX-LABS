@@ -37,6 +37,7 @@ export default async function HomePage({ searchParams }: { searchParams?: { curr
         imageUrl: product.imageUrl ?? product.media[0]?.url ?? null,
         media: product.media,
         category: product.category ?? "Collection",
+        availableSizes: product.availableSizes,
       };
     });
   } catch (error) {

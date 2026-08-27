@@ -17,6 +17,7 @@ function normalizeProducts(items: Array<Record<string, any>>, currency: DisplayC
     imageUrl: item.imageUrl ?? item.media?.[0]?.url ?? null,
     media: item.media,
     category: item.category,
+    availableSizes: item.availableSizes,
   }));
 }
 

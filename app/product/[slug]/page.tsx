@@ -55,7 +55,7 @@ export default async function ProductPage({ params, searchParams }: { params: { 
           <span className="text-[10px] font-mono tracking-[0.3em] uppercase text-zinc-500 mb-2">{product.category || "Collection"}{" // "}{product.sku}</span>
           <h1 className="text-4xl md:text-6xl font-extralight tracking-tight mb-6">{product.title}</h1>
           <div className="flex flex-wrap items-center gap-6 mb-8"><span className="text-3xl font-mono font-semibold">{currencySymbol(currency)} {amount.toLocaleString()}</span><VaultButton productId={product.id} /></div>
-          <ProductPurchaseActions productId={product.id} currency={currency} availableSizes={parsed.availableSizes} />
+          <ProductPurchaseActions productId={product.id} sku={product.sku} name={product.title} price={amount} currency={currency} imageUrl={parsed.media.find((media) => media.type === "image")?.url || product.imageUrl || null} availableSizes={parsed.availableSizes} />
           <div className="prose prose-invert prose-sm mb-10 text-zinc-400"><p>{parsed.description || "No description available for this drop."}</p></div>
           <div className="border-t border-white/10 pt-8 mt-auto"><div className="liquid-panel product-detail-glass p-6 rounded-2xl"><h3 className="text-sm font-mono tracking-wider uppercase text-zinc-300 mb-2">Custom Commissions</h3><p className="text-xs text-zinc-500 mb-6 leading-relaxed">Want a custom vintage graphic? Send us your idea on Instagram DM.</p><InstagramDMButton label="SEND IDEA" /></div></div>
         </div>

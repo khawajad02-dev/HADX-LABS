@@ -3,6 +3,7 @@ import './globals.css';
 import CyberOrb from '@/components/CyberOrb';
 import IntroSplashScreen from '@/components/IntroSplashScreen';
 import DeferredEnhancements from '@/components/DeferredEnhancements';
+import { CartProvider } from '@/components/CartProvider';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://hadx-labs.com'),
@@ -61,7 +62,9 @@ export default function RootLayout({
         <div id="hadx-root" className="relative min-h-screen w-full overflow-x-hidden">
           <DeferredEnhancements />
           <IntroSplashScreen />
-          {children}
+          <CartProvider>
+            {children}
+          </CartProvider>
           <CyberOrb />
         </div>
       </body>

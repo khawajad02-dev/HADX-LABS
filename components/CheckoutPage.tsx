@@ -3,15 +3,16 @@
 import { useState } from 'react';
 import { CheckoutVideoModal, CheckoutState } from './CheckoutVideoModal';
 import CustomSelect from './CustomSelect';
+import type { CartItem } from '@/lib/cart';
 
 export default function CheckoutPage({ 
   items: initialItems = [], 
-  total: initialTotal = 0,
-  initialCountry = ''
+  initialCountry = '',
+  onOrderComplete,
 }: {
-  items?: any[],
-  total?: number,
-  initialCountry?: string
+  items?: CartItem[],
+  initialCountry?: string,
+  onOrderComplete?: () => void,
 }) {
   const [modalState, setModalState] = useState<CheckoutState>(null);
   const [activeOrderId, setActiveOrderId] = useState<string>('HADX-984210');
@@ -29,10 +30,7 @@ export default function CheckoutPage({
   });
   const [otherCountry, setOtherCountry] = useState('');
 
-  const cartItems = initialItems;
-  const selectedProduct = cartItems[0];
-  const availableSizes = selectedProduct?.availableSizes?.length ? selectedProduct.availableSizes : ['S', 'M', 'L', 'XL', 'XXL'];
-  const [selectedSize, setSelectedSize] = useState(selectedProduct?.size || '');
+  const cartItems = initialItems as CartItem[];
   const activeCurrency = cartItems[0]?.currency || 'USD';
   const currencySymbol = activeCurrency === 'PKR' ? 'PKR' : activeCurrency === 'INR' ? '₹' : '$';
   const isOtherCountry = formData.country.trim().toLowerCase() === 'other';
@@ -40,19 +38,19 @@ export default function CheckoutPage({
   const isPakistan = effectiveCountry.toLowerCase() === 'pakistan';
   const paymentMethod = effectiveCountry ? (isPakistan ? 'COD' : 'CARD') : '';
   const paymentLabel = paymentMethod === 'COD' ? 'Cash on delivery' : paymentMethod === 'CARD' ? 'Card payment' : 'Select country first';
-  const totalAmount = initialTotal > 0 ? initialTotal : cartItems.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 0), 0);
+  const totalAmount = cartItems.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 0), 0);
 
   // Live Checkout Execution Handler
   const handleRealCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Basic Validation
-    if (!cartItems.length || !cartItems[0]?.id) {
+    if (!cartItems.length || !cartItems[0]?.productId) {
       alert("System Error: Your loadout is empty.");
       return;
     }
 
-    if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.address.trim() || !formData.city.trim() || !effectiveCountry || !selectedSize) {
+    if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.address.trim() || !formData.city.trim() || !effectiveCountry || !cartItems.every((item) => item.productId && item.size)) {
       alert("Validation Error: All fields are required.");
       return;
     }
@@ -69,15 +67,16 @@ export default function CheckoutPage({
         headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-          productId: cartItems[0]?.id || '',
+          productId: cartItems[0]?.productId || '',
           quantity: cartItems[0]?.quantity || 1,
+          items: cartItems.map((item) => ({ productId: item.productId, size: item.size, quantity: item.quantity })),
           fullName: formData.name,
           email: formData.email,
           phone: formData.phone,
           address: formData.address,
           city: formData.city,
           country: effectiveCountry,
-          size: selectedSize,
+          size: cartItems[0]?.size || '',
           currency: activeCurrency,
           paymentMethod,
           useStripe: paymentMethod === 'CARD',
@@ -95,6 +94,7 @@ export default function CheckoutPage({
 
       if (res.ok && data.success) {
         setActiveOrderId(data.orderId || `HADX-${Math.floor(100000 + Math.random() * 900000)}`);
+        onOrderComplete?.();
         setModalState('order_confirmed');
       } else {
         console.error('Checkout failed:', data.error);
@@ -134,27 +134,19 @@ export default function CheckoutPage({
           {"//"} Shipping Details
         </h2>
 
-        {selectedProduct ? (
-          <div className="liquid-panel checkout-subpanel rounded-xl p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <span className="checkout-muted-label block text-[10px] font-mono uppercase tracking-widest">Selected piece</span>
-                <p className="checkout-piece-title relative z-[2] mt-1 text-sm">{selectedProduct.name || 'HADX LABS piece'}</p>
-              </div>
-              <span className="checkout-piece-price relative z-[2] text-sm font-mono">{currencySymbol} {Number(selectedProduct.price || 0).toLocaleString()}</span>
-            </div>
-            <div className="mt-4">
-              <span className="checkout-muted-label mb-2 block text-[10px] font-mono uppercase tracking-widest">Choose size</span>
-              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Choose shirt size">
-                {availableSizes.map((size: string) => (
-                  <button key={size} type="button" role="radio" aria-checked={selectedSize === size} onClick={() => setSelectedSize(size)} className={`liquid-ui checkout-size-button relative z-[2] min-w-12 rounded-lg border px-3 py-2 text-xs font-mono tracking-widest transition-colors ${selectedSize === size ? 'is-selected' : ''}`}>
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
+        <div className="liquid-panel checkout-subpanel space-y-3 rounded-xl p-4">
+          <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-3">
+            <span className="checkout-muted-label text-[10px] font-mono uppercase tracking-widest">Loadout [{cartItems.length} pieces]</span>
+            <span className="checkout-muted-label text-[10px] font-mono uppercase tracking-widest">{cartItems.reduce((sum, item) => sum + item.quantity, 0)} units</span>
           </div>
-        ) : null}
+          {cartItems.map((item) => (
+            <div key={item.key} className="flex items-center gap-3 border-b border-white/5 pb-3 last:border-0 last:pb-0">
+              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/20">{item.imageUrl ? <img src={item.imageUrl} alt="" className="h-full w-full object-cover" /> : null}</div>
+              <div className="min-w-0 flex-1"><p className="checkout-piece-title truncate text-sm">{item.name}</p><p className="checkout-muted-label text-[10px] font-mono uppercase tracking-widest">Size {item.size} · Qty {item.quantity}</p></div>
+              <span className="checkout-piece-price shrink-0 text-sm font-mono">{item.currency === 'PKR' ? 'PKR' : item.currency === 'INR' ? '₹' : '$'} {(item.price * item.quantity).toLocaleString()}</span>
+            </div>
+          ))}
+        </div>
 
         <form onSubmit={handleRealCheckout} className="space-y-4 font-mono text-xs">
           <div>
