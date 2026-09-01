@@ -29,6 +29,38 @@ export type ProductMetadata = {
   colorVariants?: ProductColorVariant[];
 };
 
+function normalizeProductMedia(input: unknown): ProductMedia[] {
+  if (!Array.isArray(input)) return [];
+  return input
+    .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object")
+    .map((entry) => ({
+      url: typeof entry.url === "string" ? entry.url.trim() : "",
+      type: entry.type === "video" ? "video" as const : "image" as const,
+      fileName: typeof entry.fileName === "string" ? entry.fileName : undefined,
+    }))
+    .filter((entry) => entry.url);
+}
+
+export function normalizeProductColorVariants(input: unknown): ProductColorVariant[] {
+  if (!Array.isArray(input)) return [];
+  return input
+    .filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object")
+    .map((entry) => {
+      const name = typeof entry.name === "string" ? entry.name.trim() : "";
+      const legacyImage = typeof entry.imageUrl === "string" && entry.imageUrl.trim() ? [{ url: entry.imageUrl.trim(), type: "image" as const }] : [];
+      const media = normalizeProductMedia(entry.media).length
+        ? normalizeProductMedia(entry.media)
+        : normalizeProductMedia(entry.images).length
+          ? normalizeProductMedia(entry.images)
+          : legacyImage;
+      const sizes = normalizeProductSizes(entry.sizes);
+      const rawStock = entry.stockBySize && typeof entry.stockBySize === "object" ? entry.stockBySize as Record<string, unknown> : {};
+      const stockBySize = Object.fromEntries(sizes.map((size) => [size, Math.max(0, Math.floor(Number(rawStock[size]) || 0))]));
+      return { name, media, sizes, stockBySize };
+    })
+    .filter((variant) => variant.name);
+}
+
 export function normalizeProductSizes(input: unknown): string[] {
   if (!Array.isArray(input)) return [...DEFAULT_PRODUCT_SIZES];
   const sizes = input
@@ -84,6 +116,6 @@ export function serializeProduct<T extends { description?: string | null; imageU
     availableSizes: normalizeProductSizes(parsed.metadata.sizes),
     stockBySize: parsed.metadata.stockBySize || {},
     drop: parsed.metadata.drop?.active ? parsed.metadata.drop : null,
-    colorVariants: Array.isArray(parsed.metadata.colorVariants) ? parsed.metadata.colorVariants : [],
+    colorVariants: normalizeProductColorVariants(parsed.metadata.colorVariants),
   };
 }

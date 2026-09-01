@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/components/CartProvider";
 
 const FALLBACK_SIZES = ["S", "M", "L", "XL", "XXL"];
@@ -30,6 +30,11 @@ export default function ProductPurchaseActions({ productId, sku, name, price, cu
   const selectedStock = selectedSize ? stockForSize(selectedSize) : undefined;
   const [notice, setNotice] = useState("");
 
+  useEffect(() => {
+    setSelectedSize("");
+    setNotice("");
+  }, [selectedColor]);
+
   const addToCart = (checkoutAfterAdd = false) => {
     if (!selectedSize) {
       setNotice("Select a size before adding this piece.");
@@ -49,7 +54,7 @@ export default function ProductPurchaseActions({ productId, sku, name, price, cu
   };
 
   return (
-    <div className="space-y-4">{colorVariants.length ? <div><div className="mb-2 text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">Choose color</div><div className="flex flex-wrap gap-2">{colorVariants.map((variant) => <button key={variant.name} type="button" onClick={() => { onColorChange?.(variant.name); setSelectedSize(""); setNotice(""); }} className={`rounded-full border px-4 py-2 text-xs font-mono uppercase tracking-widest ${selectedColor === variant.name ? "border-amber-200 bg-amber-100/10 text-amber-100" : "border-white/15 text-zinc-400"}`}>{variant.name}</button>)}</div></div> : null}
+    <div className="space-y-4">
       <div>
         <div className="mb-2 flex items-center justify-between gap-3"><span className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">Choose size</span><span className="text-[10px] font-mono uppercase tracking-widest text-zinc-600">Required</span></div>
         <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Choose shirt size">
