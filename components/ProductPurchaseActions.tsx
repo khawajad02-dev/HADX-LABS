@@ -44,7 +44,7 @@ export default function ProductPurchaseActions({ productId, sku, name, price, cu
       setNotice("This size is sold out in the selected color.");
       return;
     }
-    const added = addItem({ productId, sku, name, price, currency, imageUrl, availableSizes: sizes, size: selectedSize, quantity: 1 });
+    const added = addItem({ productId, sku, name, price, currency, imageUrl, color: selectedColor || undefined, availableSizes: sizes, size: selectedSize, quantity: 1 });
     if (!added) {
       setNotice("Your bag uses another currency. Finish or clear it before adding this piece.");
       return;

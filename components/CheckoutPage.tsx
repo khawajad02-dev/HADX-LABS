@@ -69,7 +69,7 @@ export default function CheckoutPage({
         body: JSON.stringify({
           productId: cartItems[0]?.productId || '',
           quantity: cartItems[0]?.quantity || 1,
-          items: cartItems.map((item) => ({ productId: item.productId, size: item.size, quantity: item.quantity })),
+          items: cartItems.map((item) => ({ productId: item.productId, size: item.size, color: item.color, quantity: item.quantity })),
           fullName: formData.name,
           email: formData.email,
           phone: formData.phone,
@@ -142,7 +142,7 @@ export default function CheckoutPage({
           {cartItems.map((item) => (
             <div key={item.key} className="flex items-center gap-3 border-b border-white/5 pb-3 last:border-0 last:pb-0">
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/20">{item.imageUrl ? <img src={item.imageUrl} alt="" className="h-full w-full object-cover" /> : null}</div>
-              <div className="min-w-0 flex-1"><p className="checkout-piece-title truncate text-sm">{item.name}</p><p className="checkout-muted-label text-[10px] font-mono uppercase tracking-widest">Size {item.size} · Qty {item.quantity}</p></div>
+              <div className="min-w-0 flex-1"><p className="checkout-piece-title truncate text-sm">{item.name}</p><p className="checkout-muted-label text-[10px] font-mono uppercase tracking-widest">{item.color ? `${item.color} · ` : ""}Size {item.size} · Qty {item.quantity}</p></div>
               <span className="checkout-piece-price shrink-0 text-sm font-mono">{item.currency === 'PKR' ? 'PKR' : item.currency === 'INR' ? '₹' : '$'} {(item.price * item.quantity).toLocaleString()}</span>
             </div>
           ))}

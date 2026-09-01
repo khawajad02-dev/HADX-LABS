@@ -14,7 +14,7 @@ const getStripe = () => {
 
 export const dynamic = "force-dynamic";
 
-type CheckoutLine = { productId: string; size: string; quantity: number };
+type CheckoutLine = { productId: string; size: string; color?: string; quantity: number };
 type PricedLine = CheckoutLine & {
   product: any;
   parsed: ReturnType<typeof decodeProductDescription>;
@@ -30,11 +30,12 @@ function parseCheckoutLines(body: any): CheckoutLine[] {
   for (const raw of source) {
     const productId = String(raw?.productId || "").trim();
     const size = String(raw?.size || "").trim().toUpperCase();
+    const color = String(raw?.color || "").trim() || undefined;
     const quantity = Number(raw?.quantity ?? 1);
     if (!productId || !size || !Number.isInteger(quantity) || quantity < 1 || quantity > 20) continue;
-    const key = `${productId}::${size}`;
+    const key = `${productId}::${color?.toLowerCase() || ""}::${size}`;
     const current = merged.get(key);
-    merged.set(key, { productId, size, quantity: Math.min(20, (current?.quantity || 0) + quantity) });
+    merged.set(key, { productId, size, color, quantity: Math.min(20, (current?.quantity || 0) + quantity) });
   }
   return Array.from(merged.values());
 }
@@ -69,13 +70,22 @@ export async function POST(req: Request) {
       const product = productById.get(line.productId);
       if (!product) return NextResponse.json({ error: "One or more products are no longer available." }, { status: 404 });
       const parsed = decodeProductDescription(product.description);
-      const availableSizes = normalizeProductSizes(parsed.metadata.sizes);
-      if (!availableSizes.includes(line.size)) return NextResponse.json({ error: `${product.title} does not offer size ${line.size}.` }, { status: 400 });
+      const variants = parsed.metadata.colorVariants || [];
+      const selectedVariant = variants.length
+        ? (line.color
+          ? variants.find((variant) => variant.name.trim().toLowerCase() === line.color.trim().toLowerCase())
+          : variants.find((variant) => variant.name.trim().toLowerCase() === "black") || variants[0])
+        : undefined;
+      if (variants.length && !selectedVariant) return NextResponse.json({ error: `${product.title} does not offer color ${line.color}.` }, { status: 400 });
+      const availableSizes = normalizeProductSizes(selectedVariant?.sizes?.length ? selectedVariant.sizes : parsed.metadata.sizes);
+      if (!availableSizes.includes(line.size)) return NextResponse.json({ error: `${product.title} does not offer size ${line.size}${selectedVariant ? ` in ${selectedVariant.name}` : ""}.` }, { status: 400 });
+      if (selectedVariant?.stockBySize && selectedVariant.stockBySize[line.size] === 0) return NextResponse.json({ error: `${product.title} is sold out in ${selectedVariant.name}, size ${line.size}.` }, { status: 400 });
+      const normalizedLine: CheckoutLine = { ...line, color: selectedVariant?.name || line.color };
       const orderCurrency = (requestedCurrency || product.currency) as Currency;
       const regionalPrice = parsed.metadata.regionalPrices?.[orderCurrency as "USD" | "PKR" | "INR"];
       const unitPriceInCents = regionalPrice !== undefined ? Math.round(regionalPrice * 100) : requestedCurrency ? null : product.priceInCents;
       if (unitPriceInCents === null || !Number.isFinite(unitPriceInCents) || unitPriceInCents <= 0) return NextResponse.json({ error: `No owner-entered ${orderCurrency} price is configured for ${product.title}.` }, { status: 400 });
-      pricedLines.push({ product, parsed, ...line, unitPriceInCents, totalAmountInCents: unitPriceInCents * line.quantity });
+      pricedLines.push({ product, parsed, ...normalizedLine, unitPriceInCents, totalAmountInCents: unitPriceInCents * normalizedLine.quantity });
     }
 
     const stockByProduct = new Map<string, number>();
@@ -105,6 +115,7 @@ export async function POST(req: Request) {
             city: String(city).trim(),
             country: normalizedCountry,
             size: line.size,
+            productColor: line.color || null,
             productId: line.product.id,
             productSku: line.product.sku,
             productTitle: line.product.title,
@@ -138,8 +149,10 @@ export async function POST(req: Request) {
               currency: orderCurrency.toLowerCase(),
               product_data: {
                 name: line.product.title,
-                description: line.parsed.description || "",
-                images: line.product.imageUrl ? [line.product.imageUrl] : line.parsed.metadata.media?.filter((media) => media.type === "image").slice(0, 8).map((media) => media.url) || [],
+                description: line.color ? `${line.parsed.description || ""}${line.parsed.description ? " · " : ""}Color: ${line.color}` : line.parsed.description || "",
+                images: line.color
+                  ? line.parsed.metadata.colorVariants?.find((variant) => variant.name === line.color)?.media?.filter((media) => media.type === "image").slice(0, 8).map((media) => media.url) || []
+                  : line.product.imageUrl ? [line.product.imageUrl] : line.parsed.metadata.media?.filter((media) => media.type === "image").slice(0, 8).map((media) => media.url) || [],
               },
               unit_amount: line.unitPriceInCents,
             },

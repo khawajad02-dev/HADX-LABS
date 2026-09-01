@@ -66,6 +66,7 @@ model Order {
   city                String?
   country             String?
   size                String?
+  productColor        String?
   productId           String?
   product             Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
   productSku          String

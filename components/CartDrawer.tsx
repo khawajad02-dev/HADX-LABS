@@ -53,10 +53,10 @@ export default function CartDrawer({ isOpen, onClose, items, onIncrement, onDecr
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <h3 className="truncate text-xs font-medium text-zinc-100">{item.name}</h3>
-                    <p className="text-[10px] font-mono uppercase tracking-widest text-hadx-gold">Size {item.size}</p>
+                    <p className="text-[10px] font-mono uppercase tracking-widest text-hadx-gold">{item.color ? `${item.color} · ` : ""}Size {item.size}</p>
                     <p className="text-[11px] font-mono text-hadx-gold">{item.currency === "PKR" ? "PKR" : item.currency === "INR" ? "₹" : "$"} {item.price.toLocaleString()}</p>
                   </div>
-                  <button type="button" onClick={() => onRemove(item.key)} className="text-[10px] font-mono text-zinc-500 hover:text-amber-200" aria-label={`Remove ${item.name} size ${item.size}`}>REMOVE</button>
+                  <button type="button" onClick={() => onRemove(item.key)} className="text-[10px] font-mono text-zinc-500 hover:text-amber-200" aria-label={`Remove ${item.name}${item.color ? ` ${item.color}` : ""} size ${item.size}`}>REMOVE</button>
                 </div>
                 <div className="flex items-center gap-3 pt-2">
                   <button type="button" onClick={() => onDecrement(item.key)} className="liquid-ui flex h-6 w-6 items-center justify-center rounded border border-hadx-border text-xs font-mono text-hadx-gold-light" aria-label={`Decrease quantity of ${item.name}`}>−</button>

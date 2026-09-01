@@ -9,14 +9,16 @@ export type CartItem = {
   currency: CartCurrency;
   quantity: number;
   imageUrl?: string | null;
+  color?: string;
   availableSizes: string[];
   size: string;
 };
 
 export const CART_STORAGE_KEY = "hadx-cart-v1";
 
-export function cartItemKey(productId: string, size: string, currency: CartCurrency) {
-  return `${productId}::${size.toUpperCase()}::${currency}`;
+export function cartItemKey(productId: string, size: string, currency: CartCurrency, color?: string) {
+  const normalizedColor = String(color || "").trim().toLowerCase();
+  return `${productId}::${normalizedColor}::${size.toUpperCase()}::${currency}`;
 }
 
 export function normalizeCartItem(value: Partial<CartItem>): CartItem | null {
@@ -29,8 +31,9 @@ export function normalizeCartItem(value: Partial<CartItem>): CartItem | null {
   const availableSizes = Array.isArray(value.availableSizes) && value.availableSizes.length
     ? value.availableSizes.map((item) => String(item).trim().toUpperCase()).filter(Boolean)
     : ["S", "M", "L", "XL", "XXL"];
+  const color = String(value.color || "").trim() || undefined;
   return {
-    key: value.key || cartItemKey(productId, size, currency),
+    key: value.key || cartItemKey(productId, size, currency, color),
     productId,
     sku: value.sku,
     name: String(value.name).trim(),
@@ -38,6 +41,7 @@ export function normalizeCartItem(value: Partial<CartItem>): CartItem | null {
     currency,
     quantity,
     imageUrl: value.imageUrl || null,
+    color,
     availableSizes,
     size,
   };

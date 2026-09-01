@@ -35,6 +35,7 @@ export async function GET(req: Request) {
         { city: { contains: query, mode: "insensitive" } },
         { country: { contains: query, mode: "insensitive" } },
         { size: { contains: query, mode: "insensitive" } },
+        { productColor: { contains: query, mode: "insensitive" } },
         { productTitle: { contains: query, mode: "insensitive" } },
       ];
     }
