@@ -13,10 +13,20 @@ export type RegionalPrices = {
 export const DEFAULT_PRODUCT_SIZES = ["S", "M", "L", "XL", "XXL"] as const;
 export type ProductSize = (typeof DEFAULT_PRODUCT_SIZES)[number] | "XXL";
 
+export type ProductColorVariant = {
+  name: string;
+  media?: ProductMedia[];
+  sizes?: string[];
+  stockBySize?: Record<string, number>;
+};
+export type ProductDrop = { active: boolean; text?: string; startsAt?: string; endsAt?: string };
 export type ProductMetadata = {
   media?: ProductMedia[];
   regionalPrices?: RegionalPrices;
   sizes?: string[];
+  stockBySize?: Record<string, number>;
+  drop?: ProductDrop;
+  colorVariants?: ProductColorVariant[];
 };
 
 export function normalizeProductSizes(input: unknown): string[] {
@@ -72,5 +82,8 @@ export function serializeProduct<T extends { description?: string | null; imageU
     media,
     regionalPrices: parsed.metadata.regionalPrices || {},
     availableSizes: normalizeProductSizes(parsed.metadata.sizes),
+    stockBySize: parsed.metadata.stockBySize || {},
+    drop: parsed.metadata.drop?.active ? parsed.metadata.drop : null,
+    colorVariants: Array.isArray(parsed.metadata.colorVariants) ? parsed.metadata.colorVariants : [],
   };
 }

@@ -53,19 +53,23 @@ export async function PUT(req: Request, { params }: RouteContext) {
     const media = body?.media === undefined ? parsed.metadata.media || normalizeMedia(undefined, current.imageUrl) : normalizeMedia(body.media, body.imageUrl);
     const regionalPrices = body?.regionalPrices === undefined ? parsed.metadata.regionalPrices || {} : normalizeRegionalPrices(body.regionalPrices);
     const sizes = body?.sizes === undefined ? normalizeProductSizes(parsed.metadata.sizes) : normalizeProductSizes(body.sizes);
+    const rawStockBySize = body?.stockBySize === undefined ? parsed.metadata.stockBySize || {} : (body.stockBySize && typeof body.stockBySize === "object" ? body.stockBySize as Record<string, unknown> : {});
+    const stockBySize = Object.fromEntries(sizes.map((size) => [size, Math.max(0, Math.floor(Number(rawStockBySize[size]) || 0))]));
+    const drop = body?.drop === undefined ? parsed.metadata.drop : body.drop;
+    const colorVariants = body?.colorVariants === undefined ? parsed.metadata.colorVariants : body.colorVariants;
     const description = body?.description === undefined ? parsed.description : String(body.description || "").trim() || null;
 
     const product = await prisma.product.update({
       where: { id: params.id },
       data: {
         title,
-        description: encodeProductDescription(description, { media, regionalPrices, sizes }),
+        description: encodeProductDescription(description, { media, regionalPrices, sizes, stockBySize, drop, colorVariants }),
         ...(body?.sku ? { sku: String(body.sku).trim() } : {}),
         priceInCents: Math.round(price * 100),
         ...(body?.imageUrl !== undefined || body?.media !== undefined ? { imageUrl: media[0]?.url || null } : {}),
         ...(body?.category !== undefined ? { category: String(body.category || "").trim() || null } : {}),
         ...(body?.status === ProductStatus.PUBLISHED || body?.status === ProductStatus.DRAFT ? { status: body.status } : {}),
-        stockQuantity: Math.floor(stockQuantity),
+        stockQuantity: Object.values(stockBySize).reduce((total, value) => total + value, 0),
       },
     });
 

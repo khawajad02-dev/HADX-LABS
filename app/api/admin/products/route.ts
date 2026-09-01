@@ -26,6 +26,16 @@ function normalizeMedia(input: unknown, fallbackImageUrl?: unknown): ProductMedi
     : [];
 }
 
+function normalizeDrop(input: unknown) {
+  if (!input || typeof input !== "object") return undefined;
+  const value = input as Record<string, unknown>;
+  return { active: value.active === true, text: typeof value.text === "string" ? value.text.trim().slice(0, 80) : undefined, startsAt: typeof value.startsAt === "string" ? value.startsAt : undefined, endsAt: typeof value.endsAt === "string" ? value.endsAt : undefined };
+}
+function normalizeColorVariants(input: unknown) {
+  if (!Array.isArray(input)) return undefined;
+  return input.map((entry) => { const value = entry as Record<string, unknown>; const media = normalizeMedia(value.media, value.imageUrl); const sizes = normalizeProductSizes(value.sizes); const raw = value.stockBySize && typeof value.stockBySize === "object" ? value.stockBySize as Record<string, unknown> : {}; const stockBySize = Object.fromEntries(sizes.map((size) => [size, Math.max(0, Math.floor(Number(raw[size]) || 0))])); return { name: typeof value.name === "string" ? value.name.trim().slice(0, 40) : "Unnamed", media, sizes, stockBySize }; }).filter((entry) => entry.name && entry.name !== "Unnamed");
+}
+
 function basePrice(body: any, regionalPrices: Record<string, number>) {
   const explicit = Number(body?.price);
   if (Number.isFinite(explicit) && explicit > 0) return explicit;
@@ -46,6 +56,8 @@ export async function POST(req: Request) {
     const price = basePrice(body, regionalPrices);
     const media = normalizeMedia(body?.media, body?.imageUrl);
     const sizes = normalizeProductSizes(body?.sizes);
+    const rawStockBySize = body?.stockBySize && typeof body.stockBySize === "object" ? body.stockBySize as Record<string, unknown> : {};
+    const stockBySize = Object.fromEntries(sizes.map((size) => [size, Math.max(0, Math.floor(Number(rawStockBySize[size]) || 0))]));
     if (!title || !sku || !price) {
       return NextResponse.json({ error: "Title, SKU, and a valid USD base price are required." }, { status: 400 });
     }
@@ -53,14 +65,14 @@ export async function POST(req: Request) {
     const product = await prisma.product.create({
       data: {
         title,
-        description: encodeProductDescription(body?.description, { media, regionalPrices, sizes }),
+        description: encodeProductDescription(body?.description, { media, regionalPrices, sizes, stockBySize, drop: normalizeDrop(body?.drop), colorVariants: normalizeColorVariants(body?.colorVariants) }),
         sku,
         priceInCents: Math.round(price * 100),
         currency: body?.currency === "PKR" ? "PKR" : body?.currency === "EUR" ? "EUR" : "USD",
         imageUrl: media[0]?.url || null,
         category: typeof body?.category === "string" ? body.category.trim() || null : null,
         status: body?.status === "PUBLISHED" ? ProductStatus.PUBLISHED : ProductStatus.DRAFT,
-        stockQuantity: Math.max(0, Math.floor(Number(body?.stockQuantity) || 0)),
+        stockQuantity: Object.values(stockBySize).reduce((total, value) => total + value, 0),
       },
     });
 

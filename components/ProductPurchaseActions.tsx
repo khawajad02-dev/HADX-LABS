@@ -14,18 +14,19 @@ type ProductPurchaseActionsProps = {
   currency: "USD" | "PKR" | "INR";
   imageUrl?: string | null;
   availableSizes?: string[];
+  stockBySize?: Record<string, number>;
   colorVariants?: Array<{ name: string; sizes?: string[]; stockBySize?: Record<string, number> }>;
   selectedColor?: string;
   onColorChange?: (color: string) => void;
 };
 
-export default function ProductPurchaseActions({ productId, sku, name, price, currency, imageUrl, availableSizes = FALLBACK_SIZES, colorVariants = [], selectedColor = "", onColorChange }: ProductPurchaseActionsProps) {
+export default function ProductPurchaseActions({ productId, sku, name, price, currency, imageUrl, availableSizes = FALLBACK_SIZES, stockBySize = {}, colorVariants = [], selectedColor = "", onColorChange }: ProductPurchaseActionsProps) {
   const router = useRouter();
   const { addItem } = useCart();
   const [selectedSize, setSelectedSize] = useState("");
   const selectedVariant = colorVariants.find((variant) => variant.name === selectedColor);
   const sizes = (selectedVariant?.sizes?.length ? selectedVariant.sizes : availableSizes).length ? (selectedVariant?.sizes?.length ? selectedVariant.sizes : availableSizes) : FALLBACK_SIZES;
-  const stockForSize = (size: string) => selectedVariant?.stockBySize?.[size];
+  const stockForSize = (size: string) => selectedVariant?.stockBySize?.[size] ?? stockBySize[size];
   const selectedStock = selectedSize ? stockForSize(selectedSize) : undefined;
   const [notice, setNotice] = useState("");
 
@@ -54,7 +55,7 @@ export default function ProductPurchaseActions({ productId, sku, name, price, cu
         <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Choose shirt size">
           {sizes.map((size) => {
             const active = selectedSize === size;
-            const stock = stockForSize(size); const soldOut = stock === 0; return <button key={size} type="button" role="radio" aria-checked={active} aria-disabled={soldOut} disabled={soldOut} onClick={() => { setSelectedSize(size); setNotice(""); }} className={`min-w-12 rounded-lg border px-4 py-2 text-xs font-mono tracking-widest transition-colors ${soldOut ? "cursor-not-allowed border-white/10 text-zinc-700 line-through" : active ? "border-amber-200 bg-amber-100/15 text-amber-100 shadow-[0_0_18px_rgba(245,158,11,0.18)]" : "border-white/15 text-zinc-400 hover:border-amber-200/60 hover:text-white"}`}>{size}</button>;
+            const stock = stockForSize(size); const soldOut = stock === 0; return <button key={size} type="button" role="radio" aria-checked={active} aria-disabled={soldOut} disabled={soldOut} onClick={() => { setSelectedSize(size); setNotice(""); }} className={`min-w-12 rounded-lg border px-4 py-2 text-xs font-mono tracking-widest transition-colors ${soldOut ? "cursor-not-allowed border-white/10 text-zinc-700 line-through" : active ? "border-amber-200 bg-amber-100/15 text-amber-100 shadow-[0_0_18px_rgba(245,158,11,0.18)]" : "border-white/15 text-zinc-400 hover:border-amber-200/60 hover:text-white"}`}><span>{size}</span>{stock !== undefined ? <small className="ml-1 text-[9px] opacity-70">{stock}</small> : null}</button>;
           })}
         </div>
         {selectedStock !== undefined ? <p className={`mt-2 text-[10px] font-mono uppercase tracking-widest ${selectedStock > 0 ? "text-emerald-300" : "text-red-300"}`}>{selectedStock > 0 ? `${selectedStock} available in this color` : "Sold out in this color"}</p> : null}{notice ? <p role="status" className="mt-2 text-[10px] font-mono uppercase tracking-widest text-amber-200">{notice}</p> : null}

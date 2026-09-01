@@ -17,9 +17,9 @@ export default function ProductMediaGallery({ title, media, colorVariants = [], 
   const activeMedia = selectedGalleryMedia[activeIndex];
 
   useEffect(() => {
-    setActiveIndex((current) => (selectedGalleryMedia.length ? Math.min(current, selectedGalleryMedia.length - 1) : 0));
+    setActiveIndex(0);
     startX.current = null;
-  }, [selectedGalleryMedia.length]);
+  }, [selectedColor]);
 
   const move = (direction: 1 | -1) => {
     if (selectedGalleryMedia.length < 2) return;

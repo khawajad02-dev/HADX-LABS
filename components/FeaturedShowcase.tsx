@@ -20,6 +20,7 @@ export type Product = {
   media?: Array<{ url: string; type: "image" | "video"; fileName?: string }>;
   category?: string | null;
   availableSizes?: string[];
+  stockBySize?: Record<string, number>;
 };
 
 type DisplayCurrency = "USD" | "PKR" | "INR";
@@ -94,6 +95,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
   const [handoffGeometry, setHandoffGeometry] = useState<HandoffGeometry | null>(null);
   const active = products[activeIndex] || products[0];
   const sizes = active?.availableSizes?.length ? active.availableSizes : DEFAULT_SIZES;
+  const stockForSize = (size: string) => active?.stockBySize?.[size];
   const displayCurrency = active?.currency || initialCurrency;
 
   useEffect(() => {
@@ -297,7 +299,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
             <h3>{active.title}</h3>
             <p className="reference-color-line">{active.category || "ATELIER"} / {displayCurrency} PRICING</p>
             <div className="reference-price-row"><strong>{formatMoney(active)}</strong><span>WORLDWIDE SHIPPING</span></div>
-            <div className="reference-size-block"><span className="reference-label">CHOOSE SIZE</span><div className="reference-size-row">{sizes.map((size) => <button key={size} type="button" onClick={() => setSelectedSize(size)} aria-pressed={selectedSize === size} className={selectedSize === size ? "is-selected" : ""}>{size}</button>)}</div></div>
+            <div className="reference-size-block"><span className="reference-label">CHOOSE SIZE</span><div className="reference-size-row">{sizes.map((size) => { const stock = stockForSize(size); const soldOut = stock === 0; return <button key={size} type="button" disabled={soldOut} onClick={() => setSelectedSize(size)} aria-pressed={selectedSize === size} className={`${selectedSize === size ? "is-selected" : ""}${soldOut ? " is-sold-out" : ""}`}><span>{size}</span>{stock !== undefined ? <small>{stock}</small> : null}</button>; })}</div></div>
             <Link href={selectedSize ? checkoutPath(active, selectedSize) : productPath(active)} className="reference-gold-cta"><span>SECURE DROP</span><b>↗</b></Link>
             <div className="reference-order-meta"><div><span>EDITION</span><b>LIMITED / {activeIndex + 1}</b></div><div><span>MEDIA</span><b>{active.media?.length || 1} ASSETS</b></div><div><span>STATUS</span><b>AVAILABLE NOW</b></div></div>
           </motion.aside>

@@ -18,7 +18,8 @@ function normalizeProducts(items: Array<Record<string, any>>, currency: DisplayC
     media: item.media,
     category: item.category,
     availableSizes: item.availableSizes,
-  }));
+    stockBySize: item.stockBySize,
+  })).slice(0, 6);
 }
 
 function EmptyInventory({ currency }: { currency: DisplayCurrency }) {

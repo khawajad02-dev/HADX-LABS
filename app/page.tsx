@@ -23,7 +23,7 @@ export default async function HomePage({ searchParams }: { searchParams?: { curr
   const displayCurrency = detectCurrency(searchParams?.currency);
   let products: Product[] = [];
   try {
-    const rawProducts = await prisma.product.findMany({ where: { status: "PUBLISHED" }, orderBy: { createdAt: "desc" } });
+    const rawProducts = await prisma.product.findMany({ where: { status: "PUBLISHED" }, orderBy: { createdAt: "desc" }, take: 6 });
     products = rawProducts.map((rawProduct) => {
       const product = serializeProduct(rawProduct);
       const price = regionalPrice(product.priceInCents, product.regionalPrices, displayCurrency);
