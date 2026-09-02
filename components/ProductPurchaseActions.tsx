@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useCart } from "@/lib/cart-context";
+import { useCart } from "@/components/CartProvider";
 
 type Props = {
   productId: string;
@@ -25,7 +25,7 @@ export default function ProductPurchaseActions({
   availableSizes,
   stockBySize,
 }: Props) {
-  const { addToCart } = useCart();
+  const { addItem } = useCart();
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
 
@@ -45,16 +45,20 @@ export default function ProductPurchaseActions({
       return;
     }
 
-    addToCart({
+    const added = addItem({
       productId,
       sku,
       name,
       price,
-      currency,
+      currency: currency as any,
       size: selectedSize,
-      color: selectedColor,
       quantity,
     });
+
+    if (!added) {
+      alert("Couldn't add item — check your cart currency.");
+      return;
+    }
     
     // Show success feedback
     const btn = document.getElementById('add-to-cart-btn');
