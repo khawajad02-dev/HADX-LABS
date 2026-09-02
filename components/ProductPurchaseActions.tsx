@@ -1,18 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useCart } from "@/components/CartProvider";
 
-type Props = {
+const FALLBACK_SIZES = ["S", "M", "L", "XL", "XXL"];
+
+type ProductPurchaseActionsProps = {
   productId: string;
-  sku: string;
+  sku?: string;
   name: string;
   price: number;
-  currency: string;
-  selectedColor: string | null;
-  availableSizes: string[];
-  stockBySize: Record<string, number>;
+  currency: "USD" | "PKR" | "INR";
+  imageUrl?: string | null;
+  availableSizes?: string[];
+  stockBySize?: Record<string, number>;
+  colorVariants?: Array<{ name: string; sizes?: string[]; stockBySize?: Record<string, number> }>;
+  selectedColor?: string;
+  onColorChange?: (color: string) => void;
 };
 
 export default function ProductPurchaseActions({
@@ -21,116 +26,91 @@ export default function ProductPurchaseActions({
   name,
   price,
   currency,
-  selectedColor,
-  availableSizes,
-  stockBySize,
-}: Props) {
+  imageUrl,
+  availableSizes = FALLBACK_SIZES,
+  stockBySize = {},
+  colorVariants = [],
+  selectedColor = "",
+}: ProductPurchaseActionsProps) {
+  const router = useRouter();
   const { addItem } = useCart();
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [notice, setNotice] = useState("");
+  const selectedVariant = colorVariants.find((variant) => variant.name.trim().toLowerCase() === selectedColor.trim().toLowerCase());
+  const sizes = (selectedVariant?.sizes?.length ? selectedVariant.sizes : availableSizes).length
+    ? selectedVariant?.sizes?.length ? selectedVariant.sizes : availableSizes
+    : FALLBACK_SIZES;
+  const stockForSize = (size: string) => selectedVariant?.stockBySize?.[size] ?? stockBySize[size];
+  const selectedStock = selectedSize ? stockForSize(selectedSize) : undefined;
 
-  const handleSizeSelect = (size: string) => {
-    setSelectedSize(size);
-  };
+  useEffect(() => {
+    setSelectedSize("");
+    setNotice("");
+  }, [selectedColor]);
 
-  const handleAddToCart = () => {
+  const addToCart = (checkoutAfterAdd = false) => {
     if (!selectedSize) {
-      alert("Please select a size first!");
+      setNotice("Select a size before adding this piece.");
       return;
     }
-    
-    const stock = stockBySize[selectedSize] || 0;
-    if (stock <= 0) {
-      alert("This size is out of stock!");
+    if (selectedStock === 0) {
+      setNotice("This size is sold out in the selected color.");
       return;
     }
-
     const added = addItem({
       productId,
       sku,
       name,
       price,
-      currency: currency as any,
+      currency,
+      imageUrl,
+      color: selectedColor || undefined,
+      availableSizes: sizes,
       size: selectedSize,
-      availableSizes,
-      quantity,
+      quantity: 1,
     });
-
     if (!added) {
-      alert("Couldn't add item — check your cart currency.");
+      setNotice("Your bag uses another currency. Finish or clear it before adding this piece.");
       return;
     }
-    
-    // Show success feedback
-    const btn = document.getElementById('add-to-cart-btn');
-    if (btn) {
-      btn.textContent = 'ADDED ✓';
-      setTimeout(() => {
-        btn.textContent = 'ADD TO CART';
-      }, 1500);
-    }
+    setNotice(checkoutAfterAdd ? "Piece added. Opening your loadout…" : "Piece added to your loadout bag.");
+    if (checkoutAfterAdd) router.push("/checkout");
   };
-
-  const totalPrice = price * quantity;
 
   return (
     <div className="space-y-4">
-      {/* Quantity Selector */}
-      <div className="flex items-center justify-between liquid-panel product-detail-glass rounded-2xl p-4">
-        <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500">
-          Quantity
-        </span>
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="w-10 h-10 rounded-xl border border-white/15 bg-white/5 text-zinc-300 flex items-center justify-center text-lg hover:border-amber-400/40"
-          >
-            −
-          </button>
-          <span className="text-lg font-bold text-zinc-200 w-8 text-center">
-            {quantity}
-          </span>
-          <button 
-            onClick={() => setQuantity(quantity + 1)}
-            className="w-10 h-10 rounded-xl border border-white/15 bg-white/5 text-zinc-300 flex items-center justify-center text-lg hover:border-amber-400/40"
-          >
-            +
-          </button>
+      <div>
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">Choose size</span>
+          <span className="text-[10px] font-mono uppercase tracking-widest text-zinc-600">Required</span>
         </div>
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Choose shirt size">
+          {sizes.map((size) => {
+            const active = selectedSize === size;
+            const stock = stockForSize(size);
+            const soldOut = stock === 0;
+            return (
+              <button
+                key={size}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                aria-disabled={soldOut}
+                disabled={soldOut}
+                onClick={() => { setSelectedSize(size); setNotice(""); }}
+                className={`min-w-12 rounded-lg border px-4 py-2 text-xs font-mono tracking-widest transition-colors ${soldOut ? "cursor-not-allowed border-white/10 text-zinc-700 line-through" : active ? "border-amber-200 bg-amber-100/15 text-amber-100 shadow-[0_0_18px_rgba(245,158,11,0.18)]" : "border-white/15 text-zinc-400 hover:border-amber-200/60 hover:text-white"}`}
+              >
+                <span>{size}</span>{stock !== undefined ? <small className="ml-1 text-[9px] opacity-70">{stock}</small> : null}
+              </button>
+            );
+          })}
+        </div>
+        {selectedStock !== undefined ? <p className={`mt-2 text-[10px] font-mono uppercase tracking-widest ${selectedStock > 0 ? "text-emerald-300" : "text-red-300"}`}>{selectedStock > 0 ? `${selectedStock} available in this color` : "Sold out in this color"}</p> : null}
+        {notice ? <p role="status" className="mt-2 text-[10px] font-mono uppercase tracking-widest text-amber-200">{notice}</p> : null}
       </div>
-
-      {/* Price Display */}
-      <div className="flex items-center justify-between px-2">
-        <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-zinc-500">
-          Total
-        </span>
-        <span className="text-2xl font-bold text-amber-300">
-          {currency} {(totalPrice / 100).toFixed(2)}
-        </span>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="grid grid-cols-2 gap-3">
-        <motion.button
-          id="add-to-cart-btn"
-          whileTap={{ scale: 0.97 }}
-          onClick={handleAddToCart}
-          disabled={!selectedSize}
-          className={`py-4 rounded-2xl border text-sm font-bold tracking-[0.15em] uppercase transition-all ${
-            selectedSize 
-              ? "border-amber-400/60 bg-amber-400/10 text-amber-200 hover:bg-amber-400/20" 
-              : "border-white/10 bg-white/5 text-zinc-600 cursor-not-allowed"
-          }`}
-        >
-          ADD TO CART
-        </motion.button>
-        
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          className="py-4 rounded-2xl border border-white/15 bg-white/5 text-zinc-300 text-sm font-bold tracking-[0.15em] uppercase hover:border-amber-400/40 hover:text-amber-200 transition-all"
-        >
-          CHECKOUT BAG
-        </motion.button>
+      <div className="flex flex-wrap items-center gap-3">
+        <button type="button" onClick={() => addToCart(false)} className="liquid-ui rounded-full border border-amber-200/60 bg-amber-100/10 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-amber-100 shadow-gold-glow transition-transform hover:scale-[1.02] active:scale-[0.98]">Add to Cart</button>
+        <button type="button" onClick={() => addToCart(true)} className="liquid-ui rounded-full border border-white/20 px-5 py-3 text-xs font-mono uppercase tracking-[0.15em] text-zinc-300 transition-colors hover:border-amber-200/60 hover:text-white active:scale-[0.98]">Checkout Bag</button>
       </div>
     </div>
   );
