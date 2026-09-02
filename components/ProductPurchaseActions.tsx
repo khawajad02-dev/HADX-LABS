@@ -52,6 +52,7 @@ export default function ProductPurchaseActions({
       price,
       currency: currency as any,
       size: selectedSize,
+      availableSizes,
       quantity,
     });
 
