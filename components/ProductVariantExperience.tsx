@@ -25,20 +25,22 @@ function variantKey(name: string) {
 function buildStorefrontVariants(
   colorVariants: ProductColorVariant[],
   imageUrl: string | null | undefined,
+  media: ProductMedia[],
   availableSizes: string[],
   stockBySize: Record<string, number>,
 ) {
-  const hasTopLevelImage = Boolean(imageUrl);
-  const topLevelImageAlreadyMapped = colorVariants.some((variant) => variant.media?.some((item) => item.url === imageUrl));
+  const topLevelMedia = media.filter((item) => item && typeof item.url === "string" && item.url.trim());
+  const topLevelImageAlreadyMapped = topLevelMedia.every((item) => colorVariants.some((variant) => variant.media?.some((mapped) => mapped.url === item.url)));
   const hasBlackVariant = colorVariants.some((variant) => variantKey(variant.name) === "black");
 
-  // The catalog card uses Product.imageUrl. If Owner metadata has only White but
-  // that catalog image is a different asset, expose it as the Black variant.
-  if (hasTopLevelImage && !topLevelImageAlreadyMapped && !hasBlackVariant) {
-    return [
-      { name: "Black", media: [{ url: imageUrl!, type: "image" as const }], sizes: availableSizes, stockBySize },
-      ...colorVariants,
-    ];
+  // Owner app stores the default color gallery in Product.media and the first
+  // asset in Product.imageUrl. Preserve the entire gallery when Black metadata
+  // is absent; never reduce it to only the first image.
+  if (!hasBlackVariant && topLevelMedia.length && !topLevelImageAlreadyMapped) {
+    return [{ name: "Black", media: topLevelMedia, sizes: availableSizes, stockBySize }, ...colorVariants];
+  }
+  if (!hasBlackVariant && imageUrl && !topLevelMedia.length && !colorVariants.some((variant) => variant.media?.some((item) => item.url === imageUrl))) {
+    return [{ name: "Black", media: [{ url: imageUrl, type: "image" as const }], sizes: availableSizes, stockBySize }, ...colorVariants];
   }
   return colorVariants;
 }
@@ -76,7 +78,7 @@ export default function ProductVariantExperience({
   stockBySize = {},
   colorVariants,
 }: ProductVariantExperienceProps) {
-  const storefrontVariants = buildStorefrontVariants(colorVariants, imageUrl, availableSizes, stockBySize);
+  const storefrontVariants = buildStorefrontVariants(colorVariants, imageUrl, media, availableSizes, stockBySize);
   const [selectedColor, setSelectedColor] = useState(() => {
     const black = storefrontVariants.find((variant) => variantKey(variant.name) === "black");
     return black?.name || storefrontVariants[0]?.name || "";
