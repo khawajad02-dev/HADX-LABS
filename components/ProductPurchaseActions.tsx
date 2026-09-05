@@ -98,7 +98,7 @@ export default function ProductPurchaseActions({
                 aria-disabled={soldOut}
                 disabled={soldOut}
                 onClick={() => { setSelectedSize(size); setNotice(""); }}
-                className={`min-w-12 rounded-lg border px-4 py-2 text-xs font-mono tracking-widest transition-colors ${soldOut ? "cursor-not-allowed border-white/10 text-zinc-700 line-through" : active ? "border-amber-200 bg-amber-100/15 text-amber-100 shadow-[0_0_18px_rgba(245,158,11,0.18)]" : "border-white/15 text-zinc-400 hover:border-amber-200/60 hover:text-white"}`}
+                className={`liquid-ui hadx-tap-reactive min-w-12 rounded-lg border px-4 py-2 text-xs font-mono tracking-widest transition-colors ${soldOut ? "cursor-not-allowed border-white/10 text-zinc-700 line-through" : active ? "border-amber-200 bg-amber-100/15 text-amber-100 shadow-[0_0_18px_rgba(245,158,11,0.18)]" : "border-white/15 text-zinc-400 hover:border-amber-200/60 hover:text-white"}`}
               >
                 <span>{size}</span>{stock !== undefined ? <small className="ml-1 text-[9px] opacity-70">{stock}</small> : null}
               </button>
@@ -109,8 +109,8 @@ export default function ProductPurchaseActions({
         {notice ? <p role="status" className="mt-2 text-[10px] font-mono uppercase tracking-widest text-amber-200">{notice}</p> : null}
       </div>
       <div className="flex flex-wrap items-center gap-3">
-        <button type="button" onClick={() => addToCart(false)} className="liquid-ui rounded-full border border-amber-200/60 bg-amber-100/10 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-amber-100 shadow-gold-glow transition-transform hover:scale-[1.02] active:scale-[0.98]">Add to Cart</button>
-        <button type="button" onClick={() => addToCart(true)} className="liquid-ui rounded-full border border-white/20 px-5 py-3 text-xs font-mono uppercase tracking-[0.15em] text-zinc-300 transition-colors hover:border-amber-200/60 hover:text-white active:scale-[0.98]">Checkout Bag</button>
+        <button type="button" onClick={() => addToCart(false)} className="liquid-ui hadx-tap-reactive rounded-full border border-amber-200/60 bg-amber-100/10 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-amber-100 shadow-gold-glow transition-transform hover:scale-[1.02] active:scale-[0.98]">Add to Cart</button>
+        <button type="button" onClick={() => addToCart(true)} className="liquid-ui hadx-tap-reactive rounded-full border border-white/20 px-5 py-3 text-xs font-mono uppercase tracking-[0.15em] text-zinc-300 transition-colors hover:border-amber-200/60 hover:text-white active:scale-[0.98]">Checkout Bag</button>
       </div>
     </div>
   );

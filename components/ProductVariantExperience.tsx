@@ -114,7 +114,7 @@ export default function ProductVariantExperience({
                   role="radio"
                   aria-checked={active}
                   onClick={() => setSelectedColor(variant.name)}
-                  className={`rounded-xl border px-4 py-2 text-xs font-mono uppercase tracking-[0.16em] transition-colors ${active ? "border-amber-200 bg-amber-100/15 text-amber-100 shadow-[0_0_18px_rgba(245,158,11,0.14)]" : "border-white/15 bg-black/10 text-zinc-400 hover:border-amber-200/60 hover:text-white"}`}
+                  className={`liquid-ui hadx-tap-reactive rounded-xl border px-4 py-2 text-xs font-mono uppercase tracking-[0.16em] transition-colors ${active ? "border-amber-200 bg-amber-100/15 text-amber-100 shadow-[0_0_18px_rgba(245,158,11,0.14)]" : "border-white/15 bg-black/10 text-zinc-400 hover:border-amber-200/60 hover:text-white"}`}
                 >
                   <span className="mr-2 inline-block h-3 w-3 rounded-full border border-white/30 align-middle" style={{ backgroundColor: swatchColor(variant.name) }} />
                   {variant.name}

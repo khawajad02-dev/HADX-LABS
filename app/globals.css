@@ -1348,3 +1348,93 @@ body {
     animation: none;
   }
 }
+
+
+/* HADX premium interaction layer: tactile feedback, signal sweep, and quiet editorial depth. */
+.hadx-tap-reactive {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transform: translateZ(0);
+  transition: transform 260ms cubic-bezier(.22,1,.36,1), border-color 260ms ease, box-shadow 260ms ease, background-color 260ms ease;
+}
+
+.hadx-tap-reactive:not(.liquid-ui)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 18%, rgba(255,236,170,.12) 47%, rgba(255,255,255,.22) 50%, transparent 58%);
+  transform: translateX(-130%);
+  transition: transform 650ms cubic-bezier(.16,1,.3,1);
+}
+
+.hadx-tap-reactive:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255,236,170,.62);
+  box-shadow: 0 14px 38px rgba(0,0,0,.24), 0 0 24px rgba(245,158,11,.11);
+}
+
+.hadx-tap-reactive:not(.liquid-ui):hover::after,
+.hadx-tap-reactive:not(.liquid-ui):focus-visible::after {
+  transform: translateX(130%);
+}
+
+.hadx-tap-reactive:active {
+  transform: translateY(1px) scale(.975);
+  transition-duration: 90ms;
+  box-shadow: 0 4px 16px rgba(0,0,0,.28), 0 0 18px rgba(245,158,11,.2);
+}
+
+.hadx-tap-reactive:focus-visible {
+  outline: 1px solid rgba(255,236,170,.9);
+  outline-offset: 3px;
+}
+
+.hadx-premium-card {
+  background: linear-gradient(145deg, rgba(255,255,255,.07), rgba(8,8,8,.34) 42%, rgba(245,158,11,.035));
+}
+
+.hadx-premium-card .hadx-card-media {
+  transition: transform 700ms cubic-bezier(.16,1,.3,1), filter 700ms ease;
+}
+
+.hadx-premium-card:hover .hadx-card-media {
+  transform: scale(1.035);
+  filter: saturate(1.08) contrast(1.03);
+}
+
+.hadx-signal-line {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255,236,170,.85), transparent);
+  opacity: .45;
+  transform: scaleX(.45);
+  transition: transform 500ms cubic-bezier(.16,1,.3,1), opacity 300ms ease;
+}
+
+.hadx-premium-card:hover .hadx-signal-line,
+.hadx-premium-card:focus-within .hadx-signal-line {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hadx-tap-reactive,
+  .hadx-tap-reactive:not(.liquid-ui)::after,
+  .hadx-premium-card .hadx-card-media,
+  .hadx-signal-line {
+    transition: none !important;
+  }
+
+  .hadx-tap-reactive:hover,
+  .hadx-tap-reactive:active,
+  .hadx-premium-card:hover .hadx-card-media {
+    transform: none;
+  }
+}

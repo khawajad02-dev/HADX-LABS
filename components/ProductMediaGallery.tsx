@@ -73,8 +73,8 @@ export default function ProductMediaGallery({ title, media, colorVariants = [], 
 
         {selectedGalleryMedia.length > 1 ? (
           <>
-            <button type="button" onClick={(event) => { event.stopPropagation(); move(-1); }} aria-label="Previous product media" className="liquid-ui absolute left-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/20 text-sm text-white/80 transition-transform hover:scale-105 active:scale-95">←</button>
-            <button type="button" onClick={(event) => { event.stopPropagation(); move(1); }} aria-label="Next product media" className="liquid-ui absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/20 text-sm text-white/80 transition-transform hover:scale-105 active:scale-95">→</button>
+            <button type="button" onClick={(event) => { event.stopPropagation(); move(-1); }} aria-label="Previous product media" className="liquid-ui hadx-tap-reactive absolute left-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/20 text-sm text-white/80 transition-transform hover:scale-105 active:scale-95">←</button>
+            <button type="button" onClick={(event) => { event.stopPropagation(); move(1); }} aria-label="Next product media" className="liquid-ui hadx-tap-reactive absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/20 text-sm text-white/80 transition-transform hover:scale-105 active:scale-95">→</button>
             <div className="pointer-events-none absolute inset-x-0 bottom-3 flex items-center justify-center gap-2" aria-live="polite">
               {selectedGalleryMedia.map((item, index) => <span key={`${item.url}-${index}`} className={`h-1.5 rounded-full transition-all duration-300 ${index === safeActiveIndex ? "w-8 bg-amber-200" : "w-1.5 bg-white/40"}`} />)}
             </div>
@@ -88,7 +88,7 @@ export default function ProductMediaGallery({ title, media, colorVariants = [], 
       {selectedGalleryMedia.length > 1 ? (
         <div className="mt-3 flex gap-2 overflow-x-auto px-1 pb-1" aria-label="Product media thumbnails">
           {selectedGalleryMedia.map((item, index) => (
-            <button type="button" key={`${item.url}-${index}`} onClick={() => { setActiveIndex(index); setIsViewerOpen(false); }} aria-label={`Show ${title} media ${index + 1}`} aria-pressed={index === safeActiveIndex} className={`relative h-16 w-14 shrink-0 overflow-hidden rounded-lg border transition-colors ${index === safeActiveIndex ? "border-amber-200/80" : "border-white/10 hover:border-white/40"}`}>
+            <button type="button" key={`${item.url}-${index}`} onClick={() => { setActiveIndex(index); setIsViewerOpen(false); }} aria-label={`Show ${title} media ${index + 1}`} aria-pressed={index === safeActiveIndex} className={`liquid-ui hadx-tap-reactive relative h-16 w-14 shrink-0 overflow-hidden rounded-lg border transition-colors ${index === safeActiveIndex ? "border-amber-200/80" : "border-white/10 hover:border-white/40"}`}>
               {item.type === "video" ? <video src={item.url} muted playsInline preload="none" className="h-full w-full object-cover" aria-hidden="true" /> : <img src={item.url} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />}
               <span className="absolute inset-x-0 bottom-0 bg-black/55 py-1 text-center text-[8px] font-mono text-white/70">{index + 1}</span>
             </button>

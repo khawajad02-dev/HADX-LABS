@@ -194,7 +194,7 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
                 key={product.id}
                 href={`/product/${product.sku || product.id}?currency=${displayCurrency}`}
                 aria-label={`Open ${displayTitle}`}
-                className={`liquid-panel catalog-product-card group block cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-1 focus:ring-amber-200 ${productHandoff?.productId === product.id ? "catalog-handoff-target" : ""}`}
+                className={`liquid-panel hadx-tap-reactive hadx-premium-card catalog-product-card group block cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02] focus:outline-none focus:ring-1 focus:ring-amber-200 ${productHandoff?.productId === product.id ? "catalog-handoff-target" : ""}`}
                 style={productHandoff?.productId === product.id ? { opacity: 0.78 + productHandoff.progress * 0.22, transform: `translateY(${(1 - productHandoff.progress) * -10}px) scale(${0.985 + productHandoff.progress * 0.015})` } : undefined}
                 data-handoff-progress={productHandoff?.productId === product.id ? productHandoff.progress.toFixed(2) : undefined}
               >
@@ -202,7 +202,7 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
                   {displayVideo ? (
                     <video src={displayVideo} aria-label={displayTitle} controls muted playsInline preload="none" className="w-full h-full object-cover" />
                   ) : displayImg ? (
-                    <img src={displayImg} alt={displayTitle} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={displayImg} alt={displayTitle} loading="lazy" decoding="async" className="hadx-card-media w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   ) : (
                     <span className="text-zinc-700 text-[10px] font-mono uppercase">no image</span>
                   )}
