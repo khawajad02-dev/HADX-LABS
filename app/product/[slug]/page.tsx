@@ -5,6 +5,7 @@ import { Metadata } from "next";
 
 import InstagramDMButton from "@/components/InstagramDMButton";
 import ProductVariantExperience from "@/components/ProductVariantExperience";
+import RelatedProducts, { type RelatedProduct } from "@/components/RelatedProducts";
 import VaultButton from "@/components/VaultButton";
 import { currencySymbol, regionalPrice, type DisplayCurrency } from "@/lib/currency";
 import { prisma } from "@/lib/prisma";
@@ -43,6 +44,37 @@ export default async function ProductPage({ params, searchParams }: { params: { 
   const parsed = serializeProduct(product);
   const currency = detectCurrency(searchParams?.currency);
   const amount = regionalPrice(product.priceInCents, parsed.regionalPrices, currency);
+  const candidates = await prisma.product.findMany({
+    where: { status: "PUBLISHED", id: { not: product.id } },
+    orderBy: { createdAt: "desc" },
+    take: 24,
+  });
+  const currentCategory = product.category?.trim().toLowerCase() || "";
+  const currentTitleTokens = product.title.toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 2);
+  const relatedProducts: RelatedProduct[] = candidates
+    .map((candidate) => {
+      const candidateParsed = serializeProduct(candidate);
+      const candidateCategory = candidate.category?.trim().toLowerCase() || "";
+      const candidateTitle = candidate.title.toLowerCase();
+      const sharedTitleTokens = currentTitleTokens.filter((token) => candidateTitle.includes(token)).length;
+      const score = (currentCategory && candidateCategory === currentCategory ? 100 : 0) + sharedTitleTokens * 10;
+      return {
+        score,
+        item: {
+          id: candidate.id,
+          sku: candidate.sku,
+          title: candidate.title,
+          category: candidate.category,
+          imageUrl: candidate.imageUrl,
+          media: candidateParsed.media,
+          priceInCents: candidate.priceInCents,
+          regionalPrices: candidateParsed.regionalPrices,
+        },
+      };
+    })
+    .sort((left, right) => right.score - left.score)
+    .slice(0, 6)
+    .map(({ item }) => item);
   return (
     <main className="relative min-h-screen bg-transparent text-zinc-100 pt-32 pb-24 px-6">
       <div className="mx-auto mb-6 max-w-6xl">
@@ -57,6 +89,7 @@ export default async function ProductPage({ params, searchParams }: { params: { 
           <div className="border-t border-white/10 pt-8 mt-auto"><div className="liquid-panel product-detail-glass p-6 rounded-2xl"><h3 className="text-sm font-mono tracking-wider uppercase text-zinc-300 mb-2">Custom Commissions</h3><p className="text-xs text-zinc-500 mb-6 leading-relaxed">Want a custom vintage graphic? Send us your idea on Instagram DM.</p><InstagramDMButton label="SEND IDEA" /></div></div>
         </div></div>
       </div>
+      <RelatedProducts products={relatedProducts} currency={currency} />
     </main>
   );
 }
