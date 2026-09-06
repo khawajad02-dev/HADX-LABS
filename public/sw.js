@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hadx-labs-cache-v5';
+const CACHE_NAME = 'hadx-labs-cache-v6';
 const ASSETS_TO_CACHE = [
   '/',
   '/catalog',

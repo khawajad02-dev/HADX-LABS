@@ -50,6 +50,8 @@ export default function RootLayout({
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
               navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                reg.update();
+                if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
                 console.log('SW registered:', reg.scope);
               }).catch(function(err) {
                 console.log('SW failed:', err);
