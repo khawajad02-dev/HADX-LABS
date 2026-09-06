@@ -1638,3 +1638,22 @@ body {
   .hadx-radar-card { -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
   .hadx-radar-card .hadx-card-media { transition: none; }
 }
+
+
+/* HADX relay core: keep the label readable and make the active-product shortcut tappable. */
+.hadx-radar-dock > .hadx-radar-core {
+  z-index: 10;
+  bottom: .8rem;
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+.hadx-radar-dock > p {
+  position: relative;
+  z-index: 3;
+  margin-bottom: 5rem !important;
+  padding-inline: 1rem;
+}
+@media (max-width: 640px) {
+  .hadx-radar-dock > .hadx-radar-core { bottom: .65rem; }
+  .hadx-radar-dock > p { margin-bottom: 5.2rem !important; }
+}
