@@ -23,25 +23,30 @@ type RelatedProductsProps = {
 
 export default function RelatedProducts({ products, currency }: RelatedProductsProps) {
   const railRef = useRef<HTMLDivElement>(null);
+  const scrollFrame = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const symbol = currencySymbol(currency);
 
   const syncActive = () => {
-    const rail = railRef.current;
-    if (!rail) return;
-    const cards = Array.from(rail.querySelectorAll<HTMLElement>("[data-radar-card]"));
-    const center = rail.scrollLeft + rail.clientWidth / 2;
-    let closest = 0;
-    let distance = Number.POSITIVE_INFINITY;
-    cards.forEach((card, index) => {
-      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-      const nextDistance = Math.abs(cardCenter - center);
-      if (nextDistance < distance) {
-        distance = nextDistance;
-        closest = index;
-      }
+    if (scrollFrame.current !== null) return;
+    scrollFrame.current = window.requestAnimationFrame(() => {
+      scrollFrame.current = null;
+      const rail = railRef.current;
+      if (!rail) return;
+      const cards = Array.from(rail.querySelectorAll<HTMLElement>("[data-radar-card]"));
+      const center = rail.scrollLeft + rail.clientWidth / 2;
+      let closest = 0;
+      let distance = Number.POSITIVE_INFINITY;
+      cards.forEach((card, index) => {
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+        const nextDistance = Math.abs(cardCenter - center);
+        if (nextDistance < distance) {
+          distance = nextDistance;
+          closest = index;
+        }
+      });
+      setActiveIndex(closest);
     });
-    setActiveIndex(closest);
   };
 
   return (
@@ -56,7 +61,7 @@ export default function RelatedProducts({ products, currency }: RelatedProductsP
         <div className="hadx-radar-dock relative overflow-hidden rounded-[2rem] border border-[#D4AF37]/25 bg-[#0A0A0A] px-0 py-8 sm:py-12">
           <div className="hadx-radar-arc hadx-radar-arc-left" aria-hidden="true" />
           <div className="hadx-radar-arc hadx-radar-arc-right" aria-hidden="true" />
-          <div className="hadx-radar-core" aria-hidden="true"><span>HADX</span></div>
+          <Link href={products[activeIndex] ? `/product/${products[activeIndex].sku}?currency=${currency}` : "#"} className="hadx-radar-core" aria-label={products[activeIndex] ? `Open ${products[activeIndex].title}` : "Open selected pairing"}><span>HADX</span></Link>
           <div ref={railRef} onScroll={syncActive} className="hadx-radar-rail flex snap-x snap-mandatory gap-4 overflow-x-auto px-[calc(50vw-8rem)] pb-3 pt-2 [scrollbar-width:none] sm:gap-6 sm:px-[calc(50%-10rem)]" aria-label="Curated related products">
             {products.map((product, index) => {
               const media = product.media.find((item) => item.type === "image") || product.media[0];

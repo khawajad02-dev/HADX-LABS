@@ -1606,3 +1606,35 @@ body {
   .hadx-radar-card { width: 15.2rem; }
   .hadx-radar-card:not(.is-focused) { opacity: .58; }
 }
+
+
+/* Lightweight radar rendering for smoother mobile scrolling. */
+.hadx-radar-dock {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(212,175,55,.1), transparent 28%),
+    radial-gradient(circle at 8% 62%, rgba(245,158,11,.1), transparent 20%),
+    rgba(10,10,10,.18) !important;
+  -webkit-backdrop-filter: blur(4px) saturate(1.12);
+  backdrop-filter: blur(4px) saturate(1.12);
+}
+.hadx-radar-card {
+  contain: layout paint;
+  -webkit-backdrop-filter: blur(7px) saturate(1.12);
+  backdrop-filter: blur(7px) saturate(1.12);
+}
+.hadx-radar-core {
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.hadx-radar-core:hover,
+.hadx-radar-core:focus-visible {
+  transform: translateX(-50%) scale(1.08);
+  box-shadow: 0 0 0 8px rgba(212,175,55,.08), 0 0 42px rgba(212,175,55,.34);
+}
+@media (max-width: 640px) {
+  .hadx-radar-dock::before,
+  .hadx-radar-dock::after { filter: none; }
+  .hadx-radar-card { -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+  .hadx-radar-card .hadx-card-media { transition: none; }
+}
