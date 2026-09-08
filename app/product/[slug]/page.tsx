@@ -6,6 +6,7 @@ import { Metadata } from "next";
 import InstagramDMButton from "@/components/InstagramDMButton";
 import ProductVariantExperience from "@/components/ProductVariantExperience";
 import RelatedProducts, { type RelatedProduct } from "@/components/RelatedProducts";
+import ProductReviews from "@/components/ProductReviews";
 import VaultButton from "@/components/VaultButton";
 import { currencySymbol, regionalPrice, type DisplayCurrency } from "@/lib/currency";
 import { prisma } from "@/lib/prisma";
@@ -44,6 +45,12 @@ export default async function ProductPage({ params, searchParams }: { params: { 
   const parsed = serializeProduct(product);
   const currency = detectCurrency(searchParams?.currency);
   const amount = regionalPrice(product.priceInCents, parsed.regionalPrices, currency);
+  const initialReviews = await prisma.productReview.findMany({
+    where: { productId: product.id, approved: true },
+    orderBy: { createdAt: "desc" },
+    take: 20,
+    select: { id: true, name: true, rating: true, body: true, createdAt: true },
+  });
   const candidates = await prisma.product.findMany({
     where: { status: "PUBLISHED", id: { not: product.id } },
     orderBy: { createdAt: "desc" },
@@ -89,6 +96,7 @@ export default async function ProductPage({ params, searchParams }: { params: { 
           <div className="border-t border-white/10 pt-8 mt-auto"><div className="liquid-panel product-detail-glass p-6 rounded-2xl"><h3 className="text-sm font-mono tracking-wider uppercase text-zinc-300 mb-2">Custom Commissions</h3><p className="text-xs text-zinc-500 mb-6 leading-relaxed">Want a custom vintage graphic? Send us your idea on Instagram DM.</p><InstagramDMButton label="SEND IDEA" /></div></div>
         </div></div>
       </div>
+      <ProductReviews productId={product.id} initialReviews={initialReviews.map((review) => ({ ...review, createdAt: review.createdAt.toISOString() }))} />
       <RelatedProducts products={relatedProducts} currency={currency} />
     </main>
   );
