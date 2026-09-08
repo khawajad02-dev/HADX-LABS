@@ -45,12 +45,18 @@ export default async function ProductPage({ params, searchParams }: { params: { 
   const parsed = serializeProduct(product);
   const currency = detectCurrency(searchParams?.currency);
   const amount = regionalPrice(product.priceInCents, parsed.regionalPrices, currency);
-  const initialReviews = await prisma.productReview.findMany({
-    where: { productId: product.id, approved: true },
-    orderBy: { createdAt: "desc" },
-    take: 20,
-    select: { id: true, name: true, rating: true, body: true, createdAt: true },
-  });
+  let initialReviews: Array<{ id: string; name: string; rating: number; body: string; createdAt: Date }> = [];
+  try {
+    initialReviews = await prisma.productReview.findMany({
+      where: { productId: product.id, approved: true },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      select: { id: true, name: true, rating: true, body: true, createdAt: true },
+    });
+  } catch {
+    // Keep the product page available while a deployment catches up with the review migration.
+    initialReviews = [];
+  }
   const candidates = await prisma.product.findMany({
     where: { status: "PUBLISHED", id: { not: product.id } },
     orderBy: { createdAt: "desc" },

@@ -5,13 +5,17 @@ import { prisma } from "@/lib/prisma";
 const clean = (value: unknown, max: number) => String(value ?? "").trim().slice(0, max);
 
 export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
-  const reviews = await prisma.productReview.findMany({
-    where: { productId: params.id, approved: true },
-    orderBy: { createdAt: "desc" },
-    take: 20,
-    select: { id: true, name: true, rating: true, body: true, createdAt: true },
-  });
-  return NextResponse.json({ reviews });
+  try {
+    const reviews = await prisma.productReview.findMany({
+      where: { productId: params.id, approved: true },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      select: { id: true, name: true, rating: true, body: true, createdAt: true },
+    });
+    return NextResponse.json({ reviews });
+  } catch {
+    return NextResponse.json({ reviews: [] });
+  }
 }
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
