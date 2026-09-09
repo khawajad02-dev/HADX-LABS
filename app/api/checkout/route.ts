@@ -115,7 +115,6 @@ export async function POST(req: Request) {
             city: String(city).trim(),
             country: normalizedCountry,
             size: line.size,
-            productColor: line.color || null,
             productId: line.product.id,
             productSku: line.product.sku,
             productTitle: line.product.title,
