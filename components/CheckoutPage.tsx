@@ -98,6 +98,10 @@ export default function CheckoutPage({
         setModalState('order_confirmed');
       } else {
         console.error('Checkout failed:', data.error);
+        if (paymentMethod === 'COD') {
+          setInlineMessage(data.error || 'Cash on Delivery order could not be confirmed. Please review your details and try again.');
+          return;
+        }
         setModalState('payment_failed');
       }
     } catch (err: any) {

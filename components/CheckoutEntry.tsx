@@ -23,7 +23,7 @@ export default function CheckoutEntry() {
     const productId = query.get("productId");
     const size = (query.get("size") || "").trim().toUpperCase();
     setQueryCurrency(currency);
-    if (query.get("payment") === "failed") setVideoState("payment_failed");
+    if (query.get("payment") === "failed" && currency !== "PKR") setVideoState("payment_failed");
     if (!productId || cartItems.length) return;
 
     setDirectLoading(true);
