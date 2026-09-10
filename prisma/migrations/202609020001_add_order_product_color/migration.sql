@@ -1,4 +1,4 @@
-ALTER TABLE "Order" ADD COLUMN "productColor" TEXT;
+ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "productColor" TEXT;
 
-CREATE INDEX "Order_productColor_idx" ON "Order"("productColor");
+CREATE INDEX IF NOT EXISTS "Order_productColor_idx" ON "Order"("productColor");
 
