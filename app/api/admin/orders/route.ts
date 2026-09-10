@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isAdminRequest } from "@/lib/admin-auth";
 import { OrderStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
@@ -29,10 +30,7 @@ async function hasProductColorColumn() {
 }
 
 export async function GET(req: Request) {
-  const authHeader = req.headers.get("x-admin-secret");
-  const serverSecret = process.env.HADX_ADMIN_SECRET;
-
-  if (!serverSecret || authHeader !== serverSecret) {
+  if (!isAdminRequest(req)) {
     return NextResponse.json({ error: "Access Denied" }, { status: 401 });
   }
 
@@ -74,7 +72,16 @@ export async function GET(req: Request) {
             product: { select: { id: true, title: true, imageUrl: true, sku: true } },
           },
         });
-    return NextResponse.json({ orders: orders.map(restoreLegacyColor) });
+    const items = orders.map(restoreLegacyColor);
+    return NextResponse.json({
+      items,
+      orders: items,
+      total: items.length,
+      page: 1,
+      pageSize: items.length,
+      hasMore: false,
+      nextCursor: null,
+    });
   } catch (error) {
     console.error("Order list error:", error);
     return NextResponse.json({ error: "Unable to load orders" }, { status: 500 });
@@ -82,9 +89,7 @@ export async function GET(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  const authHeader = req.headers.get("x-admin-secret");
-  const serverSecret = process.env.HADX_ADMIN_SECRET;
-  if (!serverSecret || authHeader !== serverSecret) {
+  if (!isAdminRequest(req)) {
     return NextResponse.json({ error: "Access Denied" }, { status: 401 });
   }
 
