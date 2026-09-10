@@ -41,7 +41,6 @@ function parseCheckoutLines(body: any): CheckoutLine[] {
 }
 
 export async function POST(req: Request) {
-  const diagnostic = new URL(req.url).searchParams.get("diagnostic") === "1";
   try {
     const body = await req.json();
     const { fullName, email, phone, address, city, country, currency, paymentMethod: requestedPaymentMethod, useStripe = false } = body;
@@ -219,9 +218,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, message: "Order placed successfully.", orderId: orders[0].id, orderIds: orders.map((order) => order.id), orderReference: groupReference, itemCount: pricedLines.length });
   } catch (err: any) {
     console.error("Checkout error:", err);
-    return NextResponse.json(
-      { error: diagnostic ? String(err?.message || err) : "We could not place your order right now. Please try again." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "We could not place your order right now. Please try again." }, { status: 500 });
   }
 }
