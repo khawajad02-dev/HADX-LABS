@@ -206,6 +206,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, message: "Order placed successfully.", orderId: orders[0].id, orderIds: orders.map((order) => order.id), orderReference: groupReference, itemCount: pricedLines.length });
   } catch (err: any) {
     console.error("Checkout error:", err);
-    return NextResponse.json({ error: err.message || "Failed to process checkout." }, { status: 500 });
+    return NextResponse.json({ error: "We could not place your order right now. Please try again." }, { status: 500 });
   }
 }
