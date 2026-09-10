@@ -16,16 +16,16 @@ function restoreLegacyColor(order: any) {
 }
 
 async function hasProductColorColumn() {
-  const result = await prisma.$queryRawUnsafe<Array<{ exists: boolean }>>(`
+  const result = await prisma.$queryRawUnsafe<Array<{ column_exists: boolean }>>(`
     SELECT EXISTS (
       SELECT 1
       FROM information_schema.columns
       WHERE table_schema = current_schema()
         AND table_name = 'Order'
         AND column_name = 'productColor'
-    ) AS exists
+    ) AS column_exists
   `);
-  return Boolean(result[0]?.exists);
+  return Boolean(result[0]?.column_exists);
 }
 
 export async function GET(req: Request) {
