@@ -88,13 +88,13 @@ export default function CheckoutPage({
       const data = await res.json();
 
       if (res.status === 503) {
-        setInlineMessage(data.error || 'Card payment is not activated yet. Please choose Cash on Delivery where available.');
+        setInlineMessage(data.error || 'Card payment is not activated yet.');
+        setModalState('payment_failed');
         return;
       }
 
       if (res.ok && data.success) {
         setActiveOrderId(data.orderId || `HADX-${Math.floor(100000 + Math.random() * 900000)}`);
-        onOrderComplete?.();
         setModalState('order_confirmed');
       } else {
         console.error('Checkout failed:', data.error);
@@ -114,6 +114,12 @@ export default function CheckoutPage({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const closeModal = () => {
+    const wasConfirmed = modalState === 'order_confirmed';
+    setModalState(null);
+    if (wasConfirmed) onOrderComplete?.();
   };
 
   return (
@@ -318,9 +324,9 @@ export default function CheckoutPage({
       <CheckoutVideoModal
         state={modalState}
         orderId={activeOrderId}
-        onClose={() => setModalState(null)}
+        onClose={closeModal}
         onRetry={() => {
-          setModalState(null);
+          closeModal();
         }}
       />
     </div>
