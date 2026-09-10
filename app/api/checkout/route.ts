@@ -108,34 +108,46 @@ export async function POST(req: Request) {
 
     orders = await prisma.$transaction(async (tx) => {
       const createdOrders = [];
+      const productColorColumn = Boolean((await tx.$queryRawUnsafe<Array<{ exists: boolean }>>(`
+        SELECT EXISTS (
+          SELECT 1
+          FROM information_schema.columns
+          WHERE table_schema = current_schema()
+            AND table_name = 'Order'
+            AND column_name = 'productColor'
+        ) AS exists
+      `))[0]?.exists);
+
       for (let index = 0; index < pricedLines.length; index += 1) {
         const line = pricedLines[index];
-        createdOrders.push(await tx.order.create({
-          data: {
-            id: randomUUID(),
-            orderReference: `${groupReference}-${index + 1}`,
-            fullName: String(fullName).trim(),
-            email: String(email).trim(),
-            phone: String(phone).trim(),
-            address: String(address).trim(),
-            city: String(city).trim(),
-            country: normalizedCountry,
-            size: line.size,
-            productColor: line.color || null,
-            productId: line.product.id,
-            productSku: line.product.sku,
-            productTitle: line.product.title,
-            unitPriceInCents: line.unitPriceInCents,
-            quantity: line.quantity,
-            totalAmountInCents: line.totalAmountInCents,
-            currency: orderCurrency,
-            paymentMethod: selectedPaymentMethod as PaymentMethod,
-            paymentStatus: (selectedPaymentMethod === "CARD" ? "PENDING_PAYMENT" : "UNPAID_COD") as PaymentStatus,
-            orderStatus: (selectedPaymentMethod === "COD" ? "CONFIRMED" : "RESERVED") as OrderStatus,
-            confirmedAt: selectedPaymentMethod === "COD" ? new Date() : null,
-            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-          },
-        }));
+        const legacyTitle = line.color ? `${line.product.title} · Color: ${line.color}` : line.product.title;
+        const orderData: any = {
+          id: randomUUID(),
+          orderReference: `${groupReference}-${index + 1}`,
+          fullName: String(fullName).trim(),
+          email: String(email).trim(),
+          phone: String(phone).trim(),
+          address: String(address).trim(),
+          city: String(city).trim(),
+          country: normalizedCountry,
+          size: line.size,
+          productId: line.product.id,
+          productSku: line.product.sku,
+          // Keep the selected color visible even during a deployment where the
+          // productColor migration has not reached the live database yet.
+          productTitle: productColorColumn ? line.product.title : legacyTitle,
+          unitPriceInCents: line.unitPriceInCents,
+          quantity: line.quantity,
+          totalAmountInCents: line.totalAmountInCents,
+          currency: orderCurrency,
+          paymentMethod: selectedPaymentMethod as PaymentMethod,
+          paymentStatus: (selectedPaymentMethod === "CARD" ? "PENDING_PAYMENT" : "UNPAID_COD") as PaymentStatus,
+          orderStatus: (selectedPaymentMethod === "COD" ? "CONFIRMED" : "RESERVED") as OrderStatus,
+          confirmedAt: selectedPaymentMethod === "COD" ? new Date() : null,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        };
+        if (productColorColumn) orderData.productColor = line.color || null;
+        createdOrders.push(await tx.order.create({ data: orderData }));
       }
       for (const [productId, quantity] of Array.from(stockByProduct.entries())) {
         const currentProduct = await tx.product.findUnique({ where: { id: productId } });
