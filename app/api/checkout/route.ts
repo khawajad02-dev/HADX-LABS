@@ -108,15 +108,15 @@ export async function POST(req: Request) {
 
     orders = await prisma.$transaction(async (tx) => {
       const createdOrders = [];
-      const productColorColumn = Boolean((await tx.$queryRawUnsafe<Array<{ exists: boolean }>>(`
+      const productColorColumn = Boolean((await tx.$queryRawUnsafe<Array<{ column_exists: boolean }>>(`
         SELECT EXISTS (
           SELECT 1
           FROM information_schema.columns
           WHERE table_schema = current_schema()
             AND table_name = 'Order'
             AND column_name = 'productColor'
-        ) AS exists
-      `))[0]?.exists);
+        ) AS column_exists
+      `))[0]?.column_exists);
 
       for (let index = 0; index < pricedLines.length; index += 1) {
         const line = pricedLines[index];
