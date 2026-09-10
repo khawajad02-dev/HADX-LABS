@@ -131,7 +131,7 @@ export async function POST(req: Request) {
           'id', 'orderReference', 'fullName', 'email', 'phone', 'address',
           'productId', 'productSku', 'productTitle', 'unitPriceInCents', 'quantity',
           'totalAmountInCents', 'currency', 'paymentMethod', 'paymentStatus',
-          'orderStatus', 'confirmedAt', 'expiresAt',
+          'orderStatus', 'confirmedAt', 'expiresAt', 'createdAt', 'updatedAt',
         ];
         const placeholders = [
           addValue(randomUUID()), addValue(`${groupReference}-${index + 1}`),
@@ -146,6 +146,7 @@ export async function POST(req: Request) {
           `${addValue(selectedPaymentMethod === "COD" ? "CONFIRMED" : "RESERVED")}::"OrderStatus"`,
           addValue(selectedPaymentMethod === "COD" ? new Date() : null),
           addValue(new Date(Date.now() + 24 * 60 * 60 * 1000)),
+          addValue(new Date()), addValue(new Date()),
         ];
         const optionalValues: Record<string, unknown> = {
           city: String(city).trim(), country: normalizedCountry, size: line.size, productColor: line.color || null,
