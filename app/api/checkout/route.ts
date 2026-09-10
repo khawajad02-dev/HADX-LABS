@@ -71,16 +71,22 @@ export async function POST(req: Request) {
       if (!product) return NextResponse.json({ error: "One or more products are no longer available." }, { status: 404 });
       const parsed = decodeProductDescription(product.description);
       const variants = parsed.metadata.colorVariants || [];
+      const requestedColor = line.color?.trim().toLowerCase();
       const selectedVariant = variants.length
-        ? (line.color
-          ? variants.find((variant) => variant.name.trim().toLowerCase() === line.color.trim().toLowerCase())
+        ? (requestedColor
+          ? variants.find((variant) => variant.name.trim().toLowerCase() === requestedColor)
           : variants.find((variant) => variant.name.trim().toLowerCase() === "black") || variants[0])
         : undefined;
-      if (variants.length && !selectedVariant) return NextResponse.json({ error: `${product.title} does not offer color ${line.color}.` }, { status: 400 });
-      const availableSizes = normalizeProductSizes(selectedVariant?.sizes?.length ? selectedVariant.sizes : parsed.metadata.sizes);
-      if (!availableSizes.includes(line.size)) return NextResponse.json({ error: `${product.title} does not offer size ${line.size}${selectedVariant ? ` in ${selectedVariant.name}` : ""}.` }, { status: 400 });
-      if (selectedVariant?.stockBySize && selectedVariant.stockBySize[line.size] === 0) return NextResponse.json({ error: `${product.title} is sold out in ${selectedVariant.name}, size ${line.size}.` }, { status: 400 });
-      const normalizedLine: CheckoutLine = { ...line, color: selectedVariant?.name || line.color };
+      // Older cart entries may carry the default "Black" value even when this
+      // product has no Black variant. Treat that value as an omitted optional
+      // color instead of blocking a valid COD order.
+      const ignoredLegacyColor = Boolean(variants.length && requestedColor === "black" && !selectedVariant);
+      if (variants.length && !selectedVariant && !ignoredLegacyColor) return NextResponse.json({ error: `${product.title} does not offer color ${line.color}.` }, { status: 400 });
+      const effectiveVariant = selectedVariant || undefined;
+      const availableSizes = normalizeProductSizes(effectiveVariant?.sizes?.length ? effectiveVariant.sizes : parsed.metadata.sizes);
+      if (!availableSizes.includes(line.size)) return NextResponse.json({ error: `${product.title} does not offer size ${line.size}${effectiveVariant ? ` in ${effectiveVariant.name}` : ""}.` }, { status: 400 });
+      if (effectiveVariant?.stockBySize && effectiveVariant.stockBySize[line.size] === 0) return NextResponse.json({ error: `${product.title} is sold out in ${effectiveVariant.name}, size ${line.size}.` }, { status: 400 });
+      const normalizedLine: CheckoutLine = { ...line, color: effectiveVariant?.name || (ignoredLegacyColor ? undefined : line.color) };
       const orderCurrency = (requestedCurrency || product.currency) as Currency;
       const regionalPrice = parsed.metadata.regionalPrices?.[orderCurrency as "USD" | "PKR" | "INR"];
       const unitPriceInCents = regionalPrice !== undefined ? Math.round(regionalPrice * 100) : requestedCurrency ? null : product.priceInCents;
@@ -115,6 +121,7 @@ export async function POST(req: Request) {
             city: String(city).trim(),
             country: normalizedCountry,
             size: line.size,
+            productColor: line.color || null,
             productId: line.product.id,
             productSku: line.product.sku,
             productTitle: line.product.title,
@@ -124,7 +131,8 @@ export async function POST(req: Request) {
             currency: orderCurrency,
             paymentMethod: selectedPaymentMethod as PaymentMethod,
             paymentStatus: (selectedPaymentMethod === "CARD" ? "PENDING_PAYMENT" : "UNPAID_COD") as PaymentStatus,
-            orderStatus: "RESERVED" as OrderStatus,
+            orderStatus: (selectedPaymentMethod === "COD" ? "CONFIRMED" : "RESERVED") as OrderStatus,
+            confirmedAt: selectedPaymentMethod === "COD" ? new Date() : null,
             expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
           },
         }));
