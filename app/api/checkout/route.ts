@@ -122,33 +122,44 @@ export async function POST(req: Request) {
       for (let index = 0; index < pricedLines.length; index += 1) {
         const line = pricedLines[index];
         const legacyTitle = line.color ? `${line.product.title} · Color: ${line.color}` : line.product.title;
-        const orderData: any = {
-          id: randomUUID(),
-          orderReference: `${groupReference}-${index + 1}`,
-          fullName: String(fullName).trim(),
-          email: String(email).trim(),
-          phone: String(phone).trim(),
-          address: String(address).trim(),
-          productId: line.product.id,
-          productSku: line.product.sku,
-          // Keep the selected color visible even during a deployment where the
-          // productColor migration has not reached the live database yet.
-          productTitle: optionalOrderColumns.has('productColor') ? line.product.title : legacyTitle,
-          unitPriceInCents: line.unitPriceInCents,
-          quantity: line.quantity,
-          totalAmountInCents: line.totalAmountInCents,
-          currency: orderCurrency,
-          paymentMethod: selectedPaymentMethod as PaymentMethod,
-          paymentStatus: (selectedPaymentMethod === "CARD" ? "PENDING_PAYMENT" : "UNPAID_COD") as PaymentStatus,
-          orderStatus: (selectedPaymentMethod === "COD" ? "CONFIRMED" : "RESERVED") as OrderStatus,
-          confirmedAt: selectedPaymentMethod === "COD" ? new Date() : null,
-          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        const values: unknown[] = [];
+        const addValue = (value: unknown) => {
+          values.push(value);
+          return `$${values.length}`;
         };
-        if (optionalOrderColumns.has('city')) orderData.city = String(city).trim();
-        if (optionalOrderColumns.has('country')) orderData.country = normalizedCountry;
-        if (optionalOrderColumns.has('size')) orderData.size = line.size;
-        if (optionalOrderColumns.has('productColor')) orderData.productColor = line.color || null;
-        createdOrders.push(await tx.order.create({ data: orderData }));
+        const columns = [
+          'id', 'orderReference', 'fullName', 'email', 'phone', 'address',
+          'productId', 'productSku', 'productTitle', 'unitPriceInCents', 'quantity',
+          'totalAmountInCents', 'currency', 'paymentMethod', 'paymentStatus',
+          'orderStatus', 'confirmedAt', 'expiresAt',
+        ];
+        const placeholders = [
+          addValue(randomUUID()), addValue(`${groupReference}-${index + 1}`),
+          addValue(String(fullName).trim()), addValue(String(email).trim()),
+          addValue(String(phone).trim()), addValue(String(address).trim()),
+          addValue(line.product.id), addValue(line.product.sku),
+          addValue(optionalOrderColumns.has('productColor') ? line.product.title : legacyTitle),
+          addValue(line.unitPriceInCents), addValue(line.quantity),
+          addValue(line.totalAmountInCents), `${addValue(orderCurrency)}::"Currency"`,
+          `${addValue(selectedPaymentMethod)}::"PaymentMethod"`,
+          `${addValue(selectedPaymentMethod === "CARD" ? "PENDING_PAYMENT" : "UNPAID_COD")}::"PaymentStatus"`,
+          `${addValue(selectedPaymentMethod === "COD" ? "CONFIRMED" : "RESERVED")}::"OrderStatus"`,
+          addValue(selectedPaymentMethod === "COD" ? new Date() : null),
+          addValue(new Date(Date.now() + 24 * 60 * 60 * 1000)),
+        ];
+        const optionalValues: Record<string, unknown> = {
+          city: String(city).trim(), country: normalizedCountry, size: line.size, productColor: line.color || null,
+        };
+        for (const column of ['city', 'country', 'size', 'productColor']) {
+          if (!optionalOrderColumns.has(column)) continue;
+          columns.push(column);
+          placeholders.push(addValue(optionalValues[column]));
+        }
+        await tx.$executeRawUnsafe(
+          `INSERT INTO "Order" (${columns.map((column) => `"${column}"`).join(', ')}) VALUES (${placeholders.join(', ')})`,
+          ...values,
+        );
+        createdOrders.push({ id: values[0], orderReference: values[1] });
       }
       for (const [productId, quantity] of Array.from(stockByProduct.entries())) {
         const currentProduct = await tx.product.findUnique({ where: { id: productId } });
