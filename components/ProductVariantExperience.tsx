@@ -80,6 +80,7 @@ export default function ProductVariantExperience({
 }: ProductVariantExperienceProps) {
   const storefrontVariants = buildStorefrontVariants(colorVariants, imageUrl, media, availableSizes, stockBySize);
   const [selectedColor, setSelectedColor] = useState(() => {
+    if (storefrontVariants.length > 1) return "";
     const black = storefrontVariants.find((variant) => variantKey(variant.name) === "black");
     return black?.name || storefrontVariants[0]?.name || "";
   });
@@ -88,8 +89,9 @@ export default function ProductVariantExperience({
   const selectedImage = selectedVariant?.media?.[0]?.url || imageUrl || null;
 
   useEffect(() => {
-    if (!selectedVariant && storefrontVariants.length) setSelectedColor(storefrontVariants[0].name);
-  }, [selectedVariant, storefrontVariants]);
+    if (!selectedColor && storefrontVariants.length === 1) setSelectedColor(storefrontVariants[0].name);
+    if (selectedColor && !selectedVariant && storefrontVariants.length === 1) setSelectedColor(storefrontVariants[0].name);
+  }, [selectedColor, selectedVariant, storefrontVariants]);
 
   return (
     <>

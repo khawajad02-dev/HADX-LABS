@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
 import CheckoutPage from "@/components/CheckoutPage";
 import { CheckoutVideoModal, type CheckoutState } from "@/components/CheckoutVideoModal";
@@ -9,6 +10,7 @@ import { cartItemKey, type CartItem } from "@/lib/cart";
 type Currency = "USD" | "PKR" | "INR";
 
 export default function CheckoutEntry() {
+  const router = useRouter();
   const { items: cartItems, hydrated, clearCart } = useCart();
   const [directItem, setDirectItem] = useState<CartItem | null>(null);
   const [directLoading, setDirectLoading] = useState(false);
@@ -64,5 +66,12 @@ export default function CheckoutEntry() {
     return <><main className="min-h-screen bg-transparent px-6 pt-36 text-center text-white"><p className="font-mono text-xs uppercase tracking-widest text-zinc-400">Your loadout is empty. Add a product and size before checkout.</p><a href="/catalog#catalog" className="liquid-ui mt-8 inline-flex rounded-full px-5 py-3 text-xs font-mono uppercase tracking-widest text-amber-100">Return to catalog</a></main>{networkVideo}</>;
   }
 
-  return <><CheckoutPage items={items} initialCountry={initialCountry} onOrderComplete={clearCart} />{networkVideo}</>;
+  const returnToProduct = () => {
+    const sku = items[0]?.sku;
+    clearCart();
+    if (sku) router.push(`/product/${encodeURIComponent(sku)}?currency=${activeCurrency}`);
+    else router.push("/catalog#catalog");
+  };
+
+  return <><CheckoutPage items={items} initialCountry={initialCountry} onOrderComplete={returnToProduct} />{networkVideo}</>;
 }

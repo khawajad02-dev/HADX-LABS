@@ -72,6 +72,9 @@ export async function POST(req: Request) {
       const parsed = decodeProductDescription(product.description);
       const variants = parsed.metadata.colorVariants || [];
       const requestedColor = line.color?.trim().toLowerCase();
+      if (variants.length > 1 && !requestedColor) {
+        return NextResponse.json({ error: `Select a color for ${product.title} before checkout.` }, { status: 400 });
+      }
       const selectedVariant = variants.length
         ? (requestedColor
           ? variants.find((variant) => variant.name.trim().toLowerCase() === requestedColor)

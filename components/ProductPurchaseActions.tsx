@@ -49,6 +49,10 @@ export default function ProductPurchaseActions({
   }, [selectedColor]);
 
   const addToCart = (checkoutAfterAdd = false) => {
+    if (colorVariants.length > 1 && !selectedColor.trim()) {
+      setNotice("Select a color before adding this piece.");
+      return;
+    }
     if (!selectedSize) {
       setNotice("Select a size before adding this piece.");
       return;
