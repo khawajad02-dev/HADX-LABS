@@ -891,8 +891,9 @@ body {
 .reference-product-media { display: block; width: 80%; height: min(75%, calc(100% - 4.5rem)); max-width: 80%; max-height: min(75%, calc(100% - 4.5rem)); min-height: 0; object-fit: contain; object-position: center bottom; mix-blend-mode: normal; filter: drop-shadow(0 1.2rem 1rem rgba(0,0,0,0.42)) drop-shadow(0 0 1.2rem var(--reference-glow, rgba(216,169,79,0.12))); -webkit-mask-image: radial-gradient(ellipse 68% 76% at 50% 47%, #000 70%, rgba(0,0,0,0.82) 87%, transparent 100%); mask-image: radial-gradient(ellipse 68% 76% at 50% 47%, #000 70%, rgba(0,0,0,0.82) 87%, transparent 100%); transform: scale(1); transform-origin: center bottom; transition: filter 450ms ease; }
 .reference-product-layer.is-active .reference-product-media { width: 80%; height: min(75%, calc(100% - 4.5rem)); max-width: 80%; max-height: min(75%, calc(100% - 4.5rem)); transform: scale(1); filter: drop-shadow(0 1.7rem 1.2rem rgba(0,0,0,0.5)) drop-shadow(0 0 1.5rem var(--reference-glow, rgba(216,169,79,0.16))); }
 .reference-empty-media { color: rgba(255,255,255,0.32); font: 0.52rem/1 var(--font-mono), ui-monospace, monospace; letter-spacing: 0.18em; }
-.reference-exchange-orbit { position: absolute; z-index: 2; left: 50%; top: 22%; width: min(25rem, 88%); height: 7rem; transform: translateX(-50%); border: 1px solid color-mix(in srgb, var(--reference-glow, #d8a94f) 64%, white 36%); border-radius: 50%; box-shadow: 0 0 2rem var(--reference-glow, rgba(216,169,79,0.12)); pointer-events: none; transition: border-color 500ms ease, box-shadow 500ms ease; }
-.reference-exchange-orbit::after { content: ""; position: absolute; left: 8%; right: 8%; top: 50%; height: 1px; background: linear-gradient(90deg, transparent, rgba(234,187,96,0.42), transparent); }
+.reference-exchange-orbit { position: absolute; z-index: 2; left: 50%; top: 8%; width: min(23rem, 80%); aspect-ratio: 1; transform: translateX(-50%); border: 1px solid color-mix(in srgb, var(--reference-glow, #d8a94f) 54%, white 46%); border-radius: 50%; box-shadow: 0 0 2rem var(--reference-glow, rgba(216,169,79,0.1)); pointer-events: none; opacity: 0.58; transition: border-color 500ms ease, box-shadow 500ms ease; }
+.reference-exchange-orbit::before { content: "HADX LABS"; position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255,239,196,0.14); font: 0.42rem/1 var(--font-mono), ui-monospace, monospace; letter-spacing: 0.55em; text-indent: 0.55em; transform: rotate(-18deg); }
+.reference-exchange-orbit::after { content: ""; position: absolute; left: 8%; right: 8%; top: 50%; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--reference-glow, #d8a94f) 54%, white 46%), transparent); }
 .reference-pedestal { position: absolute; z-index: 0; bottom: 2.6rem; left: 50%; width: min(23rem, 86%); height: 4.6rem; transform: translateX(-50%); filter: drop-shadow(0 1rem 1.6rem rgba(0,0,0,0.24)); }
 .reference-pedestal-top { position: absolute; left: 6%; right: 6%; top: 0; height: 2.25rem; border: 1px solid rgba(234,187,96,0.24); border-radius: 50%; background: radial-gradient(ellipse at center, color-mix(in srgb, var(--reference-glow, #d8a94f) 16%, transparent), transparent 58%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 1.8rem color-mix(in srgb, var(--reference-glow, #d8a94f) 30%, transparent); }
 .reference-pedestal-base { position: absolute; left: 13%; right: 13%; bottom: 0; height: 2.8rem; border: 1px solid rgba(255,255,255,0.08); border-top: 0; border-radius: 0 0 50% 50% / 0 0 35% 35%; background: transparent; box-shadow: inset 0 1px 0 rgba(255,255,255,0.045); }
@@ -1126,7 +1127,10 @@ body {
 
 .catalog-filter {
   color: rgba(255, 247, 231, 0.72) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 16px rgba(212,175,55,0.035) !important;
+  background: rgba(5, 5, 5, 0.06) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 0 16px rgba(212,175,55,0.025) !important;
+  -webkit-backdrop-filter: blur(2px) saturate(110%);
+  backdrop-filter: blur(2px) saturate(110%);
 }
 
 .catalog-filter.is-selected,
@@ -1142,10 +1146,10 @@ body {
 }
 
 .catalog-product-card {
-  background: rgba(15, 15, 15, 0.2) !important;
+  background: rgba(5, 5, 5, 0.055) !important;
   border-color: rgba(212, 175, 55, 0.18) !important;
-  -webkit-backdrop-filter: blur(10px) saturate(135%);
-  backdrop-filter: blur(10px) saturate(135%);
+  -webkit-backdrop-filter: blur(2px) saturate(110%);
+  backdrop-filter: blur(2px) saturate(110%);
 }
 
 .catalog-product-card:hover {
@@ -1155,7 +1159,15 @@ body {
 
 .catalog-media-frame {
   border: 1px solid rgba(212, 175, 55, 0.16);
-  background: linear-gradient(135deg, rgba(255,255,255,0.045), rgba(15,15,15,0.16) 48%, rgba(212,175,55,0.04));
+  background: transparent;
+}
+
+.catalog-sort-select .hadx-select-trigger,
+.catalog-sort-select .hadx-select-menu,
+.catalog-sort-select .hadx-select-option {
+  background: rgba(5, 5, 5, 0.06) !important;
+  -webkit-backdrop-filter: blur(2px) saturate(110%);
+  backdrop-filter: blur(2px) saturate(110%);
 }
 
 .catalog-product-title {
