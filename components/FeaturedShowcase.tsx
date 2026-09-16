@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState, type CSSProperties, type PointerEvent } from "react";
 import { motion, type PanInfo } from "framer-motion";
 
 import StorefrontSearch from "@/components/StorefrontSearch";
@@ -24,6 +24,7 @@ export type Product = {
 type DisplayCurrency = "USD" | "PKR" | "INR";
 const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL"];
 const GOLD = "#d8a94f";
+const DROP_GLOWS = ["rgba(216,169,79,0.28)", "rgba(111,166,255,0.24)", "rgba(220,92,128,0.23)", "rgba(137,103,255,0.24)"];
 
 function formatMoney(product: Product) {
   const prefix = product.currency === "PKR" ? "PKR" : product.currency === "INR" ? "₹" : "$";
@@ -87,6 +88,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [direction, setDirection] = useState<1 | -1>(1);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const active = products[activeIndex] || products[0];
   const sizes = active?.availableSizes?.length ? active.availableSizes : DEFAULT_SIZES;
   const stockForSize = (size: string) => active?.stockBySize?.[size];
@@ -121,8 +123,13 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
 
   const stageStyle = {
     "--reference-accent": GOLD,
+    "--reference-glow": DROP_GLOWS[activeIndex % DROP_GLOWS.length],
     "--reference-index": activeIndex,
   } as CSSProperties;
+  const updateTilt = (event: PointerEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setTilt({ x: ((event.clientY - rect.top) / rect.height - 0.5) * -7, y: ((event.clientX - rect.left) / rect.width - 0.5) * 9 });
+  };
 
   return (
     <section className="reference-hero-shell" style={stageStyle} aria-label="HADX LABS featured collection">
@@ -163,11 +170,9 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
           <div className="reference-product-stage">
             <div className="reference-halo" aria-hidden="true" />
             <div className="reference-exchange-orbit" aria-hidden="true" />
-            <motion.div className="reference-stage-track" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0} onDragEnd={onDragEnd} style={{ perspective: "1200px", transformStyle: "preserve-3d" }}>
+            <motion.div className="reference-stage-track" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0} onDragEnd={onDragEnd} onPointerMove={updateTilt} onPointerLeave={() => setTilt({ x: 0, y: 0 })} style={{ perspective: "1200px", transformStyle: "preserve-3d" }}>
               {stageProducts.map(({ product, offset, position }) => {
                 const isActive = offset === 0;
-                const isEntering = !isActive && offset === direction;
-                const handoffPosition = position;
                 return (
                   <motion.button
                     key={product.id}
@@ -175,7 +180,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
                     aria-label={`Show ${product.title}`}
                     className={`reference-product-layer ${isActive ? "is-active" : "is-secondary"}`}
                     initial={false}
-                    animate={position}
+                    animate={isActive ? { ...position, rotateX: tilt.x, rotateY: tilt.y } : position}
                     transition={{
                       type: "spring",
                       stiffness: 210,
