@@ -19,12 +19,14 @@ export type ProductColorVariant = {
   sizes?: string[];
   stockBySize?: Record<string, number>;
 };
+export type SizeMeasurement = { chest?: number; length?: number; shoulder?: number };
 export type ProductDrop = { active: boolean; text?: string; startsAt?: string; endsAt?: string };
 export type ProductMetadata = {
   media?: ProductMedia[];
   regionalPrices?: RegionalPrices;
   sizes?: string[];
   stockBySize?: Record<string, number>;
+  measurementsBySize?: Record<string, SizeMeasurement>;
   drop?: ProductDrop;
   colorVariants?: ProductColorVariant[];
 };
@@ -115,6 +117,7 @@ export function serializeProduct<T extends { description?: string | null; imageU
     regionalPrices: parsed.metadata.regionalPrices || {},
     availableSizes: normalizeProductSizes(parsed.metadata.sizes),
     stockBySize: parsed.metadata.stockBySize || {},
+    measurementsBySize: parsed.metadata.measurementsBySize || {},
     drop: parsed.metadata.drop?.active ? parsed.metadata.drop : null,
     colorVariants: normalizeProductColorVariants(parsed.metadata.colorVariants),
   };

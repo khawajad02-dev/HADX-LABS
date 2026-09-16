@@ -58,6 +58,8 @@ export async function POST(req: Request) {
     const sizes = normalizeProductSizes(body?.sizes);
     const rawStockBySize = body?.stockBySize && typeof body.stockBySize === "object" ? body.stockBySize as Record<string, unknown> : {};
     const stockBySize = Object.fromEntries(sizes.map((size) => [size, Math.max(0, Math.floor(Number(rawStockBySize[size]) || 0))]));
+    const rawMeasurements = body?.measurementsBySize && typeof body.measurementsBySize === "object" ? body.measurementsBySize as Record<string, unknown> : {};
+    const measurementsBySize = Object.fromEntries(sizes.map((size) => { const value = rawMeasurements[size] && typeof rawMeasurements[size] === "object" ? rawMeasurements[size] as Record<string, unknown> : {}; return [size, { chest: Number(value.chest) || 0, length: Number(value.length) || 0, shoulder: Number(value.shoulder) || 0 }]; }));
     if (!title || !sku || !price) {
       return NextResponse.json({ error: "Title, SKU, and a valid USD base price are required." }, { status: 400 });
     }
@@ -65,7 +67,7 @@ export async function POST(req: Request) {
     const product = await prisma.product.create({
       data: {
         title,
-        description: encodeProductDescription(body?.description, { media, regionalPrices, sizes, stockBySize, drop: normalizeDrop(body?.drop), colorVariants: normalizeColorVariants(body?.colorVariants) }),
+        description: encodeProductDescription(body?.description, { media, regionalPrices, sizes, stockBySize, measurementsBySize, drop: normalizeDrop(body?.drop), colorVariants: normalizeColorVariants(body?.colorVariants) }),
         sku,
         priceInCents: Math.round(price * 100),
         currency: body?.currency === "PKR" ? "PKR" : body?.currency === "EUR" ? "EUR" : "USD",

@@ -25,6 +25,7 @@ export interface Product {
 
 interface CatalogGridProps {
   products?: Product[];
+  allowRegionalCurrency?: boolean;
 }
 
 function normalizeSearch(value: string) {
@@ -54,7 +55,7 @@ function fuzzyMatches(product: Product, rawQuery: string) {
   return query.split(" ").every((term) => fields.some((field) => field.split(" ").some((word) => word.startsWith(term) || editDistance(term, word) <= Math.max(1, Math.floor(term.length / 4)))));
 }
 
-function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
+function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true }: CatalogGridProps) {
   const [productList, setProductList] = useState<Product[]>(initialProducts || []);
   const [loading, setLoading] = useState<boolean>(!initialProducts || initialProducts.length === 0);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -70,7 +71,7 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
   }, []);
 
   useEffect(() => {
-    const requestedCurrency = new URLSearchParams(window.location.search).get("currency")?.toUpperCase();
+    const requestedCurrency = allowRegionalCurrency ? new URLSearchParams(window.location.search).get("currency")?.toUpperCase() : "USD";
     if (requestedCurrency === "PKR" || requestedCurrency === "INR" || requestedCurrency === "USD") setDisplayCurrency(requestedCurrency);
   }, []);
 
@@ -153,7 +154,7 @@ function CatalogGrid({ products: initialProducts }: CatalogGridProps) {
         </div>
 
           <div className="flex flex-wrap gap-2 items-center">
-            {["USD", "PKR", "INR"].map((currency) => <button key={currency} onClick={() => setDisplayCurrency(currency as "USD" | "PKR" | "INR")} className={`liquid-ui catalog-filter catalog-currency-filter px-3 py-1.5 rounded-full text-[10px] font-mono uppercase border ${displayCurrency === currency ? "is-selected" : ""}`}>{currency}</button>)}
+            {(allowRegionalCurrency ? ["USD", "PKR", "INR"] : ["USD"]).map((currency) => <button key={currency} onClick={() => setDisplayCurrency(currency as "USD" | "PKR" | "INR")} className={`liquid-ui catalog-filter catalog-currency-filter px-3 py-1.5 rounded-full text-[10px] font-mono uppercase border ${displayCurrency === currency ? "is-selected" : ""}`}>{currency}</button>)}
           </div>
 
           <CustomSelect

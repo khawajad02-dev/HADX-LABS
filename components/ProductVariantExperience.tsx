@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import ProductMediaGallery from "@/components/ProductMediaGallery";
 import ProductPurchaseActions from "@/components/ProductPurchaseActions";
 import type { ProductColorVariant, ProductMedia } from "@/lib/product-meta";
+import type { SizeMeasurement } from "@/components/SizeGuide";
 
 type ProductVariantExperienceProps = {
   productId: string;
@@ -16,6 +17,7 @@ type ProductVariantExperienceProps = {
   availableSizes: string[];
   stockBySize?: Record<string, number>;
   colorVariants: ProductColorVariant[];
+  measurementsBySize?: Record<string, SizeMeasurement>;
 };
 
 function variantKey(name: string) {
@@ -77,6 +79,7 @@ export default function ProductVariantExperience({
   availableSizes,
   stockBySize = {},
   colorVariants,
+  measurementsBySize = {},
 }: ProductVariantExperienceProps) {
   const storefrontVariants = buildStorefrontVariants(colorVariants, imageUrl, media, availableSizes, stockBySize);
   const [selectedColor, setSelectedColor] = useState(() => {
@@ -139,6 +142,7 @@ export default function ProductVariantExperience({
         stockBySize={stockBySize}
         selectedColor={selectedColor}
         onColorChange={setSelectedColor}
+        measurementsBySize={measurementsBySize}
       />
     </>
   );

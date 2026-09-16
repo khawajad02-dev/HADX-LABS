@@ -81,12 +81,14 @@ export default function IntroSplashScreen() {
             <video
               ref={videoRef}
               playsInline
-              preload="auto"
-              src="/videos/hadx_labs_intro.mp4"
+              preload="metadata"
               className="w-full h-full object-contain bg-black"
               onPlaying={() => setVideoStarted(true)}
               onEnded={handleDismiss}
-            />
+            >
+              <source src="/videos/hadx_labs_intro.webm" type="video/webm" />
+              <source src="/videos/hadx_labs_intro.mp4" type="video/mp4" />
+            </video>
           </div>
 
           {/* Skip Button */}

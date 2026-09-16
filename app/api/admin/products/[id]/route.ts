@@ -55,6 +55,11 @@ export async function PUT(req: Request, { params }: RouteContext) {
     const sizes = body?.sizes === undefined ? normalizeProductSizes(parsed.metadata.sizes) : normalizeProductSizes(body.sizes);
     const rawStockBySize = body?.stockBySize === undefined ? parsed.metadata.stockBySize || {} : (body.stockBySize && typeof body.stockBySize === "object" ? body.stockBySize as Record<string, unknown> : {});
     const stockBySize = Object.fromEntries(sizes.map((size) => [size, Math.max(0, Math.floor(Number(rawStockBySize[size]) || 0))]));
+    const rawMeasurements = body?.measurementsBySize === undefined ? parsed.metadata.measurementsBySize || {} : (body.measurementsBySize && typeof body.measurementsBySize === "object" ? body.measurementsBySize as Record<string, unknown> : {});
+    const measurementsBySize = Object.fromEntries(sizes.map((size) => {
+      const value = rawMeasurements[size] && typeof rawMeasurements[size] === "object" ? rawMeasurements[size] as Record<string, unknown> : {};
+      return [size, { chest: Number(value.chest) || 0, length: Number(value.length) || 0, shoulder: Number(value.shoulder) || 0 }];
+    }));
     const drop = body?.drop === undefined ? parsed.metadata.drop : body.drop;
     const colorVariants = body?.colorVariants === undefined ? parsed.metadata.colorVariants : body.colorVariants;
     const description = body?.description === undefined ? parsed.description : String(body.description || "").trim() || null;
@@ -63,7 +68,7 @@ export async function PUT(req: Request, { params }: RouteContext) {
       where: { id: params.id },
       data: {
         title,
-        description: encodeProductDescription(description, { media, regionalPrices, sizes, stockBySize, drop, colorVariants }),
+        description: encodeProductDescription(description, { media, regionalPrices, sizes, stockBySize, measurementsBySize, drop, colorVariants }),
         ...(body?.sku ? { sku: String(body.sku).trim() } : {}),
         priceInCents: Math.round(price * 100),
         ...(body?.imageUrl !== undefined || body?.media !== undefined ? { imageUrl: media[0]?.url || null } : {}),

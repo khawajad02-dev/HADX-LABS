@@ -18,6 +18,7 @@ export default function CheckoutPage({
   const [activeOrderId, setActiveOrderId] = useState<string>('HADX-984210');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [inlineMessage, setInlineMessage] = useState('');
+  const [selectedPayment, setSelectedPayment] = useState<'COD' | 'CARD'>('COD');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -36,7 +37,7 @@ export default function CheckoutPage({
   const isOtherCountry = formData.country.trim().toLowerCase() === 'other';
   const effectiveCountry = isOtherCountry ? otherCountry.trim() : formData.country.trim();
   const isPakistan = effectiveCountry.toLowerCase() === 'pakistan';
-  const paymentMethod = effectiveCountry ? (isPakistan ? 'COD' : 'CARD') : '';
+  const paymentMethod = effectiveCountry ? (isPakistan ? selectedPayment : 'CARD') : '';
   const paymentLabel = paymentMethod === 'COD' ? 'Cash on delivery' : paymentMethod === 'CARD' ? 'Card payment' : 'Select country first';
   const totalAmount = cartItems.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 0), 0);
 
@@ -296,6 +297,7 @@ export default function CheckoutPage({
             {paymentMethod === 'COD' ? <p className="mt-2 text-[11px] leading-5 text-white/55">Pakistan orders use Cash on Delivery only.</p> : null}
             {paymentMethod === 'CARD' ? <p className="mt-2 text-[11px] leading-5 text-white/55">Card checkout is used for India and international delivery.</p> : null}
             {!paymentMethod ? <p className="mt-2 text-[11px] leading-5 text-white/45">Choose your delivery country to set the correct payment route.</p> : null}
+            {isPakistan ? <div className="mt-4 grid grid-cols-2 gap-2"><button type="button" onClick={() => setSelectedPayment('COD')} className={`rounded-lg border px-3 py-2 text-[10px] font-mono uppercase tracking-wider ${selectedPayment === 'COD' ? 'border-amber-200 bg-amber-100/15 text-amber-100' : 'border-white/15 text-zinc-500'}`}>Cash on Delivery</button><button type="button" onClick={() => setSelectedPayment('CARD')} className={`rounded-lg border px-3 py-2 text-[10px] font-mono uppercase tracking-wider ${selectedPayment === 'CARD' ? 'border-amber-200 bg-amber-100/15 text-amber-100' : 'border-white/15 text-zinc-500'}`}>Card Payment</button></div> : null}
           </div>
 
           {inlineMessage ? <div role="alert" className="liquid-panel checkout-inline-message rounded-xl p-4 text-[11px] leading-5">{inlineMessage}</div> : null}

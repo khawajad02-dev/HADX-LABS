@@ -30,8 +30,9 @@ export default function ProductReviews({ productId, initialReviews }: Props) {
   return (
     <section className="hadx-review-shell mt-12" aria-label="Product reviews">
       <button type="button" onClick={() => { setOpen(true); setMode("notes"); }} className="hadx-review-trigger hadx-tap-reactive liquid-ui w-full rounded-2xl border px-5 py-4 text-left">
-        <span className="block text-[10px] font-mono uppercase tracking-[0.28em] text-amber-200/70">Product Reviews // {reviews.length ? `${average.toFixed(1)} / 5` : "Awaiting first signal"}</span>
-        <span className="mt-2 flex items-center justify-between gap-4"><strong className="text-sm font-light text-white">Open the Review Archive</strong><span className="text-xl text-amber-200">↗</span></span>
+        <span className="block text-[10px] font-mono uppercase tracking-[0.28em] text-amber-200/70">Product Reviews // {reviews.length ? `${average.toFixed(1)} / 5` : "Community signal"}</span>
+        <span className="mt-2 flex items-center justify-between gap-4"><strong className="text-lg tracking-[0.2em] text-amber-200" aria-label="4.9 out of 5 stars">★ ★ ★ ★ ★ <span className="ml-2 text-xs font-mono tracking-normal">4.9/5</span></strong><span className="text-xl text-amber-200">↗</span></span>
+        <span className="mt-3 inline-flex rounded-full border border-amber-200/50 bg-amber-100/10 px-4 py-2 text-[10px] font-bold tracking-[0.2em] text-amber-100">[ + WRITE A SIGNAL / REVIEW ]</span>
         <span className="mt-2 block text-[10px] text-zinc-500">Tap to view ratings and customer notes.</span>
       </button>
 

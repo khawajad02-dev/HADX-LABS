@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCart } from "@/components/CartProvider";
+import SizeGuide, { type SizeMeasurement } from "@/components/SizeGuide";
 
 const FALLBACK_SIZES = ["S", "M", "L", "XL", "XXL"];
 
@@ -18,6 +19,7 @@ type ProductPurchaseActionsProps = {
   colorVariants?: Array<{ name: string; sizes?: string[]; stockBySize?: Record<string, number> }>;
   selectedColor?: string;
   onColorChange?: (color: string) => void;
+  measurementsBySize?: Record<string, SizeMeasurement>;
 };
 
 export default function ProductPurchaseActions({
@@ -31,15 +33,21 @@ export default function ProductPurchaseActions({
   stockBySize = {},
   colorVariants = [],
   selectedColor = "",
+  measurementsBySize = {},
 }: ProductPurchaseActionsProps) {
   const router = useRouter();
   const { addItem } = useCart();
   const [selectedSize, setSelectedSize] = useState("");
   const [notice, setNotice] = useState("");
   const selectedVariant = colorVariants.find((variant) => variant.name.trim().toLowerCase() === selectedColor.trim().toLowerCase());
-  const sizes = (selectedVariant?.sizes?.length ? selectedVariant.sizes : availableSizes).length
-    ? selectedVariant?.sizes?.length ? selectedVariant.sizes : availableSizes
-    : FALLBACK_SIZES;
+  const configuredSizes = (selectedVariant?.sizes?.length ? selectedVariant.sizes : availableSizes);
+  const sizes = configuredSizes.filter((size) => {
+    const stock = selectedVariant?.stockBySize?.[size] ?? stockBySize[size];
+    return stock === undefined || stock > 0;
+  }).length ? configuredSizes.filter((size) => {
+    const stock = selectedVariant?.stockBySize?.[size] ?? stockBySize[size];
+    return stock === undefined || stock > 0;
+  }) : configuredSizes;
   const stockForSize = (size: string) => selectedVariant?.stockBySize?.[size] ?? stockBySize[size];
   const selectedStock = selectedSize ? stockForSize(selectedSize) : undefined;
 
@@ -111,6 +119,7 @@ export default function ProductPurchaseActions({
         </div>
         {selectedStock !== undefined ? <p className={`mt-2 text-[10px] font-mono uppercase tracking-widest ${selectedStock > 0 ? "text-emerald-300" : "text-red-300"}`}>{selectedStock > 0 ? `${selectedStock} available in this color` : "Sold out in this color"}</p> : null}
         {notice ? <p role="status" className="mt-2 text-[10px] font-mono uppercase tracking-widest text-amber-200">{notice}</p> : null}
+        <SizeGuide measurementsBySize={measurementsBySize} />
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <button type="button" onClick={() => addToCart(false)} className="liquid-ui hadx-tap-reactive rounded-full border border-amber-200/60 bg-amber-100/10 px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-amber-100 shadow-gold-glow transition-transform hover:scale-[1.02] active:scale-[0.98]">Add to Cart</button>

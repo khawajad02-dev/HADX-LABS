@@ -26,6 +26,14 @@ export default function CyberOrb() {
   }, []);
 
   const pulseLightning = () => setLightningPulse((current) => current + 1);
+  const copySignalLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setIsOpen(false);
+    } catch {
+      window.prompt("Copy signal link", window.location.href);
+    }
+  };
 
   const handleOrbPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -46,6 +54,7 @@ export default function CyberOrb() {
           >
             <Link href="/catalog#catalog" onClick={() => setIsOpen(false)} className="liquid-ui rounded-lg px-6 py-3 text-[11px] font-mono uppercase tracking-[0.2em] text-hadx-gold-light transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]">SHOP ALL DROPS</Link>
             <Link href="/favorites" onClick={() => setIsOpen(false)} className="liquid-ui rounded-lg px-6 py-3 text-[11px] font-mono uppercase tracking-[0.2em] text-hadx-gold-light transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]">FAVORITES</Link>
+            <button type="button" onClick={() => void copySignalLink()} className="liquid-ui min-h-12 rounded-lg px-6 py-3 text-[11px] font-mono uppercase tracking-[0.2em] text-hadx-gold-light transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]">SHARE / COPY SIGNAL LINK</button>
             <InstagramDMButton label="INSTAGRAM DM" />
             <AudioToggle />
           </motion.div>

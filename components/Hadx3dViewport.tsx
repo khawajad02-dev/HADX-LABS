@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,10 +18,15 @@ interface ViewportProps {
 }
 
 export default function Hadx3dViewport({ activeProduct, isInitialHero = true }: ViewportProps) {
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const updateTilt = (clientX: number, clientY: number, rect: DOMRect) => setTilt({ x: ((clientY - rect.top) / rect.height - 0.5) * -10, y: ((clientX - rect.left) / rect.width - 0.5) * 12 });
   return (
     <div
       className="relative w-full h-[55vh] rounded-3xl overflow-hidden flex items-center justify-center bg-[#05020c]"
       style={{ perspective: 1200, transformStyle: "preserve-3d" }}
+      onPointerMove={(event) => updateTilt(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect())}
+      onPointerLeave={() => setTilt({ x: 0, y: 0 })}
+      onTouchMove={(event) => { const touch = event.touches[0]; if (touch) updateTilt(touch.clientX, touch.clientY, event.currentTarget.getBoundingClientRect()); }}
     >
       {/* Dynamic Background Aura Transition Engine */}
       <div className={`absolute inset-0 bg-gradient-to-b ${activeProduct.brandColor} opacity-40 transition-all duration-700 ease-in-out z-0`} />
@@ -47,16 +52,12 @@ export default function Hadx3dViewport({ activeProduct, isInitialHero = true }: 
             animate={{
               scale: 1,
               opacity: 1,
-              y: [0, -8, 8, 0],
-              rotateY: [0, 5, -5, 0],
               transition: {
-                scale: { type: "spring", stiffness: 70, damping: 14 },
-                y: { repeat: Infinity, duration: 4, ease: "easeInOut" },
-                rotateY: { repeat: Infinity, duration: 6, ease: "easeInOut" }
+                scale: { type: "spring", stiffness: 70, damping: 14 }
               }
             }}
-            exit={{ scale: 0.4, opacity: 0, y: -20, transition: { duration: 0.3 } }}
-            style={{ transformStyle: "preserve-3d" }}
+            exit={{ scale: 0.4, opacity: 0, transition: { duration: 0.3 } }}
+            style={{ transformStyle: "preserve-3d", rotateX: tilt.x, rotateY: tilt.y, transition: "transform 180ms ease-out" }}
             className="relative w-72 h-72 flex items-center justify-center"
           >
             <div
@@ -70,7 +71,7 @@ export default function Hadx3dViewport({ activeProduct, isInitialHero = true }: 
               fill
               priority={isInitialHero}
               sizes="(max-width: 768px) 100vw, 288px"
-              className="object-contain filter drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]"
+              className="object-contain filter drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] animate-[pulse_4s_ease-in-out_infinite]"
             />
           </motion.div>
         </AnimatePresence>
