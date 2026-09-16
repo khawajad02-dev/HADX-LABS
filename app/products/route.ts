@@ -8,11 +8,8 @@ export const dynamic = "force-dynamic";
 type DisplayCurrency = "USD" | "PKR" | "INR";
 
 function requestCurrency(req: Request): DisplayCurrency {
-  const requested = new URL(req.url).searchParams.get("currency")?.toUpperCase();
-  if (requested === "USD" || requested === "PKR" || requested === "INR") return requested;
-  const country = (req.headers.get("x-vercel-ip-country") || req.headers.get("cf-ipcountry") || "").toUpperCase();
+  const country = (req.headers.get("x-hadx-geo-country") || req.headers.get("x-vercel-ip-country") || req.headers.get("cf-ipcountry") || "").toUpperCase();
   if (country === "PK") return "PKR";
-  if (country === "IN") return "INR";
   return "USD";
 }
 

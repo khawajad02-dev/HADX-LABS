@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { createPortal } from "react-dom";
 import { motion, type PanInfo } from "framer-motion";
 
-import CurrencySwitcher from "@/components/CurrencySwitcher";
 import StorefrontSearch from "@/components/StorefrontSearch";
 import GarmentMedia from "./GarmentMedia";
 
@@ -24,8 +22,6 @@ export type Product = {
 };
 
 type DisplayCurrency = "USD" | "PKR" | "INR";
-type HandoffGeometry = { left: number; top: number; width: number; height: number; src: string; mediaType: "image" | "video" };
-
 const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL"];
 const GOLD = "#d8a94f";
 
@@ -91,77 +87,12 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [direction, setDirection] = useState<1 | -1>(1);
-  const [handoffProgress, setHandoffProgress] = useState(0);
-  const [handoffGeometry, setHandoffGeometry] = useState<HandoffGeometry | null>(null);
   const active = products[activeIndex] || products[0];
   const sizes = active?.availableSizes?.length ? active.availableSizes : DEFAULT_SIZES;
   const stockForSize = (size: string) => active?.stockBySize?.[size];
   const displayCurrency = active?.currency || initialCurrency;
 
-  useEffect(() => {
-    if (!active) return;
-    const updateHandoff = () => {
-      const stage = document.querySelector<HTMLElement>('.reference-product-stage');
-      const target = document.querySelector<HTMLElement>(`[data-handoff-media="${active.id}"]`);
-      if (!stage) return;
-      const source = stage.querySelector<HTMLElement>('.reference-product-layer.is-active img, .reference-product-layer.is-active video');
-      if (!source || !target) {
-        setHandoffProgress(0);
-        setHandoffGeometry(null);
-        window.dispatchEvent(new CustomEvent('hadx:product-handoff', { detail: { productId: active.id, progress: 0 } }));
-        return;
-      }
 
-      const sourceRect = source.getBoundingClientRect();
-      const targetRect = target.getBoundingClientRect();
-      const scrollY = window.scrollY || window.pageYOffset;
-      const startScroll = sourceRect.top + scrollY - window.innerHeight * 0.22;
-      const documentBottom = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-      const targetScroll = targetRect.top + scrollY - window.innerHeight * 0.44;
-      const endScroll = Math.min(targetScroll, documentBottom);
-      const progress = endScroll <= startScroll
-        ? (scrollY >= endScroll ? 1 : 0)
-        : Math.max(0, Math.min(1, (scrollY - startScroll) / (endScroll - startScroll)));
-      setHandoffProgress((current) => Math.abs(current - progress) > 0.003 ? progress : current);
-
-      const sourceElement = source as HTMLImageElement | HTMLVideoElement;
-      const sourceUrl = sourceElement instanceof HTMLVideoElement
-        ? sourceElement.currentSrc || sourceElement.src
-        : sourceElement.currentSrc || sourceElement.src;
-      setHandoffGeometry({
-        left: sourceRect.left + (targetRect.left - sourceRect.left) * progress,
-        top: sourceRect.top + (targetRect.top - sourceRect.top) * progress,
-        width: sourceRect.width + (targetRect.width - sourceRect.width) * progress,
-        height: sourceRect.height + (targetRect.height - sourceRect.height) * progress,
-        src: sourceUrl,
-        mediaType: sourceElement instanceof HTMLVideoElement ? "video" : "image",
-      });
-      window.dispatchEvent(new CustomEvent('hadx:product-handoff', { detail: { productId: active.id, progress } }));
-    };
-    let queued = false;
-    let cancelled = false;
-    const onScroll = () => {
-      if (queued || cancelled) return;
-      queued = true;
-      window.requestAnimationFrame(() => {
-        queued = false;
-        if (!cancelled) updateHandoff();
-      });
-    };
-    onScroll();
-    updateHandoff();
-    const stage = document.querySelector<HTMLElement>('.reference-product-stage');
-    const stageObserver = stage ? new MutationObserver(onScroll) : null;
-    stageObserver?.observe(stage, { subtree: true, childList: true });
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
-      stageObserver?.disconnect();
-      cancelled = true;
-    };
-  }, [active]);
 
   const stageProducts = useMemo(() => products.map((product, index) => ({
     product,
@@ -214,7 +145,6 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
           <Link href="/" className="reference-center-wordmark" aria-label="HADX LABS home">HADX <b>LABS</b></Link>
           <div className="reference-nav-tools">
             <StorefrontSearch />
-            <CurrencySwitcher />
             <Link href="/favorites" className="reference-nav-tool">ACCOUNT</Link>
             <Link href={selectedSize ? checkoutPath(active, selectedSize) : productPath(active)} className="reference-nav-tool reference-nav-cart">CART [ {selectedSize ? 1 : 0} ]</Link>
           </div>
@@ -232,26 +162,12 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
 
           <div className="reference-product-stage">
             <div className="reference-halo" aria-hidden="true" />
-            <motion.div className="reference-exchange-orbit" aria-hidden="true" animate={{ opacity: 0.28 + handoffProgress * 0.52, rotate: handoffProgress * 10, scale: 0.96 + handoffProgress * 0.04 }} transition={{ type: "spring", stiffness: 180, damping: 26 }} />
+            <div className="reference-exchange-orbit" aria-hidden="true" />
             <motion.div className="reference-stage-track" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0} onDragEnd={onDragEnd} style={{ perspective: "1200px", transformStyle: "preserve-3d" }}>
               {stageProducts.map(({ product, offset, position }) => {
                 const isActive = offset === 0;
                 const isEntering = !isActive && offset === direction;
-                const exchangeProgress = isEntering ? Math.min(1, handoffProgress * 1.18) : 0;
-                const handoffPosition = isActive ? {
-                  ...position,
-                  opacity: Math.max(0, position.opacity * (1 - handoffProgress)),
-                } : isEntering ? {
-                  ...position,
-                  x: position.x * (1 - exchangeProgress),
-                  y: position.y * (1 - exchangeProgress) - 18 * exchangeProgress,
-                  z: position.z * (1 - exchangeProgress) + 120 * exchangeProgress,
-                  rotateX: position.rotateX * (1 - exchangeProgress),
-                  rotateY: position.rotateY * (1 - exchangeProgress),
-                  rotateZ: position.rotateZ * (1 - exchangeProgress),
-                  scale: position.scale + (1 - position.scale) * exchangeProgress,
-                  opacity: Math.max(position.opacity, 0.08 + 0.92 * exchangeProgress),
-                } : position;
+                const handoffPosition = position;
                 return (
                   <motion.button
                     key={product.id}
@@ -259,7 +175,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
                     aria-label={`Show ${product.title}`}
                     className={`reference-product-layer ${isActive ? "is-active" : "is-secondary"}`}
                     initial={false}
-                    animate={handoffPosition}
+                    animate={position}
                     transition={{
                       type: "spring",
                       stiffness: 210,
@@ -269,29 +185,15 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
                     }}
                     onClick={() => selectProduct(products.findIndex((candidate) => candidate.id === product.id))}
                     style={{ zIndex: isActive ? 20 : 10, transformStyle: "preserve-3d" }}
-                    data-exchange-progress={isEntering ? handoffProgress.toFixed(2) : undefined}
                   >
                     <ProductMedia product={product} active={isActive} />
                   </motion.button>
                 );
               })}
             </motion.div>
-            {handoffGeometry && handoffGeometry.src && handoffProgress > 0.005 && handoffProgress < 1 && typeof document !== "undefined" ? createPortal(
-              <div
-                className="reference-handoff-clone"
-                aria-hidden="true"
-                style={{ left: handoffGeometry.left, top: handoffGeometry.top, width: handoffGeometry.width, height: handoffGeometry.height }}
-              >
-                {handoffGeometry.mediaType === "video" ? (
-                  <video src={handoffGeometry.src} muted playsInline autoPlay className="reference-product-media" />
-                ) : (
-                  <img src={handoffGeometry.src} alt="" className="reference-product-media" />
-                )}
-              </div>,
-              document.body,
-            ) : null}
+
             <div className="reference-pedestal" aria-hidden="true"><span className="reference-pedestal-top" /><span className="reference-pedestal-base" /></div>
-            <div className="reference-stage-caption"><span>{handoffProgress > 0.04 && handoffProgress < 0.96 ? "SCROLL TO EXCHANGE" : "SELECTED DROP"}</span><strong>{String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</strong></div>
+            <div className="reference-stage-caption"><span>SELECTED DROP</span><strong>{String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</strong></div>
           </div>
 
           <motion.aside className="reference-glass-panel liquid-panel reference-order-panel" key={active.id} initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.42 }}>

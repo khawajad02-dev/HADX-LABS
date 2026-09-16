@@ -153,10 +153,6 @@ function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true }
           ))}
         </div>
 
-          <div className="flex flex-wrap gap-2 items-center">
-            {(allowRegionalCurrency ? ["USD", "PKR", "INR"] : ["USD"]).map((currency) => <button key={currency} onClick={() => setDisplayCurrency(currency as "USD" | "PKR" | "INR")} className={`liquid-ui catalog-filter catalog-currency-filter px-3 py-1.5 rounded-full text-[10px] font-mono uppercase border ${displayCurrency === currency ? "is-selected" : ""}`}>{currency}</button>)}
-          </div>
-
           <CustomSelect
             value={sortBy}
             onChange={(value) => setSortBy(value as typeof sortBy)}
