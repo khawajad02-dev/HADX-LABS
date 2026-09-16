@@ -168,7 +168,6 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
           </motion.aside>
 
           <div className="reference-product-stage">
-            <div className="reference-halo" aria-hidden="true" />
             <div className="reference-exchange-orbit" aria-hidden="true" />
             <motion.div className="reference-stage-track" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0} onDragEnd={onDragEnd} onPointerMove={updateTilt} onPointerLeave={() => setTilt({ x: 0, y: 0 })} style={{ perspective: "1200px", transformStyle: "preserve-3d" }}>
               {stageProducts.map(({ product, offset, position }) => {
