@@ -200,12 +200,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
             </motion.div>
 
             <div className="reference-arc-reactor" aria-hidden="true">
-              <span className="reference-arc-reactor-ring reference-arc-reactor-ring-one" />
-              <span className="reference-arc-reactor-ring reference-arc-reactor-ring-two" />
-              <span className="reference-arc-reactor-core" />
-              <span className="reference-arc-reactor-beam reference-arc-reactor-beam-one" />
-              <span className="reference-arc-reactor-beam reference-arc-reactor-beam-two" />
-              <span className="reference-arc-reactor-marks" aria-hidden="true">{Array.from({ length: 24 }, (_, index) => <i key={index} style={{ "--mark-angle": `${index * 15}deg` } as CSSProperties} />)}</span>
+              <img className="reference-arc-reactor-asset" src="/arc-reactor-platform-3d.png" alt="" />
             </div>
             <div className="reference-stage-caption"><span>SELECTED DROP</span><strong>{String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</strong></div>
           </div>
