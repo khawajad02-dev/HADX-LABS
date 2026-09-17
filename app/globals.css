@@ -894,6 +894,7 @@ body {
 .reference-exchange-orbit { position: absolute; z-index: 2; left: 50%; top: 8%; width: min(23rem, 80%); aspect-ratio: 1; transform: translateX(-50%); border: 1px solid color-mix(in srgb, var(--reference-glow, #d8a94f) 54%, white 46%); border-radius: 50%; box-shadow: 0 0 2rem var(--reference-glow, rgba(216,169,79,0.1)); pointer-events: none; opacity: 0.58; transition: border-color 500ms ease, box-shadow 500ms ease; }
 .reference-exchange-orbit::before { content: "HADX LABS"; position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255,239,196,0.14); font: 0.42rem/1 var(--font-mono), ui-monospace, monospace; letter-spacing: 0.55em; text-indent: 0.55em; transform: rotate(-18deg); }
 .reference-exchange-orbit::after { content: ""; position: absolute; left: 8%; right: 8%; top: 50%; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--reference-glow, #d8a94f) 54%, white 46%), transparent); }
+/* Layered concentric-core treatment informed by https://css-tricks.com/iron-mans-arc-reactor-using-css3-transforms-and-animations/ */
 .reference-arc-reactor { position: absolute; z-index: 1; left: 50%; bottom: 4.4rem; width: min(21rem, 74%); height: 4.2rem; transform: translateX(-50%) perspective(520px) rotateX(68deg); transform-style: preserve-3d; border: 1px solid color-mix(in srgb, var(--reference-glow, #d8a94f) 48%, white 52%); border-radius: 50%; opacity: 0.82; pointer-events: none; filter: drop-shadow(0 0.35rem 1.2rem var(--reference-glow, rgba(216,169,79,0.3))); animation: reference-reactor-rotate 16s linear infinite; }
 .reference-arc-reactor::before { content: ""; position: absolute; inset: 8%; border: 1px solid rgba(255,239,196,0.3); border-radius: 50%; box-shadow: inset 0 0 1rem var(--reference-glow, rgba(216,169,79,0.24)), 0 0 1.8rem var(--reference-glow, rgba(216,169,79,0.2)); }
 .reference-arc-reactor::after { content: ""; position: absolute; left: 36%; right: 36%; top: -5.8rem; height: 8.8rem; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,247,209,0.78), color-mix(in srgb, var(--reference-glow, #d8a94f) 82%, white 18%) 18%, transparent 70%); filter: blur(0.15rem); opacity: 0.72; box-shadow: 0 0 1.8rem 0.65rem var(--reference-glow, rgba(216,169,79,0.45)); animation: reference-reactor-pulse 2.4s ease-in-out infinite; }
@@ -904,6 +905,8 @@ body {
 .reference-arc-reactor-beam { position: absolute; left: 50%; top: -12%; width: 1px; height: 124%; transform-origin: center; background: linear-gradient(180deg, transparent, rgba(255,235,154,0.62), transparent); }
 .reference-arc-reactor-beam-one { transform: translateX(-50%) rotate(68deg); }
 .reference-arc-reactor-beam-two { transform: translateX(-50%) rotate(-68deg); }
+.reference-arc-reactor-marks { position: absolute; inset: 0; border-radius: 50%; }
+.reference-arc-reactor-marks i { position: absolute; left: calc(50% - 0.06rem); top: 50%; width: 0.12rem; height: 0.52rem; transform-origin: 0.06rem -1.68rem; transform: rotate(var(--mark-angle)); border-radius: 999px; background: rgba(255,235,154,0.62); box-shadow: 0 0 0.3rem var(--reference-glow, rgba(216,169,79,0.5)); animation: reference-reactor-mark 2.8s ease-in-out infinite; animation-delay: calc(var(--mark-angle) * -0.01); }
 .reference-stage-caption { position: absolute; z-index: 3; bottom: 0.3rem; left: 50%; display: flex; gap: 0.7rem; transform: translateX(-50%); color: rgba(255,255,255,0.35); font-size: 0.4rem; white-space: nowrap; }
 .reference-stage-caption strong { color: rgba(225,177,76,0.78); font-weight: 400; }
 
@@ -918,6 +921,7 @@ body {
 @keyframes reference-reactor-rotate { from { transform: translateX(-50%) perspective(520px) rotateX(68deg) rotateZ(0deg); } to { transform: translateX(-50%) perspective(520px) rotateX(68deg) rotateZ(360deg); } }
 @keyframes reference-reactor-pulse { 0%, 100% { opacity: 0.62; transform: scale(0.92); } 50% { opacity: 1; transform: scale(1.08); } }
 @keyframes reference-shirt-float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-0.42rem) scale(1.008); } }
+@keyframes reference-reactor-mark { 0%, 100% { opacity: 0.32; } 50% { opacity: 0.95; } }
 
 .reference-order-panel { padding: clamp(1rem, 2.3vw, 1.6rem); }
 .reference-order-heading, .reference-price-row, .reference-order-meta div { display: flex; align-items: center; justify-content: space-between; gap: 0.65rem; }
