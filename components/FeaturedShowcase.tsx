@@ -130,6 +130,9 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
     const rect = event.currentTarget.getBoundingClientRect();
     setTilt({ x: ((event.clientY - rect.top) / rect.height - 0.5) * -7, y: ((event.clientX - rect.left) / rect.width - 0.5) * 9 });
   };
+  const updateDragTilt = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    setTilt({ x: Math.max(-9, Math.min(9, info.offset.y * -0.12)), y: Math.max(-11, Math.min(11, info.offset.x * 0.12)) });
+  };
 
   return (
     <section className="reference-hero-shell" style={stageStyle} aria-label="HADX LABS featured collection">
@@ -169,7 +172,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
 
           <div className="reference-product-stage">
             <div className="reference-exchange-orbit" aria-hidden="true" />
-            <motion.div className="reference-stage-track" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0} onDragEnd={onDragEnd} onPointerMove={updateTilt} onPointerLeave={() => setTilt({ x: 0, y: 0 })} style={{ perspective: "1200px", transformStyle: "preserve-3d" }}>
+            <motion.div className="reference-stage-track" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0} onDrag={updateDragTilt} onDragEnd={(event, info) => { onDragEnd(event, info); setTilt({ x: 0, y: 0 }); }} onPointerMove={updateTilt} onPointerLeave={() => setTilt({ x: 0, y: 0 })} style={{ perspective: "1200px", transformStyle: "preserve-3d" }}>
               {stageProducts.map(({ product, offset, position }) => {
                 const isActive = offset === 0;
                 return (
