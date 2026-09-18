@@ -895,17 +895,12 @@ body {
 .reference-exchange-orbit { position: absolute; z-index: 2; left: 50%; top: 8%; width: min(23rem, 80%); aspect-ratio: 1; transform: translateX(-50%); border: 1px solid color-mix(in srgb, var(--reference-glow, #d8a94f) 54%, white 46%); border-radius: 50%; box-shadow: 0 0 2rem var(--reference-glow, rgba(216,169,79,0.1)); pointer-events: none; opacity: 0.58; transition: border-color 500ms ease, box-shadow 500ms ease; }
 .reference-exchange-orbit::before { content: "HADX LABS"; position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255,239,196,0.14); font: 0.42rem/1 var(--font-mono), ui-monospace, monospace; letter-spacing: 0.55em; text-indent: 0.55em; transform: rotate(-18deg); }
 .reference-exchange-orbit::after { content: ""; position: absolute; left: 8%; right: 8%; top: 50%; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--reference-glow, #d8a94f) 54%, white 46%), transparent); }
-.reference-hologram-projector { position: absolute; z-index: 12; left: 50%; bottom: 2.1rem; width: min(19rem, 78%); height: 13rem; transform: translateX(-50%); pointer-events: none; isolation: isolate; }
-.reference-hologram-projector::before { content: ""; position: absolute; left: 12%; right: 12%; bottom: 0; height: 4.8rem; border-radius: 50%; background: radial-gradient(ellipse, color-mix(in srgb, var(--reference-projector-core, #ffd978) 48%, transparent), transparent 68%); filter: blur(0.8rem); opacity: 0.72; mix-blend-mode: screen; animation: reference-projector-pulse 2.8s ease-in-out infinite; }
-.reference-projector-base { position: absolute; z-index: 3; left: 9%; right: 9%; bottom: 0.6rem; height: 3.5rem; transform: perspective(500px) rotateX(62deg); border: 1px solid color-mix(in srgb, var(--reference-projector-beam, #d8a94f) 76%, white 24%); border-radius: 50%; background: radial-gradient(ellipse at center, color-mix(in srgb, var(--reference-projector-core, #ffd978) 88%, white 12%) 0 7%, color-mix(in srgb, var(--reference-projector-beam, #d8a94f) 58%, transparent) 18%, rgba(5,12,18,0.32) 52%, transparent 70%); box-shadow: 0 0 1.4rem var(--reference-glow, rgba(216,169,79,0.3)), inset 0 0 1rem var(--reference-glow, rgba(216,169,79,0.3)); animation: reference-projector-rotate 9s linear infinite; }
-.reference-projector-ring { position: absolute; border: 1px solid color-mix(in srgb, var(--reference-projector-core, #ffd978) 78%, white 22%); border-radius: 50%; inset: 14% 8%; opacity: 0.82; }
-.reference-projector-ring-inner { inset: 27% 25%; border-color: var(--reference-projector-core, #ffd978); box-shadow: 0 0 0.7rem var(--reference-projector-core, #ffd978); }
-.reference-projector-core { position: absolute; left: 43%; top: 31%; width: 14%; height: 38%; border-radius: 50%; background: var(--reference-projector-core, #ffd978); box-shadow: 0 0 1.3rem 0.35rem var(--reference-projector-core, #ffd978); }
-.reference-projector-core i { display: block; width: 100%; height: 100%; border-radius: inherit; background: white; opacity: 0.78; animation: reference-projector-pulse 1.8s ease-in-out infinite; }
-.reference-projector-beam { position: absolute; z-index: 1; bottom: 1.7rem; width: 17%; height: 11rem; opacity: 0.22; filter: blur(0.28rem); background: linear-gradient(180deg, transparent 0%, var(--reference-projector-beam, #d8a94f) 54%, var(--reference-projector-core, #ffd978) 100%); clip-path: polygon(43% 100%, 57% 100%, 100% 0, 0 0); mix-blend-mode: screen; animation: reference-beam-flicker 2.4s ease-in-out infinite; }
-.reference-projector-beam-left { left: 27%; transform: rotate(-7deg); }
-.reference-projector-beam-center { left: 42%; width: 21%; opacity: 0.28; }
-.reference-projector-beam-right { right: 27%; transform: rotate(7deg); }
+.reference-hologram-projector { position: absolute; z-index: 12; left: 50%; bottom: 2.1rem; width: min(20rem, 82%); height: 13rem; transform: translateX(-50%); pointer-events: none; isolation: isolate; }
+.reference-hologram-projector::before { content: ""; position: absolute; left: 8%; right: 8%; bottom: 0.2rem; height: 5rem; border-radius: 50%; background: radial-gradient(ellipse, color-mix(in srgb, var(--reference-projector-core, #ffd978) 52%, transparent), transparent 68%); filter: blur(1rem); opacity: 0.78; mix-blend-mode: screen; animation: reference-projector-pulse 2.8s ease-in-out infinite; }
+.reference-projector-asset { position: absolute; z-index: 3; left: 0; bottom: -0.25rem; width: 100%; height: auto; display: block; object-fit: contain; filter: drop-shadow(0 0 1.4rem var(--reference-glow, rgba(216,169,79,0.34))) saturate(1.08); animation: reference-projector-asset-breathe 4.6s ease-in-out infinite; }
+.reference-projector-beam { position: absolute; z-index: 1; left: 30%; bottom: 2.15rem; width: 40%; height: 11rem; opacity: 0.25; filter: blur(0.32rem); background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--reference-projector-beam, #d8a94f) 62%, transparent) 50%, var(--reference-projector-core, #ffd978) 100%); clip-path: polygon(42% 100%, 58% 100%, 100% 0, 0 0); mix-blend-mode: screen; animation: reference-beam-flicker 2.4s ease-in-out infinite; }
+.reference-projector-beam-left, .reference-projector-beam-right { display: none; }
+.reference-projector-beam-center { left: 30%; width: 40%; opacity: 0.3; }
 .reference-stage-caption { position: absolute; z-index: 3; bottom: 0.3rem; left: 50%; display: flex; gap: 0.7rem; transform: translateX(-50%); color: rgba(255,255,255,0.35); font-size: 0.4rem; white-space: nowrap; }
 .reference-stage-caption strong { color: rgba(225,177,76,0.78); font-weight: 400; }
 
@@ -917,9 +912,9 @@ body {
   0%, 100% { opacity: 0.58; transform: translateX(-50%) scale(0.985); }
   50% { opacity: 0.86; transform: translateX(-50%) scale(1.015); }
 }
-@keyframes reference-projector-rotate { from { transform: perspective(500px) rotateX(62deg) rotateZ(0deg); } to { transform: perspective(500px) rotateX(62deg) rotateZ(360deg); } }
 @keyframes reference-projector-pulse { 0%, 100% { opacity: 0.54; transform: scale(0.92); } 50% { opacity: 1; transform: scale(1.08); } }
 @keyframes reference-beam-flicker { 0%, 100% { opacity: 0.14; transform: scaleX(0.92); } 50% { opacity: 0.34; transform: scaleX(1.06); } }
+@keyframes reference-projector-asset-breathe { 0%, 100% { opacity: 0.9; transform: scale(0.985); } 50% { opacity: 1; transform: scale(1.012); } }
 @keyframes reference-hologram-shimmer { 0%, 100% { opacity: 0.92; } 50% { opacity: 0.78; } }
 @keyframes reference-scanline-drift { from { transform: translateY(-0.5rem); } to { transform: translateY(0.5rem); } }
 @keyframes reference-shirt-float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-0.42rem) scale(1.008); } }

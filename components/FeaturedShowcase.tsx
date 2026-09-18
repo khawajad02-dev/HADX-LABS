@@ -214,16 +214,12 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
               })}
             </motion.div>
 
-            <div className="reference-hologram-projector" aria-hidden="true">
-              <div className="reference-projector-beam reference-projector-beam-left" />
-              <div className="reference-projector-beam reference-projector-beam-center" />
-              <div className="reference-projector-beam reference-projector-beam-right" />
-              <div className="reference-projector-base">
-                <span className="reference-projector-ring reference-projector-ring-outer" />
-                <span className="reference-projector-ring reference-projector-ring-inner" />
-                <span className="reference-projector-core"><i /></span>
-              </div>
-            </div>
+	            <div className="reference-hologram-projector" aria-hidden="true">
+	              <div className="reference-projector-beam reference-projector-beam-left" />
+	              <div className="reference-projector-beam reference-projector-beam-center" />
+	              <div className="reference-projector-beam reference-projector-beam-right" />
+	              <img className="reference-projector-asset" src="/arc-reactor-projector-base.png" alt="" />
+	            </div>
             <div className="reference-stage-caption"><span>SELECTED DROP</span><strong>{String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</strong></div>
           </div>
 
