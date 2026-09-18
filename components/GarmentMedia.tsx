@@ -10,6 +10,7 @@ type GarmentMediaProps = {
 };
 
 type RenderState = "loading" | "ready" | "fallback";
+const transparentGarmentCache = new Map<string, string>();
 
 function isLightStudioPixel(data: Uint8ClampedArray, index: number) {
   const red = data[index];
@@ -22,11 +23,19 @@ function isLightStudioPixel(data: Uint8ClampedArray, index: number) {
 }
 
 export default function GarmentMedia({ src, alt, className, eager = false }: GarmentMediaProps) {
-  const [renderedPng, setRenderedPng] = useState<string | null>(null);
+  const [renderedPng, setRenderedPng] = useState<string | null>(() => transparentGarmentCache.get(src) || null);
   const [state, setState] = useState<RenderState>("loading");
 
   useEffect(() => {
     let cancelled = false;
+    const cached = transparentGarmentCache.get(src);
+    if (cached) {
+      setRenderedPng(cached);
+      setState("ready");
+      return () => { cancelled = true; };
+    }
+    setRenderedPng(null);
+    setState("loading");
     const image = new Image();
     image.crossOrigin = "anonymous";
     image.decoding = "async";
@@ -159,6 +168,7 @@ export default function GarmentMedia({ src, alt, className, eager = false }: Gar
         croppedContext.putImageData(pixels, -cropX, -cropY);
         const pngDataUrl = croppedCanvas.toDataURL("image/png");
         if (cancelled) return;
+        transparentGarmentCache.set(src, pngDataUrl);
         setRenderedPng(pngDataUrl);
         setState("ready");
       } catch {

@@ -205,7 +205,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
 
           <div className="reference-product-stage">
             <div className="reference-exchange-orbit" aria-hidden="true" />
-            {introReveal && <div className="reference-logo-reveal" aria-hidden="true"><img src="/hadx-monogram-emitter.png" alt="" /></div>}
+            {introReveal && <div className="reference-logo-reveal" aria-hidden="true"><img src="/hadx-monogram-emitter-clean.png" alt="" /></div>}
             <motion.div className="reference-stage-track" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0} onDrag={updateDragTilt} onDragEnd={(event, info) => { onDragEnd(event, info); setTilt({ x: 0, y: 0 }); }} onPointerMove={updateTilt} onPointerLeave={() => setTilt({ x: 0, y: 0 })} style={{ perspective: "1200px", transformStyle: "preserve-3d" }}>
               {stageProducts.map(({ product, offset, position }) => {
                 const isActive = offset === 0;
@@ -237,7 +237,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
 	              <div className="reference-projector-beam reference-projector-beam-left" />
 	              <div className="reference-projector-beam reference-projector-beam-center" />
 	              <div className="reference-projector-beam reference-projector-beam-right" />
-	              <img className="reference-projector-asset" src="/hadx-monogram-emitter.png" alt="" />
+	              <img className="reference-projector-asset" src="/hadx-monogram-emitter-clean.png" alt="" />
 	            </div>
             <div className="reference-stage-caption"><span>SELECTED DROP</span><strong>{String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</strong></div>
           </div>
