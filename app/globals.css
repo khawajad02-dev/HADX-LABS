@@ -896,7 +896,7 @@ body {
 .reference-exchange-orbit { display: none; }
 .reference-hologram-projector { position: absolute; z-index: 4; left: 50%; bottom: 0.45rem; width: min(15rem, 58%); height: 9rem; transform: translateX(-50%); pointer-events: none; isolation: isolate; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .reference-hologram-projector::before { content: ""; position: absolute; left: 2%; right: 2%; bottom: 0.1rem; height: 5.2rem; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,206,103,0.55) 0 8%, rgba(193,126,26,0.25) 24%, rgba(92,54,10,0.12) 46%, transparent 74%); filter: blur(1rem); opacity: 0.82; mix-blend-mode: screen; animation: reference-projector-pulse 2.8s ease-in-out infinite; }
-.reference-projector-asset { position: absolute; z-index: 2; left: 12%; bottom: -0.1rem; width: 76%; height: auto; display: block; object-fit: contain; opacity: 0.62; transform: perspective(520px) rotateX(65deg) scale(0.96); transform-origin: center bottom; filter: sepia(0.5) saturate(1.28) hue-rotate(350deg) brightness(0.82) contrast(1.02) drop-shadow(0 0 1.4rem rgba(183,119,27,0.3)); mix-blend-mode: screen; animation: reference-projector-asset-breathe 4.6s ease-in-out infinite; }
+.reference-projector-asset { position: absolute; z-index: 2; left: 12%; bottom: -0.1rem; width: 76%; height: auto; display: block; object-fit: contain; opacity: 0.62; transform: perspective(520px) rotateX(65deg) scale(0.96); transform-origin: center bottom; filter: sepia(0.5) saturate(1.28) hue-rotate(350deg) brightness(0.82) contrast(1.02) drop-shadow(0 0 1.4rem rgba(183,119,27,0.3)); mix-blend-mode: normal; animation: reference-projector-asset-breathe 4.6s ease-in-out infinite; }
 .reference-projector-beam { position: absolute; z-index: 1; left: 30%; bottom: 1.8rem; width: 40%; height: 7.6rem; opacity: 0.28; filter: blur(0.32rem); background: linear-gradient(180deg, transparent 0%, rgba(194,125,24,0.18) 22%, rgba(226,169,68,0.55) 62%, #ffe09a 100%); clip-path: polygon(44% 100%, 56% 100%, 72% 0, 28% 0); mix-blend-mode: screen; animation: reference-beam-flicker 2.4s ease-in-out infinite; }
 .reference-projector-beam-left, .reference-projector-beam-right { display: none; }
 .reference-projector-beam-center { left: 30%; width: 40%; opacity: 0.28; }
@@ -920,7 +920,9 @@ body {
 
 .reference-logo-reveal { position: absolute; z-index: 30; inset: 0; display: grid; place-items: center; pointer-events: none; background: radial-gradient(circle, rgba(166,103,18,0.1), transparent 42%); animation: reference-logo-reveal 3.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .reference-logo-reveal img { width: min(15rem, 42vw); height: auto; opacity: 0.95; filter: drop-shadow(0 0 1rem rgba(255,210,105,0.85)) drop-shadow(0 0 3rem rgba(181,111,20,0.48)); animation: reference-logo-sweep 3.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.reference-hologram-projector { opacity: 0; }
 .is-intro-revealing .reference-hologram-projector { animation: reference-projector-arrive 1.1s 3.05s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.is-intro-revealing .reference-hologram-projector { animation-fill-mode: both; }
 .is-intro-revealing .reference-product-layer.is-active { animation: reference-shirt-entrance 0.9s 4.05s ease-out both; }
 
 @keyframes reference-logo-reveal { 0% { opacity: 0; } 12% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }

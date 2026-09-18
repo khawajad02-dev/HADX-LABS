@@ -41,7 +41,8 @@ export default function GarmentMedia({ src, alt, className, eager = false }: Gar
         return;
       }
 
-      const maxWidth = 1600;
+      // Keep the first interaction fast; the source is still rendered at its natural ratio.
+      const maxWidth = 900;
       const scale = sourceWidth > maxWidth ? maxWidth / sourceWidth : 1;
       const width = Math.max(1, Math.round(sourceWidth * scale));
       const height = Math.max(1, Math.round(sourceHeight * scale));
@@ -179,11 +180,11 @@ export default function GarmentMedia({ src, alt, className, eager = false }: Gar
   }, [eager, src]);
 
   if (state === "fallback") {
-    return <img src={src} alt={alt} loading={eager ? "eager" : "lazy"} decoding="async" className={className} />;
+    return <span className={`${className} block bg-transparent`} role="img" aria-label={alt} />;
   }
 
   if (!renderedPng) {
-    return <img src={src} alt={alt} loading={eager ? "eager" : "lazy"} decoding="async" className={className} data-garment-png="source-immediate" aria-busy="true" />;
+    return <span className={`${className} block bg-transparent`} role="img" aria-label={alt} aria-busy="true" />;
   }
 
   return <img src={renderedPng} alt={alt} loading={eager ? "eager" : "lazy"} decoding="async" className={className} data-garment-png="runtime-generated" />;

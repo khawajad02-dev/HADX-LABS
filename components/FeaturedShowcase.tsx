@@ -122,6 +122,17 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
     position: stagePosition(relativeOffset(index, activeIndex, products.length, direction)),
   })).filter(({ offset }) => Math.abs(offset) <= 1), [activeIndex, direction, products]);
 
+  useEffect(() => {
+    stageProducts.forEach(({ product }) => {
+      const media = mediaFor(product);
+      if (media?.type === "image") {
+        const image = new Image();
+        image.decoding = "async";
+        image.src = media.url;
+      }
+    });
+  }, [stageProducts]);
+
   if (!active) return null;
 
   const move = (nextDirection: 1 | -1) => {
