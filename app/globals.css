@@ -891,7 +891,7 @@ body {
 .reference-product-media { display: block; width: 80%; height: min(75%, calc(100% - 4.5rem)); max-width: 80%; max-height: min(75%, calc(100% - 4.5rem)); min-height: 0; object-fit: contain; object-position: center bottom; mix-blend-mode: normal; filter: drop-shadow(0 1.2rem 1rem rgba(0,0,0,0.42)) drop-shadow(0 0 1.2rem var(--reference-glow, rgba(216,169,79,0.12))); -webkit-mask-image: radial-gradient(ellipse 68% 76% at 50% 47%, #000 70%, rgba(0,0,0,0.82) 87%, transparent 100%); mask-image: radial-gradient(ellipse 68% 76% at 50% 47%, #000 70%, rgba(0,0,0,0.82) 87%, transparent 100%); transform: scale(1); transform-origin: center bottom; transition: filter 450ms ease; }
 .reference-product-layer.is-active .reference-product-media { width: 80%; height: min(75%, calc(100% - 4.5rem)); max-width: 80%; max-height: min(75%, calc(100% - 4.5rem)); transform: scale(1); filter: drop-shadow(0 1.7rem 1.2rem rgba(0,0,0,0.5)) drop-shadow(0 0 1.5rem var(--reference-glow, rgba(216,169,79,0.16))); animation: reference-shirt-float 4.8s ease-in-out infinite, reference-hologram-shimmer 3.8s ease-in-out infinite; }
 .reference-product-layer.is-active::before { content: ""; position: absolute; z-index: 1; left: 19%; right: 19%; bottom: 15%; height: 30%; pointer-events: none; border-radius: 50%; background: radial-gradient(ellipse, rgba(150,94,20,0.38), transparent 70%); filter: blur(1.25rem); opacity: 0.72; mix-blend-mode: screen; }
-.reference-product-layer.is-active { animation: reference-shirt-entrance 2.8s 1.05s both; }
+.reference-product-layer.is-active { animation: none; }
 .reference-empty-media { color: rgba(255,255,255,0.32); font: 0.52rem/1 var(--font-mono), ui-monospace, monospace; letter-spacing: 0.18em; }
 .reference-exchange-orbit { display: none; }
 .reference-hologram-projector { position: absolute; z-index: 4; left: 50%; bottom: 0.45rem; width: min(15rem, 58%); height: 9rem; transform: translateX(-50%); pointer-events: none; isolation: isolate; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
@@ -920,7 +920,8 @@ body {
 
 .reference-logo-reveal { position: absolute; z-index: 30; inset: 0; display: grid; place-items: center; pointer-events: none; background: radial-gradient(circle, rgba(166,103,18,0.1), transparent 42%); animation: reference-logo-reveal 3.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .reference-logo-reveal img { width: min(15rem, 42vw); height: auto; opacity: 0.95; filter: drop-shadow(0 0 1rem rgba(255,210,105,0.85)) drop-shadow(0 0 3rem rgba(181,111,20,0.48)); animation: reference-logo-sweep 3.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.is-intro-revealing .reference-hologram-projector { animation: reference-projector-arrive 2.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.is-intro-revealing .reference-hologram-projector { animation: reference-projector-arrive 1.1s 3.05s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.is-intro-revealing .reference-product-layer.is-active { animation: reference-shirt-entrance 0.9s 4.05s ease-out both; }
 
 @keyframes reference-logo-reveal { 0% { opacity: 0; } 12% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes reference-logo-sweep { 0% { transform: translateY(0) scale(1.05); } 38% { transform: translateY(0) scale(1); } 100% { transform: translateY(9.6rem) scale(0.34); } }
