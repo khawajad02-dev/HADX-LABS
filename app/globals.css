@@ -918,11 +918,12 @@ body {
 @keyframes reference-shirt-float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-0.42rem) scale(1.008); } }
 @keyframes reference-shirt-entrance { 0% { opacity: 0; } 100% { opacity: 1; } }
 
-.reference-logo-reveal { position: absolute; z-index: 30; inset: 0; display: grid; place-items: center; pointer-events: none; background: radial-gradient(circle, rgba(166,103,18,0.12), transparent 42%); animation: reference-logo-reveal 2.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.reference-logo-reveal img { width: min(15rem, 42vw); height: auto; opacity: 0.95; filter: drop-shadow(0 0 1rem rgba(255,210,105,0.85)) drop-shadow(0 0 3rem rgba(181,111,20,0.48)); }
+.reference-logo-reveal { position: absolute; z-index: 30; inset: 0; display: grid; place-items: center; pointer-events: none; background: radial-gradient(circle, rgba(166,103,18,0.1), transparent 42%); animation: reference-logo-reveal 3.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.reference-logo-reveal img { width: min(15rem, 42vw); height: auto; opacity: 0.95; filter: drop-shadow(0 0 1rem rgba(255,210,105,0.85)) drop-shadow(0 0 3rem rgba(181,111,20,0.48)); animation: reference-logo-sweep 3.2s cubic-bezier(0.22, 1, 0.36, 1) both; }
 .is-intro-revealing .reference-hologram-projector { animation: reference-projector-arrive 2.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-@keyframes reference-logo-reveal { 0% { opacity: 0; } 14% { opacity: 1; } 48% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes reference-logo-reveal { 0% { opacity: 0; } 12% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes reference-logo-sweep { 0% { transform: translateY(0) scale(1.05); } 38% { transform: translateY(0) scale(1); } 100% { transform: translateY(9.6rem) scale(0.34); } }
 @keyframes reference-projector-arrive { 0% { opacity: 0; transform: translateX(-50%) translateY(7rem) scale(1.85); } 42% { opacity: 0.2; } 100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
 
 .reference-order-panel { padding: clamp(1rem, 2.3vw, 1.6rem); }

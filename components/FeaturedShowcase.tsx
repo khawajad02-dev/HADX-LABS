@@ -145,7 +145,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
     "--reference-accent": GOLD,
     "--reference-projector-core": projectorPalette(active, activeIndex).core,
     "--reference-projector-beam": projectorPalette(active, activeIndex).beam,
-    "--reference-glow": projectorPalette(active, activeIndex).glow,
+    "--reference-glow": "rgba(216,169,79,0.24)",
     "--reference-index": activeIndex,
   } as CSSProperties;
   const updateTilt = (event: PointerEvent<HTMLDivElement>) => {
@@ -159,7 +159,6 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
   return (
     <section className={`reference-hero-shell ${introReveal ? "is-intro-revealing" : ""}`} style={stageStyle} aria-label="HADX LABS featured collection">
       <div className="reference-hero-canvas">
-        {introReveal && <div className="reference-logo-reveal" aria-hidden="true"><img src="/hadx-monogram-emitter.png" alt="" /></div>}
         <div className="reference-ambient-noise" aria-hidden="true" />
         <div className="reference-light-orb reference-light-orb-left" aria-hidden="true" />
         <div className="reference-light-orb reference-light-orb-right" aria-hidden="true" />
@@ -195,6 +194,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
 
           <div className="reference-product-stage">
             <div className="reference-exchange-orbit" aria-hidden="true" />
+            {introReveal && <div className="reference-logo-reveal" aria-hidden="true"><img src="/hadx-monogram-emitter.png" alt="" /></div>}
             <motion.div className="reference-stage-track" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0} onDrag={updateDragTilt} onDragEnd={(event, info) => { onDragEnd(event, info); setTilt({ x: 0, y: 0 }); }} onPointerMove={updateTilt} onPointerLeave={() => setTilt({ x: 0, y: 0 })} style={{ perspective: "1200px", transformStyle: "preserve-3d" }}>
               {stageProducts.map(({ product, offset, position }) => {
                 const isActive = offset === 0;
