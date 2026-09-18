@@ -24,7 +24,20 @@ export type Product = {
 type DisplayCurrency = "USD" | "PKR" | "INR";
 const DEFAULT_SIZES = ["S", "M", "L", "XL", "XXL"];
 const GOLD = "#d8a94f";
-const DROP_GLOWS = ["rgba(216,169,79,0.28)", "rgba(111,166,255,0.24)", "rgba(220,92,128,0.23)", "rgba(137,103,255,0.24)"];
+const PROJECTOR_PALETTES = [
+  { core: "#ffd978", beam: "#d8a94f", glow: "rgba(216,169,79,0.32)" },
+  { core: "#9ee8ff", beam: "#54bff2", glow: "rgba(63,177,236,0.3)" },
+  { core: "#ff8fa9", beam: "#df4d6e", glow: "rgba(220,72,108,0.3)" },
+  { core: "#c5a6ff", beam: "#8967ff", glow: "rgba(137,103,255,0.3)" },
+];
+
+function projectorPalette(product: Product | undefined, index: number) {
+  const identity = `${product?.title || ""} ${product?.category || ""}`.toLowerCase();
+  if (/gojo|blue|azure|ice|ocean/.test(identity)) return PROJECTOR_PALETTES[1];
+  if (/death|note|red|crimson|scarlet/.test(identity)) return PROJECTOR_PALETTES[2];
+  if (/architect|armor|armored|gold|amber/.test(identity)) return PROJECTOR_PALETTES[0];
+  return PROJECTOR_PALETTES[index % PROJECTOR_PALETTES.length];
+}
 
 function formatMoney(product: Product) {
   const prefix = product.currency === "PKR" ? "PKR" : product.currency === "INR" ? "₹" : "$";
@@ -123,7 +136,9 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
 
   const stageStyle = {
     "--reference-accent": GOLD,
-    "--reference-glow": DROP_GLOWS[activeIndex % DROP_GLOWS.length],
+    "--reference-projector-core": projectorPalette(active, activeIndex).core,
+    "--reference-projector-beam": projectorPalette(active, activeIndex).beam,
+    "--reference-glow": projectorPalette(active, activeIndex).glow,
     "--reference-index": activeIndex,
   } as CSSProperties;
   const updateTilt = (event: PointerEvent<HTMLDivElement>) => {
@@ -199,8 +214,15 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
               })}
             </motion.div>
 
-            <div className="reference-arc-reactor" aria-hidden="true">
-              <img className="reference-arc-reactor-asset" src="/arc-reactor-platform-3d.png" alt="" />
+            <div className="reference-hologram-projector" aria-hidden="true">
+              <div className="reference-projector-beam reference-projector-beam-left" />
+              <div className="reference-projector-beam reference-projector-beam-center" />
+              <div className="reference-projector-beam reference-projector-beam-right" />
+              <div className="reference-projector-base">
+                <span className="reference-projector-ring reference-projector-ring-outer" />
+                <span className="reference-projector-ring reference-projector-ring-inner" />
+                <span className="reference-projector-core"><i /></span>
+              </div>
             </div>
             <div className="reference-stage-caption"><span>SELECTED DROP</span><strong>{String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</strong></div>
           </div>
