@@ -183,7 +183,7 @@ export default function GarmentMedia({ src, alt, className, eager = false }: Gar
   }
 
   if (!renderedPng) {
-    return <span className={`${className} block animate-pulse bg-white/[0.02]`} role="img" aria-label={alt} aria-busy="true" />;
+    return <img src={src} alt={alt} loading={eager ? "eager" : "lazy"} decoding="async" className={className} data-garment-png="source-immediate" aria-busy="true" />;
   }
 
   return <img src={renderedPng} alt={alt} loading={eager ? "eager" : "lazy"} decoding="async" className={className} data-garment-png="runtime-generated" />;
