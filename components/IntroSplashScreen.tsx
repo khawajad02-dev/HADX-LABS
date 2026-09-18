@@ -22,6 +22,8 @@ export default function IntroSplashScreen() {
         }, 500);
         return () => clearTimeout(timer);
       }
+      const timer = window.setTimeout(() => window.dispatchEvent(new CustomEvent("hadx:intro-complete")), 80);
+      return () => window.clearTimeout(timer);
     }
   }, []);
 
@@ -51,6 +53,7 @@ export default function IntroSplashScreen() {
 
   const handleDismiss = () => {
     setIsVisible(false);
+    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent("hadx:intro-complete"));
     if (typeof window !== 'undefined') {
       sessionStorage.setItem("hadx_intro_seen", "true");
     }

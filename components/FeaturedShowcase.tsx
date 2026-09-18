@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { useMemo, useState, type CSSProperties, type PointerEvent } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type PointerEvent } from "react";
 import { motion, type PanInfo } from "framer-motion";
 
 import StorefrontSearch from "@/components/StorefrontSearch";
@@ -102,10 +102,17 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
   const [selectedSize, setSelectedSize] = useState("");
   const [direction, setDirection] = useState<1 | -1>(1);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [introReveal, setIntroReveal] = useState(false);
   const active = products[activeIndex] || products[0];
   const sizes = active?.availableSizes?.length ? active.availableSizes : DEFAULT_SIZES;
   const stockForSize = (size: string) => active?.stockBySize?.[size];
   const displayCurrency = active?.currency || initialCurrency;
+
+  useEffect(() => {
+    const onIntroComplete = () => setIntroReveal(true);
+    window.addEventListener("hadx:intro-complete", onIntroComplete);
+    return () => window.removeEventListener("hadx:intro-complete", onIntroComplete);
+  }, []);
 
 
 
@@ -150,8 +157,9 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
   };
 
   return (
-    <section className="reference-hero-shell" style={stageStyle} aria-label="HADX LABS featured collection">
+    <section className={`reference-hero-shell ${introReveal ? "is-intro-revealing" : ""}`} style={stageStyle} aria-label="HADX LABS featured collection">
       <div className="reference-hero-canvas">
+        {introReveal && <div className="reference-logo-reveal" aria-hidden="true"><img src="/hadx-monogram-emitter.png" alt="" /></div>}
         <div className="reference-ambient-noise" aria-hidden="true" />
         <div className="reference-light-orb reference-light-orb-left" aria-hidden="true" />
         <div className="reference-light-orb reference-light-orb-right" aria-hidden="true" />
