@@ -10,7 +10,7 @@ for y in range(image.height):
         r, g, b, _ = pixels[x, y]
         spread = max(r, g, b) - min(r, g, b)
         # The generated checkerboard is neutral gray/white; the gold monogram has clear chroma.
-        if spread <= 70 and min(r, g, b) >= 110:
+        if spread <= 45 and min(r, g, b) >= 80:
             pixels[x, y] = (r, g, b, 0)
         else:
             pixels[x, y] = (r, g, b, 255)

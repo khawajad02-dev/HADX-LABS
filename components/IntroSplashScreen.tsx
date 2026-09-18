@@ -68,17 +68,6 @@ export default function IntroSplashScreen() {
           transition={{ duration: 0.6 }}
           className="fixed inset-0 isolate z-[100000] bg-black flex items-center justify-center overflow-hidden w-full h-[100dvh]"
         >
-          {/* Second Picture: Golden Light Logo Pre-loader */}
-          <div className={`absolute inset-0 z-[10002] flex items-center justify-center bg-black transition-opacity duration-500 ${videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-            <div className="w-full h-[100dvh] flex items-center justify-center bg-black p-4">
-              <img 
-                src="/og-image.png" 
-                alt="HADX Logo" 
-                className="max-w-[70vw] max-h-[35vh] w-auto h-auto object-contain drop-shadow-[0_0_45px_rgba(255,215,0,0.6)] filter brightness-110"
-              />
-            </div>
-          </div>
-
           {/* Intro Video Layer */}
           <div className="absolute inset-0 w-full h-[100dvh] overflow-hidden bg-black flex items-center justify-center z-[10001]">
             <video
