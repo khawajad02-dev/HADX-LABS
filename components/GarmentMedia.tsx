@@ -51,7 +51,7 @@ export default function GarmentMedia({ src, alt, className, eager = false }: Gar
       }
 
       // Keep the first interaction fast; the source is still rendered at its natural ratio.
-      const maxWidth = 900;
+      const maxWidth = 480;
       const scale = sourceWidth > maxWidth ? maxWidth / sourceWidth : 1;
       const width = Math.max(1, Math.round(sourceWidth * scale));
       const height = Math.max(1, Math.round(sourceHeight * scale));
