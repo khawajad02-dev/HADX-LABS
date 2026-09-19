@@ -892,6 +892,7 @@ body {
 .reference-product-layer.is-active .reference-product-media { width: 80%; height: min(75%, calc(100% - 4.5rem)); max-width: 80%; max-height: min(75%, calc(100% - 4.5rem)); transform: scale(1); filter: drop-shadow(0 1.7rem 1.2rem rgba(0,0,0,0.5)) drop-shadow(0 0 1.5rem var(--reference-glow, rgba(216,169,79,0.16))); animation: reference-shirt-float 4.8s ease-in-out infinite, reference-hologram-shimmer 3.8s ease-in-out infinite; }
 .reference-product-layer.is-active::before { content: ""; position: absolute; z-index: 1; left: 19%; right: 19%; bottom: 15%; height: 30%; pointer-events: none; border-radius: 50%; background: radial-gradient(ellipse, rgba(150,94,20,0.38), transparent 70%); filter: blur(1.25rem); opacity: 0.72; mix-blend-mode: screen; }
 .reference-product-layer.is-active { animation: none; }
+.reference-hero-shell:not(.is-hero-ready) .reference-stage-track > .reference-product-layer.is-active { opacity: 0 !important; visibility: hidden; }
 .reference-garment-preload { position: absolute; width: 1px; height: 1px; overflow: hidden; visibility: hidden; pointer-events: none; opacity: 0; }
 .reference-empty-media { color: rgba(255,255,255,0.32); font: 0.52rem/1 var(--font-mono), ui-monospace, monospace; letter-spacing: 0.18em; }
 .reference-exchange-orbit { display: none; }

@@ -103,15 +103,24 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
   const [direction, setDirection] = useState<1 | -1>(1);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [introReveal, setIntroReveal] = useState(false);
+  const [heroReady, setHeroReady] = useState(false);
   const active = products[activeIndex] || products[0];
   const sizes = active?.availableSizes?.length ? active.availableSizes : DEFAULT_SIZES;
   const stockForSize = (size: string) => active?.stockBySize?.[size];
   const displayCurrency = active?.currency || initialCurrency;
 
   useEffect(() => {
-    const onIntroComplete = () => setIntroReveal(true);
+    let readyTimer: number | undefined;
+    const onIntroComplete = () => {
+      setIntroReveal(true);
+      window.clearTimeout(readyTimer);
+      readyTimer = window.setTimeout(() => setHeroReady(true), 3900);
+    };
     window.addEventListener("hadx:intro-complete", onIntroComplete);
-    return () => window.removeEventListener("hadx:intro-complete", onIntroComplete);
+    return () => {
+      window.removeEventListener("hadx:intro-complete", onIntroComplete);
+      window.clearTimeout(readyTimer);
+    };
   }, []);
 
 
@@ -168,7 +177,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
   };
 
   return (
-    <section className={`reference-hero-shell ${introReveal ? "is-intro-revealing" : ""}`} style={stageStyle} aria-label="HADX LABS featured collection">
+    <section className={`reference-hero-shell ${introReveal ? "is-intro-revealing" : ""} ${heroReady ? "is-hero-ready" : ""}`} style={stageStyle} aria-label="HADX LABS featured collection">
       <div className="reference-hero-canvas">
         <div className="reference-ambient-noise" aria-hidden="true" />
         <div className="reference-light-orb reference-light-orb-left" aria-hidden="true" />
