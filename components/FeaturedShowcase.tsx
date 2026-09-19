@@ -232,6 +232,12 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
                 );
               })}
             </motion.div>
+            <div className="reference-garment-preload" aria-hidden="true">
+              {products.map((product) => {
+                const media = mediaFor(product);
+                return media?.type === "image" ? <ProductMedia key={`preload-${product.id}`} product={product} active /> : null;
+              })}
+            </div>
 
 	            <div className="reference-hologram-projector" aria-hidden="true">
 	              <div className="reference-projector-beam reference-projector-beam-left" />
