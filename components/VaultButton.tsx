@@ -49,29 +49,7 @@ export default function VaultButton({ productId, userId, isActive = false, onTog
       // The server sync below still works for authenticated users when storage is unavailable.
     }
 
-    if (!userId) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch("/api/vault", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, productId, active: nextState }),
-      });
-      if (!res.ok) throw new Error("Vault sync failed");
-      setMessage(nextState ? "Saved to Vault" : "Removed from Vault");
-    } catch {
-      setActive(!nextState);
-      try {
-        window.localStorage.setItem(storageKey(productId), String(!nextState));
-        window.dispatchEvent(new Event("hadx:favorites"));
-      } catch {
-        // Keep the visible rollback even when browser storage is unavailable.
-      }
-      setMessage("Could not sync Vault");
-    } finally {
-      setLoading(false);
-    }
+    // Keep favorites local-only until Supabase Auth is wired to RLS policies.
   };
 
   return (

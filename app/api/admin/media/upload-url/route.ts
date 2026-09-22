@@ -32,8 +32,7 @@ export async function POST(req: Request) {
     const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() || "https://bzrmiuslxlcghyajgsyu.supabase.co").trim();
     // Accept the earlier dashboard name while the canonical name is adopted.
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() || process.env.SUPABASE_ROLE_KEY?.trim();
-    const publicAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
-    const storageKey = serviceRoleKey || publicAnonKey;
+    const storageKey = serviceRoleKey;
     const bucket = process.env.SUPABASE_MEDIA_BUCKET?.trim() || "product-media";
     if (!supabaseUrl || !storageKey) {
       return NextResponse.json({ code: "MEDIA_STORAGE_CONFIGURATION", error: "Media storage is not configured on this server." }, { status: 503 });

@@ -15,10 +15,6 @@ function getSigningSecret(): string | null {
   const secret = [
     process.env.HADX_OWNER_SESSION_SECRET,
     process.env.HADX_ADMIN_SECRET,
-    process.env.SUPABASE_SERVICE_ROLE_KEY,
-    process.env.STRIPE_SECRET_KEY,
-    process.env.RESEND_API_KEY,
-    process.env.CRON_SECRET,
   ].find((value) => value?.trim());
   return secret?.trim() || null;
 }
