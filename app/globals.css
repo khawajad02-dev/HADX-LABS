@@ -1793,3 +1793,82 @@ body {
   .hadx-review-backdrop { padding: .75rem; }
   .hadx-review-modal { -webkit-backdrop-filter: blur(4px) saturate(1.12); backdrop-filter: blur(4px) saturate(1.12); }
 }
+
+
+/* Universal liquid controls: buttons inherit the same glass/water language even when a page uses a custom class. */
+button:not(.no-liquid),
+[data-liquid-button] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(235, 212, 158, 0.42);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255,255,255,0.14), transparent 42%),
+    linear-gradient(135deg, rgba(255,255,255,0.10), rgba(255,255,255,0.025) 58%, rgba(255,205,115,0.07));
+  -webkit-backdrop-filter: blur(10px) saturate(125%);
+  backdrop-filter: blur(10px) saturate(125%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 10px 24px rgba(0,0,0,0.16), 0 0 18px rgba(225,190,111,0.06);
+  transition: transform 260ms cubic-bezier(0.22,1,0.36,1), border-color 260ms ease, box-shadow 260ms ease, background 260ms ease;
+}
+
+button:not(.no-liquid)::before,
+[data-liquid-button]::before {
+  content: "";
+  position: absolute;
+  inset: -40% -18%;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 46% 54% 58% 42%;
+  background: radial-gradient(ellipse at 30% 26%, rgba(255,255,255,0.32), transparent 34%), linear-gradient(110deg, transparent 34%, rgba(255,239,190,0.16) 50%, transparent 66%);
+  transform: translateX(-48%) rotate(-8deg) scale(0.78);
+  opacity: 0.28;
+  animation: liquid-button-current 7s ease-in-out infinite;
+}
+
+button:not(.no-liquid)::after,
+[data-liquid-button]::after {
+  content: "";
+  position: absolute;
+  left: var(--liquid-ripple-x, 50%);
+  top: var(--liquid-ripple-y, 50%);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  border: 1px solid rgba(255,244,207,0.42);
+  border-radius: 58% 42% 52% 48%;
+  transform: translate(-50%, -50%) scale(0.45);
+  opacity: 0;
+}
+
+button:not(.no-liquid):hover,
+[data-liquid-button]:hover {
+  transform: translateY(-2px) scale(1.012);
+  border-color: rgba(255,231,175,0.82);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 15px 34px rgba(0,0,0,0.24), 0 0 28px rgba(226,196,126,0.18);
+}
+
+button:not(.no-liquid):active,
+[data-liquid-button]:active {
+  transform: translateY(1px) scale(0.975);
+  background: radial-gradient(circle at 50% 50%, rgba(255,235,173,0.22), transparent 54%), linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.035));
+}
+
+button:not(.no-liquid):active::after,
+[data-liquid-button]:active::after {
+  animation: liquid-button-ripple 680ms ease-out;
+}
+
+@keyframes liquid-button-current {
+  0%, 100% { transform: translateX(-48%) rotate(-8deg) scale(0.78); border-radius: 46% 54% 58% 42%; }
+  50% { transform: translateX(48%) rotate(8deg) scale(1.12); border-radius: 58% 42% 44% 56%; }
+}
+
+@keyframes liquid-button-ripple {
+  0% { transform: translate(-50%, -50%) scale(0.45); opacity: 0.78; }
+  100% { transform: translate(-50%, -50%) scale(8); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:not(.no-liquid)::before,
+  [data-liquid-button]::before { animation: none; }
+}
