@@ -19,6 +19,15 @@ function getSigningSecret(): string | null {
   return secret?.trim() || null;
 }
 
+function getVerificationSecrets(): string[] {
+  return [
+    getSigningSecret(),
+    // Legacy sessions were signed before the dedicated owner secret was added.
+    // This value is read only on the server and is never sent to the app.
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim(),
+  ].filter((value): value is string => Boolean(value));
+}
+
 function encode(value: string): string {
   return Buffer.from(value, "utf8").toString("base64url");
 }
@@ -43,14 +52,15 @@ function createToken(payload: OwnerTokenPayload): string | null {
 }
 
 function parseToken(token: string): OwnerTokenPayload | null {
-  const secret = getSigningSecret();
   const [encodedPayload, signature] = token.split(".");
-  if (!secret || !encodedPayload || !signature) return null;
+  if (!encodedPayload || !signature) return null;
 
-  const expectedSignature = signEncodedPayload(encodedPayload, secret);
   const actual = Buffer.from(signature, "utf8");
-  const expected = Buffer.from(expectedSignature, "utf8");
-  if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) return null;
+  const validSignature = getVerificationSecrets().some((secret) => {
+    const expected = Buffer.from(signEncodedPayload(encodedPayload, secret), "utf8");
+    return actual.length === expected.length && timingSafeEqual(actual, expected);
+  });
+  if (!validSignature) return null;
 
   const decoded = decode(encodedPayload);
   if (!decoded) return null;
