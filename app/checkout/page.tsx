@@ -1,5 +1,5 @@
-import CheckoutEntry from "@/components/CheckoutEntry";
-
-export default function Checkout() {
-  return <CheckoutEntry />;
+import CheckoutPage from "@/components/CheckoutPage";
+export const dynamic = "force-dynamic";
+export default function CheckoutRoute() {
+  return <CheckoutPage />;
 }

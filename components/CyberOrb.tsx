@@ -1,185 +1,232 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { motion } from "framer-motion";
 import InstagramDMButton from "./InstagramDMButton";
+import VaultButton from "./VaultButton";
 import AudioToggle from "./AudioToggle";
+import CartDrawer from "./CartDrawer";
+import SecureDropButton from "./SecureDropButton";
 
+// --- Types ---
+interface Particle {
+  x: number;
+  y: number;
+  speed: number;
+  opacity: number;
+  size: number;
+}
+
+// --- CyberOrb Component ---
 export default function CyberOrb() {
   const [isOpen, setIsOpen] = useState(false);
-  const [lightningPulse, setLightningPulse] = useState(0);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const orbRef = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
-  const isCheckoutRoute = pathname.startsWith("/checkout");
 
+  // Mock cart items (since no global store exists)
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  useEffect(() => { const syncCart = () => { try { setCartItems(JSON.parse(localStorage.getItem("hadx-cart") || "[]")); } catch { setCartItems([]); } }; syncCart(); window.addEventListener("storage", syncCart); return () => window.removeEventListener("storage", syncCart); }, []);
+
+  // Handle outside click to close
   useEffect(() => {
-    const handlePointerDownOutside = (event: PointerEvent) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (orbRef.current && !orbRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
-
-    document.addEventListener("pointerdown", handlePointerDownOutside);
-    return () => document.removeEventListener("pointerdown", handlePointerDownOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const pulseLightning = () => setLightningPulse((current) => current + 1);
-  const copySignalLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setIsOpen(false);
-    } catch {
-      window.prompt("Copy signal link", window.location.href);
-    }
-  };
+  // --- Module 1: Snow Effect (Canvas2D) ---
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-  const handleOrbPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
-    if (event.pointerType === "mouse" && event.button !== 0) return;
-    pulseLightning();
+    const particles: Particle[] = Array.from({ length: 12 }, () => ({
+      x: Math.random() * 64,
+      y: Math.random() * 64,
+      speed: 0.2 + Math.random() * 0.5,
+      opacity: 0.1 + Math.random() * 0.4,
+      size: 0.5 + Math.random() * 1.5,
+    }));
+
+    let animationFrameId: number;
+
+    const render = () => {
+      ctx.clearRect(0, 0, 64, 64);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+
+      particles.forEach((p) => {
+        ctx.globalAlpha = p.opacity;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        p.y += p.speed;
+        if (p.y > 64) {
+          p.y = -5;
+          p.x = Math.random() * 64;
+        }
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
+  // --- Arc Button Distribution ---
+  const buttons = useMemo(() => [
+    {
+      id: "cart",
+      component: (
+        <SecureDropButton 
+          label="EXECUTE ORDER" 
+          onClick={() => setIsCartOpen(true)} 
+        />
+      ),
+      angle: 90,
+      distance: 96,
+    },
+    {
+      id: "vault",
+      component: <VaultButton />,
+      angle: 60,
+      distance: 96,
+    },
+    {
+      id: "audio",
+      component: <AudioToggle />,
+      angle: 30,
+      distance: 96,
+    },
+    {
+      id: "instagram",
+      component: <InstagramDMButton label="DM" />,
+      angle: 0,
+      distance: 96,
+    },
+  ], []);
+
+  const getPosition = (angle: number, distance: number) => {
+    const rad = (angle * Math.PI) / 180;
+    return {
+      x: -Math.cos(rad) * distance,
+      y: -Math.sin(rad) * distance,
+    };
   };
 
   return (
-    <div ref={orbRef} className={`pointer-events-auto fixed z-[99999] flex flex-col items-end gap-2 ${isCheckoutRoute ? "top-4 right-5" : "bottom-[30px] right-5"}`}>
-      {/* The actions remain in the same vertical floating panel; only the surface language is shared. */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.98 }}
-            transition={{ duration: 0.16, ease: "easeOut" }}
-            className="liquid-panel mb-1 flex flex-col items-end gap-3 rounded-2xl p-3 shadow-[0_0_35px_rgba(179,112,18,0.12)]"
-          >
-            <Link href="/catalog#catalog" onClick={() => setIsOpen(false)} className="liquid-ui rounded-lg px-6 py-3 text-[11px] font-mono uppercase tracking-[0.2em] text-hadx-gold-light transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]">SHOP ALL DROPS</Link>
-            <Link href="/favorites" onClick={() => setIsOpen(false)} className="liquid-ui rounded-lg px-6 py-3 text-[11px] font-mono uppercase tracking-[0.2em] text-hadx-gold-light transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]">FAVORITES</Link>
-            <button type="button" onClick={() => void copySignalLink()} className="liquid-ui min-h-12 rounded-lg px-6 py-3 text-[11px] font-mono uppercase tracking-[0.2em] text-hadx-gold-light transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]">SHARE / COPY SIGNAL LINK</button>
-            <InstagramDMButton label="INSTAGRAM DM" />
-            <AudioToggle />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Original circular HUD footprint: a compact core surrounded by visible orbital rings. */}
-      <div className="relative flex h-14 w-14 items-center justify-center sm:h-16 sm:w-16">
-        <span className="pointer-events-none absolute -inset-1 rounded-full border border-cyan-200/10 shadow-[0_0_20px_rgba(34,211,238,0.12)] animate-[orb-neon-breathe_4.4s_ease-in-out_infinite]" />
-        <span className="pointer-events-none absolute inset-2 rounded-full border border-amber-200/20 shadow-[0_0_18px_rgba(218,173,76,0.12)]" />
-        <span className="pointer-events-none absolute inset-1 rounded-full border border-amber-300/25" />
-        <span className="pointer-events-none absolute -inset-1 rounded-full border border-dashed border-amber-300/30 animate-[orb-spin-reverse_22s_linear_infinite]" />
-        <span className="pointer-events-none absolute -inset-2 rounded-full border border-amber-400/15" />
-
-        {/* Fixed HUD markers echo the old target/orbit diagram instead of a flat gold button. */}
-        <span className="pointer-events-none absolute left-1/2 top-0 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-amber-200 shadow-[0_0_9px_rgba(255,222,139,0.9)]" />
-        <span className="pointer-events-none absolute bottom-0 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-amber-400/80" />
-        <span className="pointer-events-none absolute right-0 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-amber-200/85 shadow-[0_0_8px_rgba(255,222,139,0.75)]" />
-        <span className="pointer-events-none absolute left-0 top-1/2 h-1 w-1 -translate-y-1/2 rounded-full bg-amber-400/70" />
-
-        <motion.button
-          type="button"
-          aria-label={isOpen ? "Close CyberOrb menu" : "Open CyberOrb menu"}
-          aria-expanded={isOpen}
-          onClick={() => setIsOpen((open) => !open)}
-          onPointerDown={handleOrbPointerDown}
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.94 }}
-          className={`liquid-ui relative isolate flex h-10 w-10 items-center justify-center rounded-full border shadow-2xl sm:h-12 sm:w-12 ${
-            isOpen
-              ? "border-amber-200/75 shadow-[0_0_34px_rgba(217,158,51,0.42)]"
-              : "border-amber-200/40 shadow-[0_0_26px_rgba(217,158,51,0.22)]"
-          }`}
-        >
-          {/* Local water ripple that confirms a finger/mouse press directly on the Orb. */}
-          <span className="pointer-events-none absolute inset-0 rounded-full border border-amber-100/25 animate-[orb-ripple_2.8s_ease-out_infinite]" />
-          <span className="pointer-events-none absolute inset-2 rounded-full border border-amber-200/30" />
-          <span className="pointer-events-none absolute inset-3 rounded-full border border-amber-300/15" />
-
-          {/* Crosshair core and orbital micro-dots from the original HUD treatment. */}
-          <span className="pointer-events-none absolute h-px w-8 bg-amber-200/25 sm:w-10" />
-          <span className="pointer-events-none absolute h-8 w-px bg-amber-200/25 sm:h-10" />
-          <span className="relative flex h-6 w-6 items-center justify-center rounded-full border border-amber-200/45 bg-transparent shadow-[inset_0_0_10px_rgba(217,158,51,0.26)] sm:h-8 sm:w-8">
-            <span className="pointer-events-none absolute inset-1 rounded-full border border-amber-300/25" />
-            <span className="pointer-events-none absolute -right-1 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-amber-200 shadow-[0_0_8px_rgba(255,222,139,0.95)]" />
-            <span className="pointer-events-none absolute -bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-amber-400/90" />
-            <span className={`h-2 w-2 rounded-full transition-all duration-300 ${isOpen ? "scale-125 bg-amber-200 shadow-[0_0_18px_rgba(255,222,139,1)]" : "bg-amber-100/80 shadow-[0_0_12px_rgba(255,222,139,0.7)]"}`} />
-          </span>
-
-          <AnimatePresence mode="sync">
-            {lightningPulse > 0 && (
-              <motion.svg
-                key={lightningPulse}
-                aria-hidden="true"
-                viewBox="0 0 72 72"
-                className="pointer-events-none absolute inset-1 h-[calc(100%-0.5rem)] w-[calc(100%-0.5rem)] overflow-visible"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0, 1, 0.82, 0] }}
-                transition={{ duration: 0.72, times: [0, 0.12, 0.38, 1], ease: "easeOut" }}
-              >
-                <motion.path
-                  d="M38 7 L32 23 L39 28 L27 43 L34 46 L24 65"
-                  fill="none"
-                  stroke="#ffdf8b"
-                  strokeWidth="1.35"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: [0, 1, 0.8, 0] }}
-                  transition={{ duration: 0.62, times: [0, 0.25, 0.58, 1], ease: "easeOut" }}
-                  style={{ filter: "drop-shadow(0 0 5px rgba(255, 202, 92, 0.95))" }}
-                />
-                <motion.path
-                  d="M33 24 L22 18 M35 35 L49 30 M29 48 L16 55"
-                  fill="none"
-                  stroke="#d99e33"
-                  strokeWidth="0.8"
-                  strokeLinecap="round"
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: [0, 0.9, 0] }}
-                  transition={{ duration: 0.56, delay: 0.08, ease: "easeOut" }}
-                />
-              </motion.svg>
-            )}
-          </AnimatePresence>
-
-          <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-full opacity-30">
-            <span className="absolute left-0 top-0 h-px w-full bg-amber-100 animate-[scanline_3s_linear_infinite]" />
-          </span>
-        </motion.button>
+    <div ref={orbRef} className="fixed bottom-6 right-6 z-50 flex items-center justify-center">
+      {/* Radial Buttons (Always mounted for state persistence) */}
+      <div className="absolute pointer-events-none">
+        {buttons.map((btn, index) => {
+          const pos = getPosition(btn.angle, btn.distance);
+          return (
+            <motion.div
+              key={btn.id}
+              initial={false}
+              animate={{ 
+                x: isOpen ? pos.x : 0, 
+                y: isOpen ? pos.y : 0, 
+                opacity: isOpen ? 1 : 0, 
+                scale: isOpen ? 1 : 0.5,
+              }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 260, 
+                damping: 20,
+                delay: isOpen ? index * 0.05 : 0 
+              }}
+              className={`absolute flex items-center justify-center ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+              style={{ 
+                width: "max-content",
+                height: "max-content"
+              }}
+            >
+              {btn.component}
+            </motion.div>
+          );
+        })}
       </div>
 
+      {/* Main Orb Trigger */}
+      <motion.button
+        onClick={() => setIsOpen(!isOpen)}
+        animate={{ 
+          rotate: isOpen ? 360 : 0,
+          boxShadow: isOpen 
+            ? "0 0 25px rgba(245, 158, 11, 0.5)" 
+            : "0 0 15px rgba(245, 158, 11, 0.2)"
+        }}
+        transition={{ duration: 0.4, ease: "easeInOut" }}
+        className={`
+          relative w-16 h-16 rounded-full flex items-center justify-center
+          backdrop-blur-md border transition-colors duration-300
+          ${isOpen ? "bg-amber-500/20 border-amber-500" : "bg-black/50 border-amber-500/30"}
+        `}
+      >
+        {/* Snow Canvas */}
+        <canvas
+          ref={canvasRef}
+          width={64}
+          height={64}
+          className="absolute inset-0 rounded-full pointer-events-none"
+        />
 
-      <style jsx global>{`
-        @keyframes scanline {
-          0% { top: 0%; opacity: 0; }
-          18% { opacity: 1; }
-          82% { opacity: 1; }
-          100% { top: 100%; opacity: 0; }
+        {/* Golden Lightning Flash & Pulse */}
+        <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
+          <div className="lightning-flash-anim absolute inset-0 bg-amber-500/10 opacity-0" />
+          <svg className="w-full h-full" viewBox="0 0 64 64">
+            <path
+              className="lightning-path-anim"
+              d="M32 10 L36 28 L28 36 L32 54"
+              stroke="#F59E0B"
+              strokeWidth="1.5"
+              fill="none"
+              strokeDasharray="100"
+              strokeDashoffset="100"
+            />
+          </svg>
+        </div>
+
+        {/* Center Icon/Indicator */}
+        <div className={`
+          w-2 h-2 rounded-full transition-all duration-300
+          ${isOpen ? "bg-amber-400 scale-125" : "bg-amber-500/40"}
+        `} />
+      </motion.button>
+
+      {/* Cart Drawer (Independent state) */}
+      <CartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        items={cartItems}
+        onIncrement={(id) => setCartItems(prev => { const next = prev.map(i => i.id === id ? {...i, quantity: i.quantity + 1} : i); localStorage.setItem("hadx-cart", JSON.stringify(next)); return next; })}
+        onDecrement={(id) => setCartItems(prev => { const next = prev.map(i => i.id === id && i.quantity > 1 ? {...i, quantity: i.quantity - 1} : i); localStorage.setItem("hadx-cart", JSON.stringify(next)); return next; })}
+        onCheckout={() => window.location.href = "/checkout"}
+      />
+
+      <style>{`
+        @keyframes flash {
+          0%, 88%, 92%, 100% { opacity: 0; }
+          90% { opacity: 1; }
         }
-        @keyframes orb-spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+        @keyframes strike {
+          0%, 88% { stroke-dashoffset: 100; opacity: 0; }
+          90% { stroke-dashoffset: 0; opacity: 1; }
+          92%, 100% { stroke-dashoffset: -100; opacity: 0; }
         }
-        @keyframes orb-spin-reverse {
-          from { transform: rotate(360deg); }
-          to { transform: rotate(0deg); }
+        .lightning-flash-anim {
+          animation: flash 5s infinite;
         }
-        @keyframes orb-ripple {
-          0%, 62%, 100% { transform: scale(0.96); opacity: 0.15; }
-          72% { transform: scale(1.04); opacity: 0.52; }
-          84% { transform: scale(1.12); opacity: 0; }
-        }
-        @keyframes orb-neon-breathe {
-          0%, 100% { opacity: 0.42; transform: scale(0.98); }
-          50% { opacity: 0.9; transform: scale(1.04); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .animate-\\[orb-spin_26s_linear_infinite\\],
-          .animate-\\[orb-spin-reverse_22s_linear_infinite\\],
-          .animate-\\[scanline_3s_linear_infinite\\],
-          .animate-\\[orb-ripple_2.8s_ease-out_infinite\\],
-          .animate-\\[orb-neon-breathe_4.4s_ease-in-out_infinite\\] {
-            animation: none !important;
-          }
+        .lightning-path-anim {
+          animation: strike 5s infinite;
         }
       `}</style>
     </div>

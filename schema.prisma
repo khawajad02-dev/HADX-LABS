@@ -30,7 +30,6 @@ enum OrderStatus {
 enum Currency {
   USD
   PKR
-  INR
   EUR
 }
 
@@ -52,7 +51,6 @@ model Product {
   stockQuantity   Int
   holds           InventoryHold[]
   orders          Order[]
-  reviews         ProductReview[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 }
@@ -64,14 +62,12 @@ model Order {
   email               String
   phone               String
   address             String
-  city                String?
-  country             String?
-  size                String?
-  productColor        String?
   productId           String?
   product             Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
   productSku          String
   productTitle        String
+  color               String?
+  size                String?
   unitPriceInCents    Int
   quantity            Int
   totalAmountInCents  Int
@@ -91,20 +87,6 @@ model Order {
   @@index([orderStatus])
   @@index([createdAt])
   @@index([stripeIntent])
-}
-
-model ProductReview {
-  id         String   @id @default(uuid())
-  productId  String
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  name       String
-  rating     Int
-  body       String
-  approved   Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@index([productId, approved, createdAt])
 }
 
 model InventoryHold {

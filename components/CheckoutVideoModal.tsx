@@ -1,167 +1,23 @@
-'use client';
-
-import React, { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-
-export type CheckoutState = 'payment_failed' | 'network_error' | 'timeout' | 'order_confirmed' | null;
-
-interface CheckoutVideoModalProps {
-  state: CheckoutState;
-  onClose: () => void;
-  onRetry?: () => void;
-  orderId?: string;
+"use client";
+import type { ReactNode } from "react";
+export type CheckoutState = "order_confirmed" | "payment_failed" | "network_error" | "timeout" | null;
+type Props = { state: CheckoutState; orderId: string; onClose: () => void; onRetry: () => void };
+const copy: Record<Exclude<CheckoutState, null>, { title: string; body: ReactNode; action: string }> = {
+  order_confirmed: { title: "ORDER CONFIRMED", body: "Your COD order has been received.", action: "CLOSE" },
+  payment_failed: { title: "ORDER FAILED", body: "We could not create the order. Please verify your details and try again.", action: "TRY AGAIN" },
+  network_error: { title: "NETWORK ERROR", body: "The checkout service could not be reached.", action: "TRY AGAIN" },
+  timeout: { title: "SESSION TIMEOUT", body: "The checkout request timed out. No payment was taken.", action: "TRY AGAIN" },
+};
+export function CheckoutVideoModal({ state, orderId, onClose, onRetry }: Props) {
+  if (!state) return null;
+  const item = copy[state];
+  const body = typeof item.body === "string" ? item.body : <>{item.body}</>;
+  return <div className="fixed inset-0 z-[100] grid place-items-center bg-black/80 p-6 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="checkout-result-title">
+    <div className="w-full max-w-md rounded-2xl border border-amber-500/40 bg-neutral-950 p-7 text-center shadow-[0_0_40px_rgba(245,158,11,.18)]">
+      <p className="mb-3 font-mono text-[10px] tracking-[.3em] text-amber-400">[ SYSTEM :: COD STATUS ]</p>
+      <h2 id="checkout-result-title" className="mb-4 text-2xl font-bold text-white">{item.title}</h2>
+      <p className="mb-7 text-sm leading-6 text-neutral-300">{body} {state === "order_confirmed" ? <strong>{orderId}</strong> : null}</p>
+      <button onClick={state === "order_confirmed" ? onClose : onRetry} className="rounded-xl bg-amber-500 px-6 py-3 font-mono text-xs font-bold tracking-widest text-black hover:bg-amber-400">{item.action}</button>
+    </div>
+  </div>;
 }
-
-const VIDEO_SOURCES: Record<NonNullable<CheckoutState>, string> = {
-  payment_failed: '/videos/payment-failed.mp4',
-  network_error: '/videos/network-error.mp4',
-  timeout: '/videos/timeout.mp4',
-  order_confirmed: '/videos/order-confirmed.mp4',
-};
-
-const STATE_CONFIG: Record<
-  NonNullable<CheckoutState>,
-  {
-    primaryBtnText: string;
-    secondaryBtnText?: string;
-  }
-> = {
-  payment_failed: {
-    primaryBtnText: 'Try Another Card',
-    secondaryBtnText: 'Change Payment Method',
-  },
-  network_error: {
-    primaryBtnText: 'Retry Connection',
-    secondaryBtnText: 'Return to Shop',
-  },
-  timeout: {
-    primaryBtnText: 'Refresh Cart',
-    secondaryBtnText: 'Return to Shop',
-  },
-  order_confirmed: {
-    primaryBtnText: 'Continue Shopping',
-  },
-};
-
-export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
-  state,
-  onClose,
-  onRetry,
-  orderId,
-}) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoStarted, setVideoStarted] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (state && videoRef.current) {
-      setVideoStarted(false);
-      videoRef.current.currentTime = 0;
-      
-      const playVideo = async () => {
-        try {
-          videoRef.current!.muted = false;
-          await videoRef.current!.play();
-          setVideoStarted(true);
-        } catch (err) {
-          try {
-            videoRef.current!.muted = true;
-            await videoRef.current!.play();
-            setVideoStarted(true);
-          } catch (e) {
-            console.error("Checkout video play failed:", e);
-          }
-        }
-      };
-      playVideo();
-    }
-  }, [state]);
-
-  if (!mounted || !state) return null;
-
-  const config = STATE_CONFIG[state];
-  const videoSrc = VIDEO_SOURCES[state];
-
-  return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[10007] bg-black flex flex-col items-center justify-center overflow-hidden w-full h-[100dvh]"
-      >
-        {/* Logo Placeholder with precise sizing */}
-        <div className={`absolute inset-0 z-[10008] flex items-center justify-center bg-black transition-opacity duration-700 ${videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
-          <div className="w-full h-[100dvh] flex items-center justify-center bg-black p-4">
-            <img src="/og-image.png" alt="HADX Logo" className="max-w-[70vw] max-h-[35vh] w-auto h-auto object-contain drop-shadow-[0_0_35px_rgba(212,175,55,0.35)]" />
-          </div>
-        </div>
-
-        <div className="w-full h-[100dvh] overflow-hidden bg-black flex items-center justify-center relative">
-          <video
-            ref={videoRef}
-            src={videoSrc}
-            autoPlay
-            loop={state !== 'order_confirmed'}
-            playsInline
-            preload="auto"
-            onPlaying={() => setVideoStarted(true)}
-            className="w-full h-full object-contain bg-black"
-          />
-        </div>
-
-        {/* Action Buttons - Bottom Center */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-[10009] flex flex-col gap-3 w-full max-w-xs px-6">
-          <button
-            onClick={onRetry || onClose}
-            className="
-              liquid-ui group relative overflow-hidden rounded-xl px-8 py-3.5
-              border border-amber-500/40
-              shadow-[0_4px_25px_rgba(0,0,0,0.8)]
-              transition-all duration-300 ease-out
-              hover:border-amber-400 hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] cursor-pointer
-              active:scale-[0.95] pointer-events-auto
-              w-full
-            "
-          >
-            <span className="relative flex items-center justify-center gap-2 text-xs font-bold tracking-[0.25em] uppercase text-amber-200 group-hover:text-amber-100">
-              [&nbsp;
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">{config.primaryBtnText}</span>
-              &nbsp;]
-            </span>
-          </button>
-
-          {config.secondaryBtnText && (
-            <button
-              onClick={onClose}
-              className="
-              liquid-ui group relative overflow-hidden rounded-xl px-8 py-3
-              border border-white/10
-              transition-all duration-300 ease-out
-              hover:border-white/30 cursor-pointer
-              active:scale-[0.95] pointer-events-auto
-              w-full
-            "
-            >
-              <span className="relative flex items-center justify-center gap-2 text-[10px] font-medium tracking-[0.2em] uppercase text-zinc-400 group-hover:text-white">
-                {config.secondaryBtnText}
-              </span>
-            </button>
-          )}
-          
-          {state === 'order_confirmed' && orderId && (
-            <div className="text-center pt-1">
-              <span className="text-[10px] font-mono text-amber-300/70 tracking-widest uppercase">
-                ORDER ID: {orderId}
-              </span>
-            </div>
-          )}
-        </div>
-      </motion.div>
-    </AnimatePresence>
-  );
-};
