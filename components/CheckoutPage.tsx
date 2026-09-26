@@ -1,6 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+function digits(value: string) { return value.replace(/\D/g, '').slice(0, 16); }
+function formatCard(value: string) { return digits(value).replace(/(.{4})/g, '$1 ').trim(); }
+function maskCard(value: string) { return Array.from({ length: 16 }, (_, index) => digits(value)[index] || '•').join('').replace(/(.{4})/g, '$1 ').trim(); }
+function CardPreview({ name, number, expiry, cvv, flipped, amount }: { name: string; number: string; expiry: string; cvv: string; flipped: boolean; amount: string }) { const first = digits(number)[0]; const network = first === '4' ? 'VISA' : first === '5' ? 'MASTERCARD' : 'HADX PAY'; return <div className={`checkout-card-stage ${flipped ? 'is-flipped' : ''}`}><div className="checkout-card-flipper"><div className="checkout-card-face"><img src="/hadx-monogram-emitter-clean.png" alt="HADX" className="checkout-card-logo" /><span className="checkout-card-chip" /><div className="checkout-card-number">{maskCard(number)}</div><div className="checkout-card-bottomline"><strong>{name || 'YOUR NAME'}</strong><strong>{expiry || 'MM/YY'}</strong><b>{network}</b></div><span className="checkout-card-amount">{amount}</span></div><div className="checkout-card-face checkout-card-back"><div className="checkout-card-magnetic" /><div className="checkout-card-cvv-box">{cvv || '•••'}</div></div></div></div>; }
 import { CheckoutVideoModal, CheckoutState } from './CheckoutVideoModal';
 import CustomSelect from './CustomSelect';
 import type { CartItem } from '@/lib/cart';
@@ -19,6 +23,7 @@ export default function CheckoutPage({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [inlineMessage, setInlineMessage] = useState('');
   const [selectedPayment, setSelectedPayment] = useState<'COD' | 'CARD'>('COD');
+  const [focusedCardField, setFocusedCardField] = useState<'number' | 'expiry' | 'cvv' | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -27,7 +32,7 @@ export default function CheckoutPage({
     phone: '',
     address: '',
     city: '',
-    country: initialCountry,
+    country: initialCountry, cardNumber: '', expiry: '', cvv: '',
   });
   const [otherCountry, setOtherCountry] = useState('');
 
@@ -39,6 +44,8 @@ export default function CheckoutPage({
   const isPakistan = effectiveCountry.toLowerCase() === 'pakistan';
   const paymentMethod = effectiveCountry ? (isPakistan ? selectedPayment : 'CARD') : '';
   const paymentLabel = paymentMethod === 'COD' ? 'Cash on delivery' : paymentMethod === 'CARD' ? 'Card payment' : 'Select country first';
+  const isCardPayment = paymentMethod === 'CARD';
+  const setCard = (key: 'cardNumber' | 'expiry' | 'cvv', value: string) => setFormData((current) => ({ ...current, [key]: value }));
   const totalAmount = cartItems.reduce((acc, item) => acc + Number(item.price || 0) * Number(item.quantity || 0), 0);
 
   // Live Checkout Execution Handler
@@ -300,6 +307,7 @@ export default function CheckoutPage({
             {isPakistan ? <div className="mt-4 grid grid-cols-2 gap-2"><button type="button" onClick={() => setSelectedPayment('COD')} className={`rounded-lg border px-3 py-2 text-[10px] font-mono uppercase tracking-wider ${selectedPayment === 'COD' ? 'border-amber-200 bg-amber-100/15 text-amber-100' : 'border-white/15 text-zinc-500'}`}>Cash on Delivery</button><button type="button" onClick={() => setSelectedPayment('CARD')} className={`rounded-lg border px-3 py-2 text-[10px] font-mono uppercase tracking-wider ${selectedPayment === 'CARD' ? 'border-amber-200 bg-amber-100/15 text-amber-100' : 'border-white/15 text-zinc-500'}`}>Card Payment</button></div> : null}
           </div>
 
+          {isCardPayment ? <div className="checkout-card-payment-area liquid-panel rounded-xl p-4"><CardPreview name={formData.name} number={formData.cardNumber} expiry={formData.expiry} cvv={formData.cvv} flipped={focusedCardField === 'cvv'} amount={`${currencySymbol} ${totalAmount.toLocaleString()}`} /><div className="grid gap-3"><label className="checkout-muted-label">CARD NUMBER<input required inputMode="numeric" autoComplete="cc-number" value={formatCard(formData.cardNumber)} placeholder="4242 4242 4242 4242" onFocus={() => setFocusedCardField('number')} onChange={(event) => setCard('cardNumber', event.target.value)} className="liquid-ui checkout-field mt-1 w-full rounded-lg p-3" /></label><div className="grid grid-cols-2 gap-3"><label className="checkout-muted-label">EXPIRY<input required value={formData.expiry} placeholder="MM/YY" onFocus={() => setFocusedCardField('expiry')} onChange={(event) => setCard('expiry', event.target.value.slice(0, 5))} className="liquid-ui checkout-field mt-1 w-full rounded-lg p-3" /></label><label className="checkout-muted-label">CVV<input required inputMode="numeric" value={formData.cvv} placeholder="123" onFocus={() => setFocusedCardField('cvv')} onChange={(event) => setCard('cvv', event.target.value.replace(/\D/g, '').slice(0, 4))} className="liquid-ui checkout-field mt-1 w-full rounded-lg p-3" /></label></div></div><p className="checkout-card-hint">Preview animation only; final card payment is completed securely by the gateway.</p></div> : null}
           {inlineMessage ? <div role="alert" className="liquid-panel checkout-inline-message rounded-xl p-4 text-[11px] leading-5">{inlineMessage}</div> : null}
 
           {/* Total & Submit */}
