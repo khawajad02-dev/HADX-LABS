@@ -1034,6 +1034,17 @@ body {
 }
 
 /* Shared HADX surface language for catalogue and checkout controls. Keep these surfaces translucent so ambient lightning remains visible beneath them. */
+/* Keep the original atelier glass visible beneath catalogue cards and controls. */
+.catalog-section, .catalog-product-card, .catalog-media-frame, .catalog-filter, .catalog-sort-select, .catalog-sort-select .hadx-select-trigger, .catalog-sort-select .hadx-select-menu {
+  background-color: transparent !important;
+}
+.catalog-product-card, .catalog-filter, .catalog-sort-select .hadx-select-trigger {
+  -webkit-backdrop-filter: blur(12px) saturate(125%);
+  backdrop-filter: blur(12px) saturate(125%);
+}
+.catalog-product-card { border-color: rgba(255,255,255,.12) !important; }
+.catalog-product-card:hover { background: rgba(212,175,55,.07) !important; }
+
 .hadx-select-trigger,
 .hadx-select-menu,
 .hadx-select-search,

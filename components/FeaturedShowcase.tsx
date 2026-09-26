@@ -233,7 +233,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
                       mass: 0.72,
                       opacity: { duration: 0.32, ease: "easeOut" },
                     }}
-                    onClick={() => selectProduct(products.findIndex((candidate) => candidate.id === product.id))}
+                    onClick={() => { selectProduct(products.findIndex((candidate) => candidate.id === product.id)); window.location.assign(productPath(product)); }}
                     style={{ zIndex: isActive ? 20 : 10, transformStyle: "preserve-3d" }}
                   >
                     <ProductMedia product={product} active={isActive} />

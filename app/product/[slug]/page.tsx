@@ -24,7 +24,7 @@ function detectCurrency(requested?: string): DisplayCurrency {
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const product = await prisma.product.findUnique({ where: { sku: params.slug } });
+  const product = await prisma.product.findFirst({ where: { status: "PUBLISHED", OR: [{ sku: params.slug }, { id: params.slug }] } });
   if (!product || product.status !== "PUBLISHED") return { title: "Product Not Found | HADX LABS" };
   const parsed = serializeProduct(product);
   const title = `${product.title} | HADX LABS`;
@@ -40,8 +40,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function ProductPage({ params, searchParams }: { params: { slug: string }; searchParams?: { currency?: string } }) {
-  const product = await prisma.product.findUnique({ where: { sku: params.slug } });
-  if (!product || product.status !== "PUBLISHED") notFound();
+  const product = await prisma.product.findFirst({ where: { status: "PUBLISHED", OR: [{ sku: params.slug }, { id: params.slug }] } });
+  if (!product) notFound();
   const parsed = serializeProduct(product);
   const currency = detectCurrency(searchParams?.currency);
   const amount = regionalPrice(product.priceInCents, parsed.regionalPrices, currency);
