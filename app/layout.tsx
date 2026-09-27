@@ -3,6 +3,7 @@ import './globals.css';
 import CyberOrb from '@/components/CyberOrb';
 import IntroSplashScreen from '@/components/IntroSplashScreen';
 import DeferredEnhancements from '@/components/DeferredEnhancements';
+import InteractionFeedback from '@/components/InteractionFeedback';
 import { CartProvider } from '@/components/CartProvider';
 
 export const metadata: Metadata = {
@@ -66,6 +67,7 @@ export default function RootLayout({
       <body style={{ margin: 0, padding: 0, backgroundColor: '#050505', color: '#ffffff' }}>
         <div id="hadx-root" className="relative min-h-screen w-full overflow-x-hidden">
           <DeferredEnhancements />
+          <InteractionFeedback />
           <IntroSplashScreen />
           <CartProvider>
             {children}
