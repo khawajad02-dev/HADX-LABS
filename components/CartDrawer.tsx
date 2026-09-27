@@ -10,10 +10,11 @@ type CartDrawerProps = {
   onIncrement: (key: string) => void;
   onDecrement: (key: string) => void;
   onRemove: (key: string) => void;
+  onClearCart: () => void;
   onCheckout: () => void;
-};
+}
 
-export default function CartDrawer({ isOpen, onClose, items, onIncrement, onDecrement, onRemove, onCheckout }: CartDrawerProps) {
+export default function CartDrawer({ isOpen, onClose, items, onIncrement, onDecrement, onRemove, onClearCart, onCheckout }: CartDrawerProps) {
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const activeCurrency = items[0]?.currency || "USD";
   const currencySymbol = activeCurrency === "PKR" ? "PKR" : activeCurrency === "INR" ? "₹" : "$";
@@ -70,6 +71,7 @@ export default function CartDrawer({ isOpen, onClose, items, onIncrement, onDecr
 
         <div className="liquid-panel space-y-4 border-t border-hadx-border px-6 py-5">
           <div className="flex items-center justify-between text-xs font-mono uppercase tracking-wide text-zinc-400"><span>Subtotal</span><span className="text-base font-bold text-hadx-gold-light">{currencySymbol} {total.toLocaleString()}</span></div>
+          <button type="button" onClick={onClearCart} disabled={items.length === 0} className="mx-auto block text-[9px] font-mono uppercase tracking-[0.18em] text-white/35 hover:text-amber-100 disabled:cursor-not-allowed disabled:opacity-30">Clear loadout</button>
           <button type="button" onClick={onCheckout} disabled={items.length === 0} className={`liquid-ui w-full rounded-xl border border-hadx-border-glow py-3.5 text-xs font-bold uppercase tracking-[0.25em] shadow-gold-glow ${items.length === 0 ? "cursor-not-allowed opacity-40" : "hover:scale-[1.01] hover:border-amber-400 active:scale-[0.99]"}`}><span className="bg-gold-gradient bg-clip-text text-transparent">[ EXECUTE ORDER ]</span></button>
         </div>
       </aside>

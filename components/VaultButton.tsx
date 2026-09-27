@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { pulseHaptic } from "@/lib/interaction-feedback";
 
 type VaultButtonProps = {
   productId?: string;
@@ -30,6 +31,7 @@ export default function VaultButton({ productId, userId, isActive = false, onTog
 
   const handleClick = async () => {
     if (loading) return;
+    pulseHaptic(10);
     if (!productId) {
       setMessage("Open a product to save it");
       return;

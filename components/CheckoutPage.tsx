@@ -14,10 +14,12 @@ export default function CheckoutPage({
   items: initialItems = [], 
   initialCountry = '',
   onOrderComplete,
+  onClearCart,
 }: {
   items?: CartItem[],
   initialCountry?: string,
   onOrderComplete?: () => void,
+  onClearCart?: () => void,
 }) {
   const [modalState, setModalState] = useState<CheckoutState>(null);
   const [activeOrderId, setActiveOrderId] = useState<string>('HADX-984210');
@@ -312,7 +314,7 @@ export default function CheckoutPage({
             {isPakistan ? <div className="mt-4 grid grid-cols-2 gap-2"><button type="button" onClick={() => setSelectedPayment('COD')} className={`rounded-lg border px-3 py-2 text-[10px] font-mono uppercase tracking-wider ${selectedPayment === 'COD' ? 'border-amber-200 bg-amber-100/15 text-amber-100' : 'border-white/15 text-zinc-500'}`}>Cash on Delivery</button><button type="button" onClick={() => setSelectedPayment('CARD')} className={`rounded-lg border px-3 py-2 text-[10px] font-mono uppercase tracking-wider ${selectedPayment === 'CARD' ? 'border-amber-200 bg-amber-100/15 text-amber-100' : 'border-white/15 text-zinc-500'}`}>Card Payment</button></div> : null}
           </div>
 
-          {isCardPayment ? <div className="checkout-card-payment-area liquid-panel rounded-xl p-4"><CardPreview name={formData.name} number={formData.cardNumber} expiry={formData.expiry} cvv={formData.cvv} flipped={focusedCardField === 'cvv'} amount={`${currencySymbol} ${totalAmount.toLocaleString()}`} /><div className="grid gap-3"><label className="checkout-muted-label">CARD NUMBER<input required inputMode="numeric" autoComplete="cc-number" value={formatCard(formData.cardNumber)} placeholder="4242 4242 4242 4242" onFocus={() => setFocusedCardField('number')} onChange={(event) => setCard('cardNumber', event.target.value)} className="liquid-ui checkout-field mt-1 w-full rounded-lg p-3" /></label><div className="grid grid-cols-2 gap-3"><label className="checkout-muted-label">EXPIRY<input required value={formData.expiry} placeholder="MM/YY" onFocus={() => setFocusedCardField('expiry')} onChange={(event) => setCard('expiry', event.target.value.slice(0, 5))} className="liquid-ui checkout-field mt-1 w-full rounded-lg p-3" /></label><label className="checkout-muted-label">CVV<input required inputMode="numeric" value={formData.cvv} placeholder="123" onFocus={() => { setFocusedCardField('cvv'); playCardFlipSound(); pulseHaptic(12); }} onChange={(event) => setCard('cvv', event.target.value.replace(/\D/g, '').slice(0, 4))} className="liquid-ui checkout-field mt-1 w-full rounded-lg p-3" /></label></div></div><p className="checkout-card-hint">Preview animation only; final card payment is completed securely by the gateway.</p></div> : null}
+          {isCardPayment ? <div className="checkout-card-payment-area liquid-panel rounded-xl p-4"><CardPreview name={formData.name} number={formData.cardNumber} expiry={formData.expiry} cvv={formData.cvv} flipped={focusedCardField === 'cvv'} amount={`${currencySymbol} ${totalAmount.toLocaleString()}`} /><div className="grid gap-3"><label className="checkout-muted-label">CARD NUMBER<input required inputMode="numeric" autoComplete="cc-number" value={formatCard(formData.cardNumber)} placeholder="4242 4242 4242 4242" onFocus={() => setFocusedCardField('number')} onClick={() => { playCardFlipSound(); pulseHaptic(8); }} onChange={(event) => setCard('cardNumber', event.target.value)} className="liquid-ui checkout-field mt-1 w-full rounded-lg p-3" /></label><div className="grid grid-cols-2 gap-3"><label className="checkout-muted-label">EXPIRY<input required value={formData.expiry} placeholder="MM/YY" onFocus={() => setFocusedCardField('expiry')} onClick={() => { playCardFlipSound(); pulseHaptic(8); }} onChange={(event) => setCard('expiry', event.target.value.slice(0, 5))} className="liquid-ui checkout-field mt-1 w-full rounded-lg p-3" /></label><label className="checkout-muted-label">CVV<input required inputMode="numeric" value={formData.cvv} placeholder="123" onFocus={() => setFocusedCardField('cvv')} onClick={() => { playCardFlipSound(); pulseHaptic(12); }} onChange={(event) => setCard('cvv', event.target.value.replace(/\D/g, '').slice(0, 4))} className="liquid-ui checkout-field mt-1 w-full rounded-lg p-3" /></label></div></div><p className="checkout-card-hint">Preview animation only; final card payment is completed securely by the gateway.</p></div> : null}
           {inlineMessage ? <div role="alert" className="liquid-panel checkout-inline-message rounded-xl p-4 text-[11px] leading-5">{inlineMessage}</div> : null}
 
           {/* Total & Submit */}
@@ -332,6 +334,7 @@ export default function CheckoutPage({
               {isSubmitting ? 'PROCESSING...' : 'EXECUTE ORDER'}
             </button>
           </div>
+          {onClearCart ? <button type="button" onClick={onClearCart} className="checkout-clear-loadout text-[10px] font-mono uppercase tracking-[0.18em] text-white/45 hover:text-amber-100">Clear current loadout</button> : null}
         </form>
       </div>
 

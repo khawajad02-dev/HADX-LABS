@@ -90,6 +90,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         onIncrement={increment}
         onDecrement={decrement}
         onRemove={removeItem}
+        onClearCart={clearCart}
         onCheckout={() => { setIsOpen(false); router.push("/checkout"); }}
       />
     </CartContext.Provider>

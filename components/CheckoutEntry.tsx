@@ -73,5 +73,5 @@ export default function CheckoutEntry() {
     else router.push("/catalog#catalog");
   };
 
-  return <><CheckoutPage items={items} initialCountry={initialCountry} onOrderComplete={returnToProduct} />{networkVideo}</>;
+  return <><CheckoutPage items={items} initialCountry={initialCountry} onOrderComplete={returnToProduct} onClearCart={() => { clearCart(); router.push('/catalog#catalog'); }} />{networkVideo}</>;
 }
