@@ -102,6 +102,10 @@ export default function CheckoutPage({
       }
 
       if (res.ok && data.success) {
+        if (paymentMethod === 'CARD' && data.checkoutUrl) {
+          window.location.assign(data.checkoutUrl);
+          return;
+        }
         setActiveOrderId(data.orderId || `HADX-${Math.floor(100000 + Math.random() * 900000)}`);
         setModalState('order_confirmed');
       } else {
