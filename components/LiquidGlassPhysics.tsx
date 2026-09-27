@@ -35,11 +35,6 @@ function distanceToSegment(px: number, py: number, ax: number, ay: number, bx: n
 export default function LiquidGlassPhysics() {
   useEffect(() => {
     let raf = 0;
-    let springValue = 0;
-    let springVelocity = 0;
-    let springTarget = 0;
-    let lastScrollY = window.scrollY;
-    let lastScrollTime = performance.now();
     let activeSurface: HTMLElement | null = null;
     let hoveredSurface: HTMLElement | null = null;
     let pendingPointer: { clientX: number; clientY: number } | null = null;
@@ -88,18 +83,6 @@ export default function LiquidGlassPhysics() {
         const { clientX, clientY } = pendingPointer;
         pendingPointer = null;
         processPointerMove(clientX, clientY);
-      }
-      springVelocity += (springTarget - springValue) * 0.18;
-      springVelocity *= 0.78;
-      springValue += springVelocity;
-      springTarget *= 0.86;
-
-      document.documentElement.style.setProperty("--liquid-global-spring-y", `${springValue.toFixed(2)}px`);
-
-      if (Math.abs(springValue) > 0.05 || Math.abs(springVelocity) > 0.05 || Math.abs(springTarget) > 0.05) {
-        schedule();
-      } else {
-        document.documentElement.style.setProperty("--liquid-global-spring-y", "0px");
       }
     };
 
@@ -188,22 +171,10 @@ export default function LiquidGlassPhysics() {
       clearActiveSurface();
     };
 
-    const handleScroll = () => {
-      const now = performance.now();
-      const delta = window.scrollY - lastScrollY;
-      const elapsed = Math.max(16, now - lastScrollTime);
-      const velocity = clamp((delta / elapsed) * 18, -3.5, 3.5);
-      springTarget = clamp(springTarget + velocity, -4.5, 4.5);
-      lastScrollY = window.scrollY;
-      lastScrollTime = now;
-      schedule();
-    };
-
     window.addEventListener("pointerdown", handlePointerDown, { passive: true });
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     window.addEventListener("pointerup", handlePointerUp, { passive: true });
     window.addEventListener("pointercancel", handlePointerCancel, { passive: true });
-    window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("hadx:lightning", handleLightning);
 
     const surfaceObserver = new MutationObserver(scheduleSurfaceCacheRefresh);
@@ -218,9 +189,7 @@ export default function LiquidGlassPhysics() {
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", handlePointerUp);
       window.removeEventListener("pointercancel", handlePointerCancel);
-      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("hadx:lightning", handleLightning);
-      document.documentElement.style.removeProperty("--liquid-global-spring-y");
     };
   }, []);
 

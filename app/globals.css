@@ -1813,3 +1813,28 @@ body {
 .checkout-card-face { position: absolute; inset: 0; overflow: hidden; border: 1px solid rgba(255,240,184,.5); border-radius: 1.15rem; background: linear-gradient(135deg, rgba(255,255,255,.16), rgba(39,31,16,.38) 55%, rgba(255,208,94,.1)); box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 18px 42px rgba(0,0,0,.3), 0 0 30px rgba(244,201,107,.1); -webkit-backdrop-filter: blur(18px) saturate(170%); backdrop-filter: blur(18px) saturate(170%); backface-visibility: hidden; }
 .checkout-card-logo { position: absolute; top: .8rem; left: 1rem; width: 2.7rem; height: 2.7rem; object-fit: contain; } .checkout-card-chip { position: absolute; top: 1rem; right: 1rem; width: 2rem; height: 1.4rem; border: 1px solid rgba(255,225,155,.68); border-radius: .4rem; background: rgba(255,229,161,.45); }
 .checkout-card-number { position: absolute; left: 1rem; bottom: 34%; color: #fff3bf; font: 700 clamp(.8rem, 3vw, 1.25rem) ui-monospace, monospace; letter-spacing: .1em; } .checkout-card-bottomline { position: absolute; right: 1rem; bottom: .85rem; left: 1rem; display: flex; justify-content: space-between; gap: .5rem; color: rgba(255,248,224,.92); font: 700 .62rem ui-monospace, monospace; } .checkout-card-bottomline b { color: #f4c96b; } .checkout-card-amount { position: absolute; top: 4.7rem; right: 1rem; color: rgba(255,247,220,.5); font: .48rem ui-monospace, monospace; } .checkout-card-back { transform: rotateY(180deg); } .checkout-card-magnetic { position: absolute; top: 1.2rem; right: 0; left: 0; height: 2.4rem; background: rgba(0,0,0,.62); } .checkout-card-cvv-box { position: absolute; top: 5rem; right: 1rem; left: 1rem; padding: .5rem; background: rgba(255,255,255,.88); color: #15110a; text-align: right; font: 700 .8rem ui-monospace, monospace; } .checkout-card-hint { color: rgba(255,247,231,.42); font: .62rem/1.5 ui-monospace, monospace; text-align: center; }
+
+
+/* Native page scrolling: smooth where supported, with a lightweight draggable HADX rail. */
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: auto;
+  scrollbar-color: rgba(194, 145, 45, .82) rgba(10, 9, 7, .72);
+}
+html::-webkit-scrollbar { width: 11px; }
+html::-webkit-scrollbar-track { background: rgba(10, 9, 7, .72); border-left: 1px solid rgba(212, 175, 55, .10); }
+html::-webkit-scrollbar-thumb { background: linear-gradient(180deg, rgba(242, 205, 107, .92), rgba(137, 91, 18, .9)); border: 3px solid rgba(10, 9, 7, .72); border-radius: 999px; min-height: 44px; box-shadow: 0 0 12px rgba(212, 175, 55, .22); }
+html::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #ffe39a, #b8791b); }
+
+/* HADX PAY: expose the live ambient field behind the card without losing gold contrast. */
+.checkout-card-face {
+  background: linear-gradient(135deg, rgba(255,255,255,.075), rgba(39,31,16,.18) 55%, rgba(255,208,94,.055));
+  -webkit-backdrop-filter: blur(12px) saturate(155%);
+  backdrop-filter: blur(12px) saturate(155%);
+}
+.checkout-card-face::before { opacity: .58; }
+.checkout-card-number, .checkout-card-bottomline, .checkout-card-bottomline b { text-shadow: 0 1px 8px rgba(0,0,0,.58); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
