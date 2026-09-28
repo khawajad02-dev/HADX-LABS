@@ -7,6 +7,7 @@ import StorefrontSearch from "@/components/StorefrontSearch";
 export const metadata: Metadata = {
   title: "Favorites | HADX LABS",
   description: "View your saved HADX LABS drops.",
+  robots: { index: false, follow: false },
 };
 
 export default function FavoritesPage() {

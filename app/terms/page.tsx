@@ -1,0 +1,4 @@
+import type { Metadata } from "next";
+import SeoPageShell, { SeoPanel } from "@/components/SeoPageShell";
+export const metadata: Metadata = { title: "Terms of Use | HADX LABS", description: "Review the basic storefront, product, checkout, and content-use terms for HADX LABS." };
+export default function TermsPage() { return <SeoPageShell eyebrow="STORE RULES / TERMS" title="The rules behind the drop." intro="These storefront terms describe how HADX LABS products, content, orders, and checkout interactions are intended to work."><SeoPanel title="Products and availability"><p>Product images, colors, sizing, pricing, and availability can change as drops are updated. The product page and checkout summary are the current reference for an order.</p></SeoPanel><SeoPanel title="Artwork and content"><p>HADX LABS content and original artwork may not be copied, resold, or used commercially without permission.</p></SeoPanel></SeoPageShell>; }

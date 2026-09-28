@@ -1,0 +1,4 @@
+import type { Metadata } from "next";
+import SeoPageShell, { SeoPanel } from "@/components/SeoPageShell";
+export const metadata: Metadata = { title: "Privacy Policy | HADX LABS", description: "Learn how HADX LABS uses information needed to operate the storefront, process orders, and respond to customer requests." };
+export default function PrivacyPage() { return <SeoPageShell eyebrow="TRUST LAYER / PRIVACY" title="Your information stays purposeful." intro="HADX LABS uses only the information needed to operate the storefront, fulfill orders, provide support, and improve the customer experience."><SeoPanel title="Information used for orders"><p>Checkout details such as name, email, phone, address, selected product variants, and payment status are used to process and support an order.</p></SeoPanel><SeoPanel title="Questions"><p>For privacy questions or data requests, contact HADX LABS through the direct contact route.</p></SeoPanel></SeoPageShell>; }

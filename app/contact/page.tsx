@@ -1,0 +1,5 @@
+import type { Metadata } from "next";
+import SeoPageShell, { SeoPanel } from "@/components/SeoPageShell";
+import InstagramDMButton from "@/components/InstagramDMButton";
+export const metadata: Metadata = { title: "Contact HADX LABS | Order and Custom Support", description: "Contact HADX LABS about an order, product question, custom graphic concept, or collaboration." };
+export default function ContactPage() { return <SeoPageShell eyebrow="DIRECT LINE / CONTACT" title="Open a channel." intro="For order questions, product details, custom graphics, or collaborations, send HADX LABS a direct message with the relevant context."><SeoPanel title="Order support"><p>Include your order reference, name, and the issue you need help with so the request can be routed quickly.</p></SeoPanel><SeoPanel title="Creative and collaboration inquiries"><p>For custom artwork or collaboration ideas, include a short brief and any useful references.</p><InstagramDMButton label="CONTACT HADX LABS" /></SeoPanel></SeoPageShell>; }

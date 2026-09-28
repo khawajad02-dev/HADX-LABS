@@ -9,6 +9,8 @@ import { CartProvider } from '@/components/CartProvider';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://hadx-labs.com'),
+  alternates: { canonical: '/' },
+  robots: { index: true, follow: true },
   title: 'HADX LABS | Bootleg Vintage Graphics (Anime, Marvel, DC & Custom Assets)',
   description: 'High-quality bootleg vintage graphic assets featuring top Anime, Marvel, and DC characters. Have a custom idea? Upload your image to get a unique custom vintage graphic design.',
   keywords: 'vintage graphics, bootleg anime, marvel assets, dc characters, custom graphic design',

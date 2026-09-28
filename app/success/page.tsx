@@ -1,7 +1,9 @@
 import Stripe from "stripe";
+import type { Metadata } from "next";
 import PaymentResultClient from "@/components/PaymentResultClient";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "Payment Result | HADX LABS", robots: { index: false, follow: false } };
 
 function getStripe() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
