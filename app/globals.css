@@ -1839,40 +1839,12 @@ html::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #ffe39
   html { scroll-behavior: auto; }
 }
 
-/* Optional grab-scroll engine: direct manipulation only; native wheel/touch scroll stays untouched. */
-#hadx-page-stage {
-  transform: perspective(1400px) rotateX(var(--hadx-scroll-tilt, 0deg)) rotateZ(var(--hadx-scroll-roll, 0deg));
-  transform-origin: center top;
-  transition: transform 180ms cubic-bezier(.22, .8, .24, 1);
-  will-change: transform;
+/* Flat, native scrolling: browser touch/wheel inertia and edge rubber-band only. */
+html {
+  scroll-behavior: smooth;
+  overscroll-behavior-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
-.hadx-scroll-engine {
-  position: fixed;
-  z-index: 99990;
-  right: 1.25rem;
-  bottom: 1.15rem;
-  display: grid;
-  width: 4.35rem;
-  height: 4.35rem;
-  place-items: center;
-  color: #f6d889;
-  border: 1px solid rgba(212,175,55,.38);
-  border-radius: 999px;
-  background: radial-gradient(circle at 35% 25%, rgba(255,235,164,.15), rgba(10,9,7,.72) 62%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 0 28px rgba(212,175,55,.18);
-  touch-action: none;
-  user-select: none;
-  cursor: grab;
-  transform: rotate(var(--hadx-engine-turn, 0deg));
-  transition: box-shadow 180ms ease-out, border-color 180ms ease-out;
-}
-.hadx-scroll-engine.is-active { cursor: grabbing; border-color: rgba(255,225,145,.88); box-shadow: inset 0 1px 0 rgba(255,255,255,.24), 0 0 34px rgba(212,175,55,.38); }
-.hadx-scroll-engine-core { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border: 1px solid rgba(246,216,137,.65); border-radius: 999px; }
-.hadx-scroll-engine-core span { width: .42rem; height: .42rem; border-radius: 999px; background: #f6d889; box-shadow: 0 0 12px rgba(246,216,137,.8); }
-.hadx-scroll-engine-label { position: absolute; bottom: -.95rem; white-space: nowrap; font: 8px/1 ui-monospace, monospace; letter-spacing: .16em; opacity: .62; }
-.checkout-clear-loadout { align-self: flex-start; transition: color 150ms ease-out; }
-@media (max-width: 640px) { .hadx-scroll-engine { right: .8rem; bottom: .8rem; width: 3.8rem; height: 3.8rem; } }
-@media (prefers-reduced-motion: reduce) {
-  #hadx-page-stage { transform: none; transition: none; }
-  .hadx-scroll-engine { transition: none; }
+body {
+  overscroll-behavior-y: auto;
 }
