@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 
 type SeoPageShellProps = { eyebrow: string; title: string; intro: string; children: ReactNode };
-const links = [["SHOP", "/catalog"], ["COLLECTIONS", "/collections"], ["CUSTOM", "/custom-graphics"], ["FAQ", "/faq"], ["CONTACT", "/contact"]] as const;
+const links = [["SHOP", "/catalog"], ["COLLECTIONS", "/collections"], ["CUSTOM", "/custom-graphics"], ["SIZE GUIDE", "/size-guide"], ["TRACK ORDER", "/track-order"], ["FAQ", "/faq"], ["CONTACT", "/contact"]] as const;
 
 export default function SeoPageShell({ eyebrow, title, intro, children }: SeoPageShellProps) {
   const router = useRouter();
