@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import SeoPageShell, { SeoPanel } from "@/components/SeoPageShell";
 import InstagramDMButton from "@/components/InstagramDMButton";
-export const metadata: Metadata = { title: "Custom Graphic Tees | HADX LABS", description: "Request a custom vintage graphic tee concept from HADX LABS through a direct creative brief." };
-export default function CustomGraphicsPage() { return <SeoPageShell eyebrow="HADX ATELIER / CUSTOM WORK" title="Bring the idea. We build the signal." intro="Have a character, reference, or visual direction in mind? Send HADX LABS a concise brief and start a conversation about a custom graphic piece."><SeoPanel title="What to include"><p>Share the subject, mood, color direction, garment preference, and any visual references. Clear briefs help us understand the intended result quickly.</p></SeoPanel><SeoPanel title="Start the conversation"><p>Custom work is discussed directly before any production commitment. Send your idea through Instagram and we will guide the next step.</p><InstagramDMButton label="SEND CUSTOM IDEA" /></SeoPanel></SeoPageShell>; }
+
+export const metadata: Metadata = { title: "Custom Graphic Tees | HADX LABS", description: "Send HADX LABS any custom design, character brief, or reference through Instagram DM and bring it to life on premium garments." };
+
+export default function CustomGraphicsPage() {
+  return <SeoPageShell eyebrow="HADX ATELIER / CUSTOM WORK" title="Bring any idea. We build the signal." intro="Send HADX LABS any custom design, character brief, or reference directly through Instagram DM, and we will help bring it to life on premium garments."><SeoPanel title="Send your custom brief"><p>Share the subject, character, mood, color direction, garment preference, or visual reference. Whether it is an original concept, a gaming icon, a cinematic idea, or a completely custom design, clear references help us understand the intended result.</p></SeoPanel><SeoPanel title="Start the conversation"><p>Custom prints are discussed and confirmed directly through Instagram before production. After confirmation, we produce the approved design on the premium garment selected for the project.</p><InstagramDMButton label="SEND CUSTOM IDEA" /></SeoPanel></SeoPageShell>;
+}
