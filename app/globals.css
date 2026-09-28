@@ -1848,3 +1848,17 @@ html {
 body {
   overscroll-behavior-y: auto;
 }
+
+/* Edge-only rubber band: normal scroll remains native and flat; only boundary pulls move this surface. */
+#hadx-scroll-surface {
+  --hadx-edge-pull: 0px;
+  transform: translate3d(0, var(--hadx-edge-pull), 0);
+  will-change: transform;
+  touch-action: pan-y;
+}
+#hadx-scroll-surface.hadx-edge-settling {
+  transition: transform 420ms cubic-bezier(.18, .84, .24, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  #hadx-scroll-surface.hadx-edge-settling { transition-duration: 180ms; }
+}

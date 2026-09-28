@@ -4,6 +4,7 @@ import CyberOrb from '@/components/CyberOrb';
 import IntroSplashScreen from '@/components/IntroSplashScreen';
 import DeferredEnhancements from '@/components/DeferredEnhancements';
 import InteractionFeedback from '@/components/InteractionFeedback';
+import EdgeOverscroll from '@/components/EdgeOverscroll';
 import { CartProvider } from '@/components/CartProvider';
 
 export const metadata: Metadata = {
@@ -69,9 +70,10 @@ export default function RootLayout({
           <DeferredEnhancements />
           <InteractionFeedback />
           <IntroSplashScreen />
-          <CartProvider>
-            {children}
-          </CartProvider>
+          <div id="hadx-scroll-surface">
+            <CartProvider>{children}</CartProvider>
+          </div>
+          <EdgeOverscroll />
           <CyberOrb />
         </div>
       </body>
