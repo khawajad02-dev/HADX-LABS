@@ -17,7 +17,7 @@ export async function GET(req: Request) {
 
     const [productCount, orderCount, revenue] = await Promise.all([
       prisma.product.count(),
-      prisma.order.count(),
+      prisma.order.count({ where: { orderStatus: { notIn: ["CANCELLED", "EXPIRED", "DELIVERED"] } } }),
       prisma.order.aggregate({
         _sum: { totalAmountInCents: true },
         where: {

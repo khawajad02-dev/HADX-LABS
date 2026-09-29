@@ -35,13 +35,21 @@ export async function GET(req: Request) {
   }
 
   try {
+    const statusFilter = new URL(req.url).searchParams.get("status")?.toUpperCase() || "";
+    const where = statusFilter === "HISTORY"
+      ? { orderStatus: { in: [OrderStatus.DELIVERED, OrderStatus.CANCELLED, OrderStatus.EXPIRED] } }
+      : statusFilter && Object.values(OrderStatus).includes(statusFilter as OrderStatus)
+        ? { orderStatus: statusFilter as OrderStatus }
+        : { orderStatus: { not: OrderStatus.DELIVERED } };
     const productColorColumn = await hasProductColorColumn();
     const orders: any[] = productColorColumn
       ? await prisma.order.findMany({
+          where,
           orderBy: { createdAt: "desc" },
           include: { product: true },
         })
       : await prisma.order.findMany({
+          where,
           orderBy: { createdAt: "desc" },
           select: {
             id: true,
