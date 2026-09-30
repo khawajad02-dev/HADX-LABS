@@ -17,7 +17,9 @@ export async function GET(req: Request) {
 
     const [productCount, orderCount, revenue] = await Promise.all([
       prisma.product.count(),
-      prisma.order.count({ where: { orderStatus: { notIn: ["CANCELLED", "EXPIRED", "DELIVERED"] } } }),
+      // Keep this query compatible while the optional DELIVERED enum migration
+      // is still propagating across production database instances.
+      prisma.order.count({ where: { orderStatus: { notIn: ["CANCELLED", "EXPIRED"] } } }),
       prisma.order.aggregate({
         _sum: { totalAmountInCents: true },
         where: {

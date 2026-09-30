@@ -37,10 +37,12 @@ export async function GET(req: Request) {
   try {
     const statusFilter = new URL(req.url).searchParams.get("status")?.toUpperCase() || "";
     const where = statusFilter === "HISTORY"
-      ? { orderStatus: { in: [OrderStatus.DELIVERED, OrderStatus.CANCELLED, OrderStatus.EXPIRED] } }
+      // Exclude active states instead of naming DELIVERED, so the queue also
+      // works against databases that have not applied that enum migration yet.
+      ? { orderStatus: { notIn: [OrderStatus.RESERVED, OrderStatus.CONFIRMED] } }
       : statusFilter && Object.values(OrderStatus).includes(statusFilter as OrderStatus)
         ? { orderStatus: statusFilter as OrderStatus }
-        : { orderStatus: { not: OrderStatus.DELIVERED } };
+        : { orderStatus: { notIn: [OrderStatus.CANCELLED, OrderStatus.EXPIRED] } };
     const productColorColumn = await hasProductColorColumn();
     const orders: any[] = productColorColumn
       ? await prisma.order.findMany({
