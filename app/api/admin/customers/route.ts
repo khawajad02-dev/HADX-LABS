@@ -25,7 +25,7 @@ export async function GET(req: Request) {
       prisma.order.findMany({
         where,
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-        select: { email: true, phone: true, address: true, city: true, country: true, productTitle: true, size: true },
+        select: { email: true, phone: true, address: true, city: true, country: true, productTitle: true, size: true, currency: true },
       }),
     ]);
 
@@ -48,6 +48,7 @@ export async function GET(req: Request) {
           country: latest?.country || null,
           latestProductTitle: latest?.productTitle || null,
           latestSize: latest?.size || null,
+          currency: latest?.currency || "USD",
           totalOrders: customer._count._all,
           lifetimeValue: (customer._sum.totalAmountInCents || 0) / 100,
           lastOrderDate: customer._max.createdAt,

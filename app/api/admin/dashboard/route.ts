@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-
 import { isAdminRequest } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 
@@ -10,27 +9,28 @@ export async function GET(req: Request) {
   if (!isAdminRequest(req)) {
     return NextResponse.json({ error: "Access Denied" }, { status: 401 });
   }
-
   try {
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
-
-    const [productCount, orderCount, revenue] = await Promise.all([
+    const [productCount, orderCount, todayOrders] = await Promise.all([
       prisma.product.count(),
-      // Keep this query compatible while the optional DELIVERED enum migration
-      // is still propagating across production database instances.
+      // Keep the live dashboard compatible while the optional DELIVERED enum
+      // migration is still propagating across production database instances.
       prisma.order.count({ where: { orderStatus: { notIn: ["CANCELLED", "EXPIRED"] } } }),
-      prisma.order.aggregate({
-        _sum: { totalAmountInCents: true },
-        where: {
-          createdAt: { gte: startOfToday },
-          paymentStatus: "COMPLETED",
-        },
+      prisma.order.findMany({
+        where: { createdAt: { gte: startOfToday }, orderStatus: { not: "CANCELLED" } },
+        select: { totalAmountInCents: true, currency: true },
       }),
     ]);
-
+    const revenueByCurrency = todayOrders.reduce<Record<string, number>>((result, order) => {
+      result[order.currency] = (result[order.currency] || 0) + order.totalAmountInCents / 100;
+      return result;
+    }, {});
+    const revenueCurrency = revenueByCurrency.PKR ? "PKR" : revenueByCurrency.USD ? "USD" : Object.keys(revenueByCurrency)[0] || "USD";
     return NextResponse.json({
-      revenueToday: Number(((revenue._sum.totalAmountInCents ?? 0) / 100).toFixed(2)),
+      revenueToday: revenueByCurrency[revenueCurrency] || 0,
+      revenueCurrency,
+      revenueByCurrency,
       activeUsers: 0,
       serverStatus: "Online",
       databaseHealth: "Connected",
@@ -39,9 +39,6 @@ export async function GET(req: Request) {
     });
   } catch (error) {
     console.error("Dashboard metrics error:", error);
-    return NextResponse.json(
-      { error: "Could not load dashboard metrics" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Could not load dashboard metrics" }, { status: 500 });
   }
 }
