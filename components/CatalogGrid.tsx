@@ -26,6 +26,7 @@ export interface Product {
 interface CatalogGridProps {
   products?: Product[];
   allowRegionalCurrency?: boolean;
+  variant?: "grid" | "carousel";
 }
 
 function normalizeSearch(value: string) {
@@ -55,7 +56,7 @@ function fuzzyMatches(product: Product, rawQuery: string) {
   return query.split(" ").every((term) => fields.some((field) => field.split(" ").some((word) => word.startsWith(term) || editDistance(term, word) <= Math.max(1, Math.floor(term.length / 4)))));
 }
 
-function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true }: CatalogGridProps) {
+function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true, variant = "grid" }: CatalogGridProps) {
   const [productList, setProductList] = useState<Product[]>(initialProducts || []);
   const [loading, setLoading] = useState<boolean>(!initialProducts || initialProducts.length === 0);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -176,7 +177,7 @@ function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true }
             <p className="text-zinc-500 text-xs font-mono uppercase tracking-widest">{searchQuery ? `No exact match — try a shorter spelling for “${searchQuery}”` : "No products in this category yet"}</p>
         </div>
       ) : (
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className={`max-w-7xl mx-auto ${variant === "carousel" ? "catalog-arc-grid" : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8"}`}>
           {visibleProducts.map((product) => {
             const displayTitle = product.title || product.name || "UNNAMED DROP";
             const displayMedia = product.media?.[0];

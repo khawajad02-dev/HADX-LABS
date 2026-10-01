@@ -1044,6 +1044,16 @@ body {
 }
 .catalog-product-card { border-color: rgba(255,255,255,.12) !important; }
 .catalog-product-card:hover { background: rgba(212,175,55,.07) !important; }
+.catalog-arc-grid { display: flex; gap: 1.35rem; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: 12%; padding: 1rem 12% 2rem; perspective: 1100px; transform-style: preserve-3d; scrollbar-width: none; }
+.catalog-arc-grid::-webkit-scrollbar { display: none; }
+.catalog-arc-grid > .catalog-product-card { flex: 0 0 min(72vw, 18rem); scroll-snap-align: center; transform-origin: center center; transition: transform 420ms cubic-bezier(.22,.8,.22,1), opacity 420ms ease, filter 420ms ease; backface-visibility: hidden; }
+.catalog-arc-grid > .catalog-product-card:nth-child(4n + 1) { transform: translateZ(-32px) rotateY(20deg) scale(.92); opacity: .82; }
+.catalog-arc-grid > .catalog-product-card:nth-child(4n + 2) { transform: translateZ(8px) rotateY(8deg) scale(.98); }
+.catalog-arc-grid > .catalog-product-card:nth-child(4n + 3) { transform: translateZ(8px) rotateY(-8deg) scale(.98); }
+.catalog-arc-grid > .catalog-product-card:nth-child(4n) { transform: translateZ(-32px) rotateY(-20deg) scale(.92); opacity: .82; }
+.catalog-arc-grid > .catalog-product-card:hover, .catalog-arc-grid > .catalog-product-card:focus-visible { transform: translateZ(44px) rotateY(0deg) scale(1.02); opacity: 1; filter: drop-shadow(0 1.4rem 1.8rem rgba(0,0,0,.42)); }
+@media (min-width: 768px) { .catalog-arc-grid { gap: 2rem; padding-inline: 18%; } .catalog-arc-grid > .catalog-product-card { flex-basis: min(31vw, 21rem); } }
+@media (prefers-reduced-motion: reduce) { .catalog-arc-grid { scroll-behavior: auto; } .catalog-arc-grid > .catalog-product-card { transition: none; transform: none !important; } }
 
 .hadx-select-trigger,
 .hadx-select-menu,
