@@ -107,7 +107,7 @@ export default function ProductVariantExperience({
       />
 
       {storefrontVariants.length ? (
-        <div className="liquid-panel rounded-2xl border border-white/10 bg-[rgba(15,15,15,0.45)] p-4">
+        <div className="liquid-panel min-w-0 overflow-visible rounded-2xl border border-white/10 bg-[rgba(15,15,15,0.45)] p-4">
           <div className="mb-3 text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">Choose color</div>
           <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Choose product color">
             {storefrontVariants.map((variant) => {

@@ -49,6 +49,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     window.dispatchEvent(new CustomEvent("hadx:cart", { detail: items }));
   }, [hydrated, items]);
 
+  useEffect(() => {
+    if (hydrated && items.length === 0) setIsOpen(false);
+  }, [hydrated, items.length]);
+
   const addItem = useCallback((input: AddCartInput) => {
     const normalized = normalizeCartItem({ ...input, key: cartItemKey(input.productId, input.size, input.currency), quantity: input.quantity || 1 });
     if (!normalized || (items.length > 0 && items[0].currency !== normalized.currency)) return false;
@@ -57,7 +61,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (!existing) return [...current, normalized];
       return current.map((item) => item.key === normalized.key ? { ...item, quantity: Math.min(20, item.quantity + normalized.quantity) } : item);
     });
-    setIsOpen(true);
     return true;
   }, [items]);
 

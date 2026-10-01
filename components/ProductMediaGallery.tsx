@@ -55,7 +55,7 @@ export default function ProductMediaGallery({ title, media, colorVariants = [], 
   }
 
   return (
-    <div data-liquid-surface className="liquid-panel relative rounded-2xl bg-black/10 p-2">
+    <div data-liquid-surface className="liquid-panel relative min-w-0 overflow-visible rounded-2xl bg-black/10 p-2">
       <div
         className="group relative aspect-[4/5] touch-pan-y select-none overflow-hidden rounded-xl border border-white/10 bg-black/10 [perspective:1200px]"
         onPointerDown={onPointerDown}

@@ -89,12 +89,12 @@ export default async function ProductPage({ params, searchParams }: { params: { 
     .slice(0, 6)
     .map(({ item }) => item);
   return (
-    <main className="relative min-h-screen bg-transparent text-zinc-100 pt-32 pb-24 px-6">
+    <main className="relative min-h-screen overflow-x-clip bg-transparent pt-32 pb-24 px-6 text-zinc-100">
       <div className="mx-auto mb-6 max-w-6xl">
         <Link href="/#catalog" className="liquid-ui inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-[10px] font-mono uppercase tracking-[0.2em] text-white/60 transition-colors hover:border-amber-300/60 hover:text-white">← BACK TO ATELIER</Link>
       </div>
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div className="space-y-4"><ProductVariantExperience productId={product.id} sku={product.sku} name={product.title} price={amount} currency={currency} imageUrl={product.imageUrl || parsed.media.find((media) => media.type === "image")?.url || null} media={parsed.media} availableSizes={parsed.availableSizes} stockBySize={parsed.stockBySize} colorVariants={parsed.colorVariants} measurementsBySize={parsed.measurementsBySize} /><div data-liquid-surface className="liquid-panel product-detail-glass flex flex-col rounded-2xl p-6">
+      <div className="mx-auto grid min-w-0 max-w-6xl grid-cols-1 gap-12 md:grid-cols-2">
+        <div className="min-w-0 space-y-4"><ProductVariantExperience productId={product.id} sku={product.sku} name={product.title} price={amount} currency={currency} imageUrl={product.imageUrl || parsed.media.find((media) => media.type === "image")?.url || null} media={parsed.media} availableSizes={parsed.availableSizes} stockBySize={parsed.stockBySize} colorVariants={parsed.colorVariants} measurementsBySize={parsed.measurementsBySize} /><div data-liquid-surface className="liquid-panel product-detail-glass flex min-w-0 flex-col rounded-2xl p-6">
           {parsed.drop ? <div className="mb-4 inline-flex w-fit items-center rounded-full border border-amber-200/30 bg-[rgba(15,15,15,0.45)] px-3 py-2 text-[10px] font-mono uppercase tracking-[0.18em] text-amber-200">{parsed.drop.text || "LIMITED DROP // LAUNCHING SOON"}</div> : null}<span className="text-[10px] font-mono tracking-[0.3em] uppercase text-zinc-500 mb-2">{product.category || "Collection"}{" // "}{product.sku}</span>
           <h1 className="text-4xl md:text-6xl font-extralight tracking-tight mb-6">{product.title}</h1>
           <div className="flex flex-wrap items-center gap-6 mb-8"><span className="text-3xl font-mono font-semibold">{currencySymbol(currency)} {amount.toLocaleString()}</span><VaultButton productId={product.id} /></div>

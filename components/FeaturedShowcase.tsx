@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type CSSProperties, type PointerEvent } f
 import { motion, type PanInfo } from "framer-motion";
 
 import StorefrontSearch from "@/components/StorefrontSearch";
+import { useCart } from "@/components/CartProvider";
 import GarmentMedia from "./GarmentMedia";
 
 export type Product = {
@@ -98,6 +99,7 @@ function stagePosition(offset: number) {
 }
 
 export default function FeaturedShowcase({ products = [], initialCurrency = "USD" }: { products: Product[]; initialCurrency?: DisplayCurrency }) {
+  const { itemCount, openCart } = useCart();
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [direction, setDirection] = useState<1 | -1>(1);
@@ -198,7 +200,7 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
           <div className="reference-nav-tools">
             <StorefrontSearch />
             <Link href="/favorites" className="reference-nav-tool">ACCOUNT</Link>
-            <Link href={selectedSize ? checkoutPath(active, selectedSize) : productPath(active)} className="reference-nav-tool reference-nav-cart">CART [ {selectedSize ? 1 : 0} ]</Link>
+            <button type="button" onClick={openCart} className="reference-nav-tool reference-nav-cart">CART [ {itemCount} ]</button>
           </div>
         </header>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export type CheckoutState = 'payment_failed' | 'network_error' | 'timeout' | 'order_confirmed' | null;
@@ -86,13 +87,13 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
   const config = STATE_CONFIG[state];
   const videoSrc = VIDEO_SOURCES[state];
 
-  return (
+  return createPortal((
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[10007] bg-black flex flex-col items-center justify-center overflow-hidden w-full h-[100dvh]"
+        className="fixed left-0 top-0 z-[10007] flex h-[100dvh] w-screen flex-col items-center justify-center overflow-hidden bg-black"
       >
         {/* Logo Placeholder with precise sizing */}
         <div className={`absolute inset-0 z-[10008] flex items-center justify-center bg-black transition-opacity duration-700 ${videoStarted ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
@@ -101,7 +102,7 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
           </div>
         </div>
 
-        <div className="w-full h-[100dvh] overflow-hidden bg-black flex items-center justify-center relative">
+        <div className="relative flex h-[100dvh] w-screen items-center justify-center overflow-hidden bg-black">
           <video
             ref={videoRef}
             src={videoSrc}
@@ -110,7 +111,7 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
             playsInline
             preload="auto"
             onPlaying={() => setVideoStarted(true)}
-            className="w-full h-full object-contain bg-black"
+            className="h-full w-full object-cover bg-black"
           />
         </div>
 
@@ -163,5 +164,5 @@ export const CheckoutVideoModal: React.FC<CheckoutVideoModalProps> = ({
         </div>
       </motion.div>
     </AnimatePresence>
-  );
-};
+  ), document.body);
+  };

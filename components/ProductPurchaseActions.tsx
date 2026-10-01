@@ -90,7 +90,7 @@ export default function ProductPurchaseActions({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="min-w-0 space-y-4 overflow-visible">
       <div>
         <div className="mb-2 flex items-center justify-between gap-3">
           <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-zinc-400">Choose size</span>

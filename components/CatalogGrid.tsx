@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import CustomSelect from "./CustomSelect";
+import CylinderProductSlider from "./CylinderProductSlider";
 
 type ProductHandoff = { productId: string; progress: number };
 
@@ -176,8 +177,24 @@ function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true, 
           <span aria-hidden="true" className="empty-state-liquid__water-drop empty-state-liquid__water-drop--d" />
             <p className="text-zinc-500 text-xs font-mono uppercase tracking-widest">{searchQuery ? `No exact match — try a shorter spelling for “${searchQuery}”` : "No products in this category yet"}</p>
         </div>
+      ) : variant === "carousel" ? (
+        <CylinderProductSlider
+          products={visibleProducts.map((product) => ({
+            id: product.id,
+            sku: product.sku || product.id,
+            title: product.title || product.name || "UNNAMED DROP",
+            category: product.category,
+            imageUrl: product.imageUrl || product.image_url || null,
+            media: product.media,
+            priceLabel: `${displayCurrency === "PKR" ? "PKR" : displayCurrency === "INR" ? "₹" : "$"} ${Number(product.prices?.[displayCurrency] ?? product.regionalPrices?.[displayCurrency] ?? product.price ?? (product.priceInCents || 0) / 100).toLocaleString()}`,
+            href: `/product/${product.sku || product.id}?currency=${displayCurrency}`,
+          }))}
+          eyebrow="FULL_CATALOG // CYLINDER ROTATION"
+          title="Shop All"
+          description="Drag through the latest six HADX drops. The center piece faces the camera while the archive rotates through a curved axis."
+        />
       ) : (
-        <div className={`max-w-7xl mx-auto ${variant === "carousel" ? "catalog-arc-grid" : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8"}`}>
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
           {visibleProducts.map((product) => {
             const displayTitle = product.title || product.name || "UNNAMED DROP";
             const displayMedia = product.media?.[0];
