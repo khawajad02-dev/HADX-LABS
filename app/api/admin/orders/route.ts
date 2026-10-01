@@ -17,16 +17,15 @@ function restoreLegacyColor(order: any) {
 }
 
 async function hasProductColorColumn() {
-  const result = await prisma.$queryRawUnsafe<Array<{ column_exists: boolean }>>(`
-    SELECT EXISTS (
-      SELECT 1
-      FROM information_schema.columns
-      WHERE table_schema = current_schema()
-        AND table_name = 'Order'
-        AND column_name = 'productColor'
-    ) AS column_exists
-  `);
-  return Boolean(result[0]?.column_exists);
+  try {
+    const result = await prisma.$queryRawUnsafe<Array<{ column_exists: boolean }>>(`
+      SELECT EXISTS (SELECT 1 FROM information_schema.columns
+        WHERE table_schema = current_schema() AND table_name = 'Order' AND column_name = 'productColor') AS column_exists
+    `);
+    return Boolean(result[0]?.column_exists);
+  } catch {
+    return false;
+  }
 }
 
 export async function GET(req: Request) {
@@ -36,22 +35,13 @@ export async function GET(req: Request) {
 
   try {
     const statusFilter = new URL(req.url).searchParams.get("status")?.toUpperCase() || "";
-    const where = statusFilter === "HISTORY"
-      // Exclude active states instead of naming DELIVERED, so the queue also
-      // works against databases that have not applied that enum migration yet.
-      ? { orderStatus: { notIn: [OrderStatus.RESERVED, OrderStatus.CONFIRMED] } }
-      : statusFilter && Object.values(OrderStatus).includes(statusFilter as OrderStatus)
-        ? { orderStatus: statusFilter as OrderStatus }
-        : { orderStatus: { notIn: [OrderStatus.CANCELLED, OrderStatus.EXPIRED] } };
     const productColorColumn = await hasProductColorColumn();
     const orders: any[] = productColorColumn
       ? await prisma.order.findMany({
-          where,
           orderBy: { createdAt: "desc" },
           include: { product: true },
         })
       : await prisma.order.findMany({
-          where,
           orderBy: { createdAt: "desc" },
           select: {
             id: true,
@@ -82,7 +72,13 @@ export async function GET(req: Request) {
             product: { select: { id: true, title: true, imageUrl: true, sku: true } },
           },
         });
-    const items = orders.map(restoreLegacyColor);
+    const items = orders
+      .filter((order) => {
+        if (statusFilter === "HISTORY") return order.orderStatus !== OrderStatus.RESERVED && order.orderStatus !== OrderStatus.CONFIRMED;
+        if (statusFilter && Object.values(OrderStatus).includes(statusFilter as OrderStatus)) return order.orderStatus === statusFilter;
+        return order.orderStatus !== OrderStatus.CANCELLED && order.orderStatus !== OrderStatus.EXPIRED;
+      })
+      .map(restoreLegacyColor);
     return NextResponse.json({
       items,
       orders: items,

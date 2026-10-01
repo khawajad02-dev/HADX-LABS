@@ -6,35 +6,45 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  if (!isAdminRequest(req)) {
-    return NextResponse.json({ error: "Access Denied" }, { status: 401 });
-  }
+  if (!isAdminRequest(req)) return NextResponse.json({ error: "Access Denied" }, { status: 401 });
   try {
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
-    const [productCount, orderCount, todayOrders] = await Promise.all([
+    const [productCount, allOrders, todayOrders] = await Promise.all([
       prisma.product.count(),
-      // Keep the live dashboard compatible while the optional DELIVERED enum
-      // migration is still propagating across production database instances.
-      prisma.order.count({ where: { orderStatus: { notIn: ["CANCELLED", "EXPIRED"] } } }),
+      // Do not put optional enum values in SQL. Older production databases may
+      // not have the latest OrderStatus migration, so filtering happens below.
+      prisma.order.findMany({ select: { orderStatus: true, totalAmountInCents: true, currency: true } }),
       prisma.order.findMany({
-        where: { createdAt: { gte: startOfToday }, orderStatus: { not: "CANCELLED" } },
-        select: { totalAmountInCents: true, currency: true },
+        where: { createdAt: { gte: startOfToday } },
+        select: { totalAmountInCents: true, currency: true, country: true, orderStatus: true },
       }),
     ]);
-    const revenueByCurrency = todayOrders.reduce<Record<string, number>>((result, order) => {
-      result[order.currency] = (result[order.currency] || 0) + order.totalAmountInCents / 100;
-      return result;
-    }, {});
-    const revenueCurrency = revenueByCurrency.PKR ? "PKR" : revenueByCurrency.USD ? "USD" : Object.keys(revenueByCurrency)[0] || "USD";
+    const activeOrders = allOrders.filter((order) => order.orderStatus !== "CANCELLED" && order.orderStatus !== "EXPIRED");
+    const sales = { PKR: 0, INR: 0, USD: 0 };
+    for (const order of activeOrders) {
+      const amount = order.totalAmountInCents / 100;
+      if (order.currency === "PKR") sales.PKR += amount;
+      else if (order.currency === "INR") sales.INR += amount;
+      else sales.USD += amount;
+    }
+    const todaySales = { PKR: 0, INR: 0, USD: 0 };
+    for (const order of todayOrders) {
+      if (order.orderStatus === "CANCELLED" || order.orderStatus === "EXPIRED") continue;
+      const amount = order.totalAmountInCents / 100;
+      if (order.currency === "PKR") todaySales.PKR += amount;
+      else if (order.currency === "INR") todaySales.INR += amount;
+      else todaySales.USD += amount;
+    }
     return NextResponse.json({
-      revenueToday: revenueByCurrency[revenueCurrency] || 0,
-      revenueCurrency,
-      revenueByCurrency,
+      revenueToday: todaySales.PKR || todaySales.INR || todaySales.USD,
+      revenueCurrency: todaySales.PKR ? "PKR" : todaySales.INR ? "INR" : "USD",
+      revenueByCurrency: sales,
+      regionSales: sales,
       activeUsers: 0,
       serverStatus: "Online",
       databaseHealth: "Connected",
-      totalOrders: orderCount,
+      totalOrders: activeOrders.length,
       totalProducts: productCount,
     });
   } catch (error) {
