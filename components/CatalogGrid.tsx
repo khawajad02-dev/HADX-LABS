@@ -191,6 +191,7 @@ function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true, 
             category: product.category,
             price: Number(product.prices?.[displayCurrency] ?? product.regionalPrices?.[displayCurrency] ?? product.price ?? (product.priceInCents || 0) / 100),
             currency: displayCurrency,
+            href: `/product/${product.sku || product.id}?currency=${displayCurrency}`,
             media: product.media,
           }))}
           activeIndex={carouselIndex}

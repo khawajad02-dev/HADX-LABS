@@ -12,6 +12,7 @@ export type SliderProduct = {
   category?: string | null;
   price?: number;
   currency?: string;
+  href?: string;
 };
 
 const SPRING = { type: "spring", stiffness: 260, damping: 32 } as const;
@@ -138,7 +139,10 @@ export default function CurvedBandSlider({
                 }}
                 transition={{ type: "spring", stiffness: 240, damping: 26 }}
                 onClick={() => {
-                  if (!dragged.current) go(i);
+                  if (!dragged.current) {
+                    go(i);
+                    if (product.href) window.location.assign(product.href);
+                  }
                 }}
                 aria-label={`Show ${product.title}`}
               >
