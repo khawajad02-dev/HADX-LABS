@@ -7,6 +7,7 @@ import { motion, type PanInfo } from "framer-motion";
 import StorefrontSearch from "@/components/StorefrontSearch";
 import { useCart } from "@/components/CartProvider";
 import GarmentMedia from "./GarmentMedia";
+import CurvedBandSlider from "./CurvedBandSlider";
 
 export type Product = {
   id: string;
@@ -215,47 +216,11 @@ export default function FeaturedShowcase({ products = [], initialCurrency = "USD
           </motion.aside>
 
           <div className="reference-product-stage">
-            <div className="reference-exchange-orbit" aria-hidden="true" />
-            {introReveal && <div className="reference-logo-reveal" aria-hidden="true"><img src="/hadx-monogram-emitter-clean.png" alt="" /></div>}
-            <motion.div className="reference-stage-track" drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0} onDrag={updateDragTilt} onDragEnd={(event, info) => { onDragEnd(event, info); setTilt({ x: 0, y: 0 }); }} onPointerMove={updateTilt} onPointerLeave={() => setTilt({ x: 0, y: 0 })} style={{ perspective: "1200px", transformStyle: "preserve-3d" }}>
-              {stageProducts.map(({ product, offset, position }) => {
-                const isActive = offset === 0;
-                return (
-                  <motion.button
-                    key={product.id}
-                    type="button"
-                    aria-label={`Show ${product.title}`}
-                    className={`reference-product-layer ${isActive ? "is-active" : "is-secondary"}`}
-                    initial={false}
-                    animate={isActive ? { ...position, rotateX: tilt.x, rotateY: tilt.y } : position}
-                    transition={{
-                      type: "spring",
-                      stiffness: 210,
-                      damping: 24,
-                      mass: 0.72,
-                      opacity: { duration: 0.32, ease: "easeOut" },
-                    }}
-                    onClick={() => { selectProduct(products.findIndex((candidate) => candidate.id === product.id)); window.location.assign(productPath(product)); }}
-                    style={{ zIndex: isActive ? 20 : 10, transformStyle: "preserve-3d" }}
-                  >
-                    <ProductMedia product={product} active={isActive} />
-                  </motion.button>
-                );
-              })}
-            </motion.div>
-            <div className="reference-garment-preload" aria-hidden="true">
-              {products.map((product) => {
-                const media = mediaFor(product);
-                return media?.type === "image" ? <ProductMedia key={`preload-${product.id}`} product={product} active /> : null;
-              })}
-            </div>
-
-	            <div className="reference-hologram-projector" aria-hidden="true">
-	              <div className="reference-projector-beam reference-projector-beam-left" />
-	              <div className="reference-projector-beam reference-projector-beam-center" />
-	              <div className="reference-projector-beam reference-projector-beam-right" />
-	              <img className="reference-projector-asset" src="/hadx-monogram-emitter-clean.png" alt="" />
-	            </div>
+            <CurvedBandSlider
+              products={products}
+              activeIndex={activeIndex}
+              onSelect={selectProduct}
+            />
             <div className="reference-stage-caption"><span>SELECTED DROP</span><strong>{String(activeIndex + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</strong></div>
           </div>
 

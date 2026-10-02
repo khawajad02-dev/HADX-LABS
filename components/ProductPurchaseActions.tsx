@@ -36,7 +36,7 @@ export default function ProductPurchaseActions({
   measurementsBySize = {},
 }: ProductPurchaseActionsProps) {
   const router = useRouter();
-  const { addItem } = useCart();
+  const { addItem, openCart } = useCart();
   const [selectedSize, setSelectedSize] = useState("");
   const [notice, setNotice] = useState("");
   const selectedVariant = colorVariants.find((variant) => variant.name.trim().toLowerCase() === selectedColor.trim().toLowerCase());
@@ -87,6 +87,7 @@ export default function ProductPurchaseActions({
     }
     setNotice(checkoutAfterAdd ? "Piece added. Opening your loadout…" : "Piece added to your loadout bag.");
     if (checkoutAfterAdd) router.push("/checkout");
+    else openCart();
   };
 
   return (
