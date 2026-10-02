@@ -8,6 +8,8 @@ export type SliderProduct = {
   id: string;
   title: string;
   imageUrl: string | null;
+  priceLabel?: string;
+  category?: string | null;
   media?: Array<{ url: string; type: "image" | "video"; fileName?: string }>;
 };
 
@@ -90,6 +92,10 @@ export default function CurvedBandSlider({
                 ) : (
                   <span className="curved-band-empty">NO MEDIA</span>
                 )}
+                <span className="curved-band-meta">
+                  <strong>{product.title}</strong>
+                  <small>{product.category || "ATELIER"}{product.priceLabel ? `  //  ${product.priceLabel}` : ""}</small>
+                </span>
               </motion.button>
             );
           })}

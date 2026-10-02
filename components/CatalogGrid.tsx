@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import CustomSelect from "./CustomSelect";
-import CylinderProductSlider from "./CylinderProductSlider";
+import CurvedBandSlider from "./CurvedBandSlider";
 
 type ProductHandoff = { productId: string; progress: number };
 
@@ -65,6 +65,7 @@ function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true, 
   const [sortBy, setSortBy] = useState<"newest" | "price-low" | "price-high">("newest");
   const [displayCurrency, setDisplayCurrency] = useState<"USD" | "PKR" | "INR">(initialProducts?.[0]?.currency || "USD");
   const [productHandoff, setProductHandoff] = useState<ProductHandoff | null>(null);
+  const [carouselIndex, setCarouselIndex] = useState(0);
 
   useEffect(() => {
     const onHandoff = (event: Event) => setProductHandoff((event as CustomEvent<ProductHandoff>).detail);
@@ -119,6 +120,10 @@ function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true, 
     if (sortBy === "price-high") list = [...list].sort((a, b) => Number(b.prices?.[displayCurrency] ?? b.regionalPrices?.[displayCurrency] ?? b.price ?? (b.priceInCents || 0) / 100) - Number(a.prices?.[displayCurrency] ?? a.regionalPrices?.[displayCurrency] ?? a.price ?? (a.priceInCents || 0) / 100));
     return list;
   }, [productList, activeCategory, searchQuery, sortBy, displayCurrency]);
+
+  useEffect(() => {
+    setCarouselIndex((current) => Math.min(current, Math.max(0, visibleProducts.length - 1)));
+  }, [visibleProducts.length]);
 
   if (loading) {
     return (
@@ -178,20 +183,17 @@ function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true, 
             <p className="text-zinc-500 text-xs font-mono uppercase tracking-widest">{searchQuery ? `No exact match — try a shorter spelling for “${searchQuery}”` : "No products in this category yet"}</p>
         </div>
       ) : variant === "carousel" ? (
-        <CylinderProductSlider
+        <CurvedBandSlider
           products={visibleProducts.map((product) => ({
             id: product.id,
-            sku: product.sku || product.id,
             title: product.title || product.name || "UNNAMED DROP",
-            category: product.category,
             imageUrl: product.imageUrl || product.image_url || null,
-            media: product.media,
+            category: product.category,
             priceLabel: `${displayCurrency === "PKR" ? "PKR" : displayCurrency === "INR" ? "₹" : "$"} ${Number(product.prices?.[displayCurrency] ?? product.regionalPrices?.[displayCurrency] ?? product.price ?? (product.priceInCents || 0) / 100).toLocaleString()}`,
-            href: `/product/${product.sku || product.id}?currency=${displayCurrency}`,
+            media: product.media,
           }))}
-          eyebrow="FULL_CATALOG // CYLINDER ROTATION"
-          title="Shop All"
-          description="Drag through the latest six HADX drops. The center piece faces the camera while the archive rotates through a curved axis."
+          activeIndex={carouselIndex}
+          onSelect={setCarouselIndex}
         />
       ) : (
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">

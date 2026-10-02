@@ -1932,3 +1932,7 @@ body {
 .curved-band-controls button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(216, 169, 79, 0.4); background: transparent; color: #d8a94f; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s ease, border-color 0.2s ease; }
 .curved-band-controls button:hover { background: rgba(216, 169, 79, 0.12); border-color: rgba(216, 169, 79, 0.7); }
 @media (max-width: 640px) { .curved-band-card { width: 260px !important; } }
+
+.curved-band-meta { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; flex-direction: column; gap: 5px; padding: 44px 14px 14px; text-align: left; background: linear-gradient(180deg, transparent, rgba(5,5,5,.92) 60%); }
+.curved-band-meta strong { overflow: hidden; color: #f4f0e4; font-size: 12px; font-weight: 500; letter-spacing: .04em; text-overflow: ellipsis; white-space: nowrap; }
+.curved-band-meta small { color: rgba(216,169,79,.82); font: 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .12em; text-transform: uppercase; }
