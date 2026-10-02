@@ -105,7 +105,7 @@ export default function CurvedBandSlider({
       <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: "absolute" }}>
         <defs>
           <clipPath id="curved-band-clip" clipPathUnits="objectBoundingBox">
-            <path d="M0,0 Q0.5,0.08 1,0 L1,1 Q0.5,0.92 0,1 Z" />
+            <path d="M0,0 Q0.5,0.12 1,0 L1,1 Q0.5,0.88 0,1 Z" />
           </clipPath>
         </defs>
       </svg>
