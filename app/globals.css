@@ -1914,25 +1914,142 @@ body {
 }
 
 /* ------------------------------------------------------------------
-   Curved Band Slider — "elastic band" style horizontal drag gallery
+   Curved Band Slider
    ------------------------------------------------------------------ */
 
-.curved-band-wrap { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 24px; }
-.curved-band-frame { position: relative; width: 100%; overflow: hidden; padding: 48px 0; }
-.curved-band-edge { position: absolute; left: -10%; width: 120%; height: 90px; background: var(--hadx-bg, #050505); z-index: 5; pointer-events: none; }
-.curved-band-edge-top { top: -45px; border-radius: 0 0 50% 50% / 0 0 100% 100%; }
-.curved-band-edge-bottom { bottom: -45px; border-radius: 50% 50% 0 0 / 100% 100% 0 0; }
-.curved-band-track { display: flex; align-items: center; cursor: grab; padding: 0 32px; touch-action: pan-y; }
-.curved-band-track:active { cursor: grabbing; }
-.curved-band-card { position: relative; flex: 0 0 auto; aspect-ratio: 3 / 4; border-radius: 18px; overflow: hidden; border: 1px solid rgba(216, 169, 79, 0.18); background: rgba(255, 255, 255, 0.03); padding: 0; cursor: pointer; }
-.curved-band-card.is-active { border-color: rgba(216, 169, 79, 0.55); box-shadow: 0 0 40px rgba(216, 169, 79, 0.18); }
-.curved-band-media { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; -webkit-user-drag: none; }
-.curved-band-empty { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 10px; letter-spacing: 0.3em; color: rgba(255, 255, 255, 0.3); }
-.curved-band-controls { display: flex; gap: 16px; }
-.curved-band-controls button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(216, 169, 79, 0.4); background: transparent; color: #d8a94f; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s ease, border-color 0.2s ease; }
-.curved-band-controls button:hover { background: rgba(216, 169, 79, 0.12); border-color: rgba(216, 169, 79, 0.7); }
-@media (max-width: 640px) { .curved-band-card { width: 260px !important; } }
+.curved-band-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
 
-.curved-band-meta { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; flex-direction: column; gap: 5px; padding: 44px 14px 14px; text-align: left; background: linear-gradient(180deg, transparent, rgba(5,5,5,.92) 60%); }
-.curved-band-meta strong { overflow: hidden; color: #f4f0e4; font-size: 12px; font-weight: 500; letter-spacing: .04em; text-overflow: ellipsis; white-space: nowrap; }
-.curved-band-meta small { color: rgba(216,169,79,.82); font: 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .12em; text-transform: uppercase; }
+/* The curve: clip-path cuts the cards themselves (top + bottom bow inward),
+   so the page background shows through. No overlay blobs. */
+.curved-band-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  -webkit-clip-path: url(#curved-band-clip);
+  clip-path: url(#curved-band-clip);
+}
+
+.curved-band-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: max-content;
+  padding: 0 16px;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.curved-band-track:active {
+  cursor: grabbing;
+}
+
+/* Card size lives ONLY here. JS measures it, so change freely. */
+.curved-band-card {
+  position: relative;
+  flex: 0 0 auto;
+  width: min(280px, 74vw);
+  aspect-ratio: 3 / 4;
+  margin-right: 14px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  text-align: left;
+  cursor: pointer;
+}
+
+.curved-band-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85), transparent);
+  pointer-events: none;
+}
+
+.curved-band-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.curved-band-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Keep caption above the curve's bottom bite (~4% of card height). */
+.curved-band-caption {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 26px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  pointer-events: none;
+}
+
+.curved-band-caption b {
+  font-size: 15px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.curved-band-caption small {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #d8a94f;
+}
+
+.curved-band-controls {
+  display: flex;
+  gap: 16px;
+}
+
+.curved-band-controls button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(216, 169, 79, 0.4);
+  background: transparent;
+  color: #d8a94f;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.curved-band-controls button:hover:not(:disabled) {
+  background: rgba(216, 169, 79, 0.12);
+  border-color: rgba(216, 169, 79, 0.7);
+}
+
+.curved-band-controls button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}

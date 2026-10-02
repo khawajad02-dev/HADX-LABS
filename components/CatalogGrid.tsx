@@ -189,7 +189,8 @@ function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true, 
             title: product.title || product.name || "UNNAMED DROP",
             imageUrl: product.imageUrl || product.image_url || null,
             category: product.category,
-            priceLabel: `${displayCurrency === "PKR" ? "PKR" : displayCurrency === "INR" ? "₹" : "$"} ${Number(product.prices?.[displayCurrency] ?? product.regionalPrices?.[displayCurrency] ?? product.price ?? (product.priceInCents || 0) / 100).toLocaleString()}`,
+            price: Number(product.prices?.[displayCurrency] ?? product.regionalPrices?.[displayCurrency] ?? product.price ?? (product.priceInCents || 0) / 100),
+            currency: displayCurrency,
             media: product.media,
           }))}
           activeIndex={carouselIndex}
