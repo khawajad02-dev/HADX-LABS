@@ -83,7 +83,6 @@ export default function ProductVariantExperience({
 }: ProductVariantExperienceProps) {
   const storefrontVariants = buildStorefrontVariants(colorVariants, imageUrl, media, availableSizes, stockBySize);
   const [selectedColor, setSelectedColor] = useState(() => {
-    if (storefrontVariants.length > 1) return "";
     const black = storefrontVariants.find((variant) => variantKey(variant.name) === "black");
     return black?.name || storefrontVariants[0]?.name || "";
   });
