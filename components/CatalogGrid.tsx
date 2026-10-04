@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import CustomSelect from "./CustomSelect";
 import CurvedBandSlider from "./CurvedBandSlider";
+import type { DisplayCurrency } from "@/lib/currency";
 
 type ProductHandoff = { productId: string; progress: number };
 
@@ -26,7 +27,7 @@ export interface Product {
 
 interface CatalogGridProps {
   products?: Product[];
-  allowRegionalCurrency?: boolean;
+  initialCurrency?: DisplayCurrency;
   variant?: "grid" | "carousel";
 }
 
@@ -57,13 +58,13 @@ function fuzzyMatches(product: Product, rawQuery: string) {
   return query.split(" ").every((term) => fields.some((field) => field.split(" ").some((word) => word.startsWith(term) || editDistance(term, word) <= Math.max(1, Math.floor(term.length / 4)))));
 }
 
-function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true, variant = "grid" }: CatalogGridProps) {
+function CatalogGrid({ products: initialProducts, initialCurrency, variant = "grid" }: CatalogGridProps) {
   const [productList, setProductList] = useState<Product[]>(initialProducts || []);
   const [loading, setLoading] = useState<boolean>(!initialProducts || initialProducts.length === 0);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"newest" | "price-low" | "price-high">("newest");
-  const [displayCurrency, setDisplayCurrency] = useState<"USD" | "PKR" | "INR">(initialProducts?.[0]?.currency || "USD");
+  const [displayCurrency, setDisplayCurrency] = useState<DisplayCurrency>(initialCurrency || initialProducts?.[0]?.currency || "USD");
   const [productHandoff, setProductHandoff] = useState<ProductHandoff | null>(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
 
@@ -74,9 +75,13 @@ function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true, 
   }, []);
 
   useEffect(() => {
-    const requestedCurrency = allowRegionalCurrency ? new URLSearchParams(window.location.search).get("currency")?.toUpperCase() : "USD";
-    if (requestedCurrency === "PKR" || requestedCurrency === "INR" || requestedCurrency === "USD") setDisplayCurrency(requestedCurrency);
-  }, []);
+    if (initialCurrency) {
+      setDisplayCurrency(initialCurrency);
+      return;
+    }
+    const cookieCurrency = document.cookie.match(/(?:^|;\s*)hadx_currency=(USD|PKR|INR)(?:;|$)/)?.[1] as DisplayCurrency | undefined;
+    if (cookieCurrency) setDisplayCurrency(cookieCurrency);
+  }, [initialCurrency]);
 
   useEffect(() => {
     const initialQuery = new URLSearchParams(window.location.search).get("search");

@@ -2,13 +2,26 @@ import type { RegionalPrices } from "@/lib/product-meta";
 
 export type DisplayCurrency = "USD" | "PKR" | "INR";
 
-export function currencyFromRequest(req: Request): DisplayCurrency {
-  const requested = new URL(req.url).searchParams.get("currency")?.toUpperCase();
-  if (requested === "USD" || requested === "PKR" || requested === "INR") return requested;
-  const country = (req.headers.get("x-vercel-ip-country") || req.headers.get("cf-ipcountry") || "").toUpperCase();
-  if (country === "PK") return "PKR";
-  if (country === "IN") return "INR";
+const CURRENCIES = new Set<DisplayCurrency>(["USD", "PKR", "INR"]);
+
+export function currencyFromCountry(country: string | null | undefined): DisplayCurrency {
+  const normalized = String(country || "").trim().toUpperCase();
+  if (normalized === "PK") return "PKR";
+  if (normalized === "IN") return "INR";
   return "USD";
+}
+
+export function currencyFromCookieHeader(cookieHeader: string | null | undefined): DisplayCurrency | null {
+  const value = String(cookieHeader || "").match(/(?:^|;\s*)hadx_currency=(USD|PKR|INR)(?:;|$)/)?.[1] as DisplayCurrency | undefined;
+  return value && CURRENCIES.has(value) ? value : null;
+}
+
+export function currencyFromCookieValue(value: string | null | undefined): DisplayCurrency | null {
+  return value && CURRENCIES.has(value as DisplayCurrency) ? value as DisplayCurrency : null;
+}
+
+export function currencyFromRequest(req: Request): DisplayCurrency {
+  return currencyFromCookieHeader(req.headers.get("cookie")) || currencyFromCountry(req.headers.get("x-hadx-geo-country") || req.headers.get("x-vercel-ip-country") || req.headers.get("cf-ipcountry"));
 }
 
 export function regionalPrice(priceInCents: number, regionalPrices: RegionalPrices | undefined, currency: DisplayCurrency) {

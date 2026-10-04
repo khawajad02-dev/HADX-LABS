@@ -139,7 +139,7 @@ export default function CheckoutPage({
   return (
     <div className="checkout-page-shell relative min-h-screen bg-transparent text-white p-6 sm:p-12 flex flex-col items-center justify-center space-y-8">
       <div className="w-full max-w-xl flex justify-start">
-        <a href="/catalog#catalog" className="liquid-ui checkout-back-link rounded-full px-4 py-2 text-[10px] font-mono uppercase tracking-widest">← Back to catalog</a>
+        <a href={`/catalog?currency=${activeCurrency}#catalog`} className="liquid-ui checkout-back-link rounded-full px-4 py-2 text-[10px] font-mono uppercase tracking-widest">← Back to catalog</a>
       </div>
 
       {/* Title */}

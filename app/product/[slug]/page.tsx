@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
@@ -8,20 +8,11 @@ import ProductVariantExperience from "@/components/ProductVariantExperience";
 import RelatedProducts, { type RelatedProduct } from "@/components/RelatedProducts";
 import ProductReviews from "@/components/ProductReviews";
 import VaultButton from "@/components/VaultButton";
-import { currencySymbol, regionalPrice, type DisplayCurrency } from "@/lib/currency";
+import { currencyFromCookieValue, currencyFromCountry, currencySymbol, regionalPrice } from "@/lib/currency";
 import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/product-meta";
 
 export const revalidate = 0;
-
-function detectCurrency(requested?: string): DisplayCurrency {
-  const country = (headers().get("x-hadx-geo-country") || headers().get("x-vercel-ip-country") || headers().get("cf-ipcountry") || "").toUpperCase();
-  const explicit = requested?.toUpperCase();
-  if (country !== "PK") return "USD";
-  if (explicit === "USD") return "USD";
-  if (country === "PK") return "PKR";
-  return "USD";
-}
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const product = await prisma.product.findFirst({ where: { status: "PUBLISHED", OR: [{ sku: params.slug }, { id: params.slug }] } });
@@ -39,11 +30,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function ProductPage({ params, searchParams }: { params: { slug: string }; searchParams?: { currency?: string } }) {
+export default async function ProductPage({ params }: { params: { slug: string } }) {
   const product = await prisma.product.findFirst({ where: { status: "PUBLISHED", OR: [{ sku: params.slug }, { id: params.slug }] } });
   if (!product) notFound();
   const parsed = serializeProduct(product);
-  const currency = detectCurrency(searchParams?.currency);
+  const requestHeaders = headers();
+  const currency = currencyFromCookieValue(cookies().get("hadx_currency")?.value) || currencyFromCountry(requestHeaders.get("x-hadx-geo-country") || requestHeaders.get("x-vercel-ip-country") || requestHeaders.get("cf-ipcountry"));
   const amount = regionalPrice(product.priceInCents, parsed.regionalPrices, currency);
   let initialReviews: Array<{ id: string; name: string; rating: number; body: string; createdAt: Date }> = [];
   try {

@@ -9,6 +9,11 @@ import { cartItemKey, type CartItem } from "@/lib/cart";
 
 type Currency = "USD" | "PKR" | "INR";
 
+function readCurrencyCookie(): Currency {
+  const value = document.cookie.match(/(?:^|;\s*)hadx_currency=(USD|PKR|INR)(?:;|$)/)?.[1];
+  return value === "PKR" || value === "INR" ? value : "USD";
+}
+
 export default function CheckoutEntry() {
   const router = useRouter();
   const { items: cartItems, hydrated, clearCart } = useCart();
@@ -20,8 +25,7 @@ export default function CheckoutEntry() {
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    const requestedCurrency = (query.get("currency") || "USD").toUpperCase();
-    const currency: Currency = requestedCurrency === "PKR" || requestedCurrency === "INR" ? requestedCurrency : "USD";
+    const currency = readCurrencyCookie();
     const productId = query.get("productId");
     const size = (query.get("size") || "").trim().toUpperCase();
     setQueryCurrency(currency);
@@ -29,7 +33,7 @@ export default function CheckoutEntry() {
     if (!productId || cartItems.length) return;
 
     setDirectLoading(true);
-    void fetch(`/api/products?currency=${currency}&_=${Date.now()}`, { cache: "no-store", headers: { Accept: "application/json" } })
+    void fetch(`/api/products?_=${Date.now()}`, { cache: "no-store", headers: { Accept: "application/json" } })
       .then(async (response) => {
         const data = await response.json();
         const item = Array.isArray(data.products) ? data.products.find((candidate: any) => candidate.id === productId) : null;
@@ -63,15 +67,15 @@ export default function CheckoutEntry() {
   }
 
   if (!items.length) {
-    return <><main className="min-h-screen bg-transparent px-6 pt-36 text-center text-white"><p className="font-mono text-xs uppercase tracking-widest text-zinc-400">Your loadout is empty. Add a product and size before checkout.</p><a href="/catalog#catalog" className="liquid-ui mt-8 inline-flex rounded-full px-5 py-3 text-xs font-mono uppercase tracking-widest text-amber-100">Return to catalog</a></main>{networkVideo}</>;
+    return <><main className="min-h-screen bg-transparent px-6 pt-36 text-center text-white"><p className="font-mono text-xs uppercase tracking-widest text-zinc-400">Your loadout is empty. Add a product and size before checkout.</p><a href={`/catalog?currency=${queryCurrency}#catalog`} className="liquid-ui mt-8 inline-flex rounded-full px-5 py-3 text-xs font-mono uppercase tracking-widest text-amber-100">Return to catalog</a></main>{networkVideo}</>;
   }
 
   const returnToProduct = () => {
     const sku = items[0]?.sku;
     clearCart();
     if (sku) router.push(`/product/${encodeURIComponent(sku)}?currency=${activeCurrency}`);
-    else router.push("/catalog#catalog");
+    else router.push(`/catalog?currency=${activeCurrency}#catalog`);
   };
 
-  return <><CheckoutPage items={items} initialCountry={initialCountry} onOrderComplete={returnToProduct} onClearCart={() => { clearCart(); router.push('/catalog#catalog'); }} />{networkVideo}</>;
+  return <><CheckoutPage items={items} initialCountry={initialCountry} onOrderComplete={returnToProduct} onClearCart={() => { clearCart(); router.push(`/catalog?currency=${activeCurrency}#catalog`); }} />{networkVideo}</>;
 }
