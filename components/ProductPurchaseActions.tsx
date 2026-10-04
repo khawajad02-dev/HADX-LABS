@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/components/CartProvider";
 import SizeGuide, { type SizeMeasurement } from "@/components/SizeGuide";
 
@@ -39,6 +39,7 @@ export default function ProductPurchaseActions({
   const { addItem, openCart } = useCart();
   const [selectedSize, setSelectedSize] = useState("");
   const [notice, setNotice] = useState("");
+  const lastAddAt = useRef(0);
   const selectedVariant = colorVariants.find((variant) => variant.name.trim().toLowerCase() === selectedColor.trim().toLowerCase());
   const configuredSizes = (selectedVariant?.sizes?.length ? selectedVariant.sizes : availableSizes);
   const sizes = configuredSizes.filter((size) => {
@@ -57,6 +58,9 @@ export default function ProductPurchaseActions({
   }, [selectedColor]);
 
   const addToCart = (checkoutAfterAdd = false) => {
+    const now = Date.now();
+    if (!checkoutAfterAdd && now - lastAddAt.current < 600) return;
+    if (!checkoutAfterAdd) lastAddAt.current = now;
     if (colorVariants.length > 1 && !selectedColor.trim()) {
       setNotice("Select a color before adding this piece.");
       return;

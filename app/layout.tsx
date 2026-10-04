@@ -72,9 +72,9 @@ export default function RootLayout({
           <DeferredEnhancements />
           <InteractionFeedback />
           <IntroSplashScreen />
-          <div id="hadx-scroll-surface">
-            <CartProvider>{children}</CartProvider>
-          </div>
+          <CartProvider>
+            <div id="hadx-scroll-surface">{children}</div>
+          </CartProvider>
           <EdgeOverscroll />
           <CyberOrb />
         </div>

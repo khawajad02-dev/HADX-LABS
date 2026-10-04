@@ -55,7 +55,8 @@ export async function POST(req: Request) {
     const requestedCurrency = typeof currency === "string" ? currency.toUpperCase() : undefined;
     const geoCountry = (req.headers.get("x-hadx-geo-country") || "").toUpperCase();
     const requestedPayment = String(requestedPaymentMethod || (useStripe ? "CARD" : "COD")).trim().toUpperCase();
-    const selectedPaymentMethod = isPakistan ? (requestedPayment === "CARD" ? "CARD" : "COD") : "CARD";
+    // Pakistan is COD-only; never let a stale/client CARD value reach Stripe.
+    const selectedPaymentMethod = isPakistan ? "COD" : "CARD";
     if (!isPakistan && requestedPayment === "COD") return NextResponse.json({ error: "Cash on Delivery is available only for Pakistan delivery." }, { status: 400 });
     if (geoCountry && geoCountry !== "PK" && requestedCurrency && requestedCurrency !== "USD") return NextResponse.json({ error: "International visitors must use USD checkout." }, { status: 400 });
     if (selectedPaymentMethod === "CARD" && !process.env.STRIPE_SECRET_KEY) return NextResponse.json({ error: "Card payment is ready but not activated yet. Please try again after the payment provider is configured." }, { status: 503 });

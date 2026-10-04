@@ -54,7 +54,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [hydrated, items.length]);
 
   const addItem = useCallback((input: AddCartInput) => {
-    const normalized = normalizeCartItem({ ...input, key: cartItemKey(input.productId, input.size, input.currency), quantity: input.quantity || 1 });
+    const normalized = normalizeCartItem({ ...input, key: cartItemKey(input.productId, input.size, input.currency, input.color), quantity: input.quantity || 1 });
     if (!normalized || (items.length > 0 && items[0].currency !== normalized.currency)) return false;
     setItems((current) => {
       const existing = current.find((item) => item.key === normalized.key);
