@@ -20,11 +20,7 @@ export async function DELETE(req: Request, { params }: RouteContext) {
         select: { id: true, orderReference: true, orderStatus: true, productId: true, quantity: true },
       });
       if (!order) throw new Error("ORDER_NOT_FOUND");
-      if (order.orderStatus !== "CANCELLED" && order.orderStatus !== "EXPIRED") {
-        throw new Error("ONLY_CANCELLED_OR_EXPIRED");
-      }
-
-      if (order.productId) {
+      if (order.productId && order.orderStatus !== "DELIVERED") {
         await tx.product.update({ where: { id: order.productId }, data: { stockQuantity: { increment: order.quantity } } });
       }
       await tx.inventoryHold.deleteMany({ where: { orderId: order.id } });
@@ -32,10 +28,9 @@ export async function DELETE(req: Request, { params }: RouteContext) {
       return order;
     });
 
-    return NextResponse.json({ message: "Cancelled test order deleted", orderReference: deleted.orderReference });
+    return NextResponse.json({ message: "Order deleted", orderReference: deleted.orderReference });
   } catch (error: any) {
     if (error?.message === "ORDER_NOT_FOUND") return NextResponse.json({ error: "Order not found." }, { status: 404 });
-    if (error?.message === "ONLY_CANCELLED_OR_EXPIRED") return NextResponse.json({ error: "Only cancelled or expired orders can be deleted." }, { status: 400 });
     console.error("Order delete error:", error);
     return NextResponse.json({ error: "Order could not be deleted." }, { status: 500 });
   }
@@ -62,6 +57,9 @@ export async function PUT(req: Request, { params }: RouteContext) {
     const order = await prisma.order.update({ where: { id: params.id }, data });
     return NextResponse.json({ message: "Order status updated", order });
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+      return NextResponse.json({ error: "Order not found." }, { status: 404 });
+    }
     console.error("Order status update error:", error);
     return NextResponse.json({ error: "Order status could not be updated." }, { status: 500 });
   }

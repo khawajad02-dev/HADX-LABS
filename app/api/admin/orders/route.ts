@@ -74,9 +74,9 @@ export async function GET(req: Request) {
         });
     const items = orders
       .filter((order) => {
-        if (statusFilter === "HISTORY") return order.orderStatus !== OrderStatus.RESERVED && order.orderStatus !== OrderStatus.CONFIRMED;
+        if (statusFilter === "HISTORY") return order.orderStatus === OrderStatus.DELIVERED;
         if (statusFilter && Object.values(OrderStatus).includes(statusFilter as OrderStatus)) return order.orderStatus === statusFilter;
-        return order.orderStatus !== OrderStatus.CANCELLED && order.orderStatus !== OrderStatus.EXPIRED;
+        return order.orderStatus !== OrderStatus.CANCELLED && order.orderStatus !== OrderStatus.EXPIRED && order.orderStatus !== OrderStatus.DELIVERED;
       })
       .map(restoreLegacyColor);
     return NextResponse.json({

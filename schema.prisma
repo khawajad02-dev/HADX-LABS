@@ -51,11 +51,30 @@ model Product {
   category        String?
   status          ProductStatus   @default(DRAFT)
   stockQuantity   Int
+  dropId          String?
+  drop            DropRelease?    @relation(fields: [dropId], references: [id], onDelete: SetNull)
+  dropOrder       Int             @default(0)
   holds           InventoryHold[]
   orders          Order[]
   reviews         ProductReview[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
+
+  @@index([dropId])
+}
+
+model DropRelease {
+  id           String    @id @default(cuid())
+  slug         String    @unique
+  title        String
+  tagline      String?
+  startsAt     DateTime
+  endsAt       DateTime
+  isActive     Boolean   @default(true)
+  sellAfterEnd Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  products     Product[]
 }
 
 model Order {

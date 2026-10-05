@@ -105,6 +105,9 @@ export function normalizeRegionalPrices(input: unknown): RegionalPrices {
 
 export function serializeProduct<T extends { description?: string | null; imageUrl?: string | null }>(product: T) {
   const parsed = decodeProductDescription(product.description);
+  const hasDropRelation = Object.prototype.hasOwnProperty.call(product, "drop");
+  const productWithDrop = product as T & { drop?: unknown };
+  const assignedDrop = hasDropRelation && productWithDrop.drop && typeof productWithDrop.drop === "object" ? productWithDrop.drop : null;
   const media = parsed.metadata.media?.length
     ? parsed.metadata.media
     : product.imageUrl
@@ -118,7 +121,7 @@ export function serializeProduct<T extends { description?: string | null; imageU
     availableSizes: normalizeProductSizes(parsed.metadata.sizes),
     stockBySize: parsed.metadata.stockBySize || {},
     measurementsBySize: parsed.metadata.measurementsBySize || {},
-    drop: parsed.metadata.drop?.active ? parsed.metadata.drop : null,
+    drop: (hasDropRelation ? assignedDrop : parsed.metadata.drop?.active ? parsed.metadata.drop : null) as ProductDrop | null,
     colorVariants: normalizeProductColorVariants(parsed.metadata.colorVariants),
   };
 }

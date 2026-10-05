@@ -27,7 +27,7 @@ function normalizeMedia(input: unknown, fallbackImageUrl?: unknown): ProductMedi
 export async function GET(req: Request, { params }: RouteContext) {
   try {
     if (!isAdminRequest(req)) return NextResponse.json({ error: "Access Denied" }, { status: 401 });
-    const product = await prisma.product.findUnique({ where: { id: params.id } });
+    const product = await prisma.product.findUnique({ where: { id: params.id }, include: { drop: { select: { id: true, slug: true, title: true, startsAt: true, endsAt: true, isActive: true, sellAfterEnd: true } } } });
     if (!product) return NextResponse.json({ error: "Product not found." }, { status: 404 });
     return NextResponse.json(serializeProduct(product));
   } catch (error) {
@@ -76,6 +76,7 @@ export async function PUT(req: Request, { params }: RouteContext) {
         ...(body?.status === ProductStatus.PUBLISHED || body?.status === ProductStatus.DRAFT ? { status: body.status } : {}),
         stockQuantity: Object.values(stockBySize).reduce((total, value) => total + value, 0),
       },
+      include: { drop: { select: { id: true, slug: true, title: true, startsAt: true, endsAt: true, isActive: true, sellAfterEnd: true } } },
     });
 
     return NextResponse.json({ message: "Product updated successfully", product: serializeProduct(product) });

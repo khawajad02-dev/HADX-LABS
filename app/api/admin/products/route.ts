@@ -109,7 +109,7 @@ export async function GET(req: Request) {
     if (statusParam && Object.values(ProductStatus).includes(statusParam as ProductStatus)) where.status = statusParam as ProductStatus;
 
     const [items, total] = await Promise.all([
-      prisma.product.findMany({ where, orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: pageSize, skip: (page - 1) * pageSize }),
+      prisma.product.findMany({ where, include: { drop: { select: { id: true, slug: true, title: true, startsAt: true, endsAt: true, isActive: true, sellAfterEnd: true } } }, orderBy: [{ createdAt: "desc" }, { id: "desc" }], take: pageSize, skip: (page - 1) * pageSize }),
       prisma.product.count({ where }),
     ]);
 
