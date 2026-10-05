@@ -27,11 +27,13 @@ export default function CyberOrb() {
 
   const pulseLightning = () => setLightningPulse((current) => current + 1);
   const copySignalLink = async () => {
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.search = "";
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(cleanUrl.toString());
       setIsOpen(false);
     } catch {
-      window.prompt("Copy signal link", window.location.href);
+      window.prompt("Copy signal link", cleanUrl.toString());
     }
   };
 

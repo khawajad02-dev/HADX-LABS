@@ -74,9 +74,9 @@ function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true, 
   }, []);
 
   useEffect(() => {
-    const requestedCurrency = allowRegionalCurrency ? new URLSearchParams(window.location.search).get("currency")?.toUpperCase() : "USD";
-    if (requestedCurrency === "PKR" || requestedCurrency === "INR" || requestedCurrency === "USD") setDisplayCurrency(requestedCurrency);
-  }, []);
+    const stored = document.cookie.match(/(?:^|;\s*)hadx_currency=([^;]+)/)?.[1]?.toUpperCase();
+    if (allowRegionalCurrency && (stored === "PKR" || stored === "INR" || stored === "USD")) setDisplayCurrency(stored);
+  }, [allowRegionalCurrency]);
 
   useEffect(() => {
     const initialQuery = new URLSearchParams(window.location.search).get("search");
@@ -93,7 +93,7 @@ function CatalogGrid({ products: initialProducts, allowRegionalCurrency = true, 
 
     async function loadCatalog() {
       try {
-        const res = await fetch("/api/products");
+        const res = await fetch("/api/products", { headers: { Accept: "application/json" } });
         const data = await res.json();
         if (res.ok && data.products) {
           setProductList(data.products);

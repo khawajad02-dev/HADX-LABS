@@ -2,16 +2,9 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 import { serializeProduct, type RegionalPrices } from "@/lib/product-meta";
+import { currencyFromRequest, type DisplayCurrency } from "@/lib/currency";
 
 export const dynamic = "force-dynamic";
-
-type DisplayCurrency = "USD" | "PKR" | "INR";
-
-function requestCurrency(req: Request): DisplayCurrency {
-  const country = (req.headers.get("x-hadx-geo-country") || req.headers.get("x-vercel-ip-country") || req.headers.get("cf-ipcountry") || "").toUpperCase();
-  if (country === "PK") return "PKR";
-  return "USD";
-}
 
 function selectedPrice(product: { priceInCents: number; regionalPrices?: RegionalPrices }, currency: DisplayCurrency) {
   const regional = product.regionalPrices?.[currency];
@@ -20,7 +13,7 @@ function selectedPrice(product: { priceInCents: number; regionalPrices?: Regiona
 
 export async function GET(req: Request) {
   try {
-    const currency = requestCurrency(req);
+    const currency = currencyFromRequest(req);
     const products = await prisma.product.findMany({ where: { status: "PUBLISHED" }, orderBy: { createdAt: "desc" } });
     const items = products.map((rawProduct) => {
       const product = serializeProduct(rawProduct);

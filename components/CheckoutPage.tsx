@@ -9,6 +9,7 @@ import { CheckoutVideoModal, CheckoutState } from './CheckoutVideoModal';
 import CustomSelect from './CustomSelect';
 import type { CartItem } from '@/lib/cart';
 import { playCardFlipSound, pulseHaptic } from '@/lib/interaction-feedback';
+import { useCart } from '@/components/CartProvider';
 
 export default function CheckoutPage({ 
   items: initialItems = [], 
@@ -26,6 +27,9 @@ export default function CheckoutPage({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [inlineMessage, setInlineMessage] = useState('');
   const [focusedCardField, setFocusedCardField] = useState<'number' | 'expiry' | 'cvv' | null>(null);
+  const { items: providerItems, increment, decrement, removeItem } = useCart();
+  const [isProviderCheckout] = useState(() => initialItems.length > 0 && providerItems.length > 0);
+  const [directItems, setDirectItems] = useState<CartItem[]>(initialItems);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -38,7 +42,21 @@ export default function CheckoutPage({
   });
   const [otherCountry, setOtherCountry] = useState('');
 
-  const cartItems = initialItems as CartItem[];
+  const cartItems = (isProviderCheckout ? providerItems : directItems) as CartItem[];
+  const updateDirectItem = (key: string, action: 'increment' | 'decrement' | 'remove') => setDirectItems((current) => current.flatMap((item) => {
+    if (item.key !== key) return [item];
+    if (action === 'remove' || (action === 'decrement' && item.quantity <= 1)) return [];
+    return [{ ...item, quantity: action === 'increment' ? Math.min(20, item.quantity + 1) : item.quantity - 1 }];
+  }));
+  const changeQuantity = (key: string, action: 'increment' | 'decrement' | 'remove') => {
+    if (isProviderCheckout) {
+      if (action === 'increment') increment(key);
+      else if (action === 'decrement') decrement(key);
+      else removeItem(key);
+      return;
+    }
+    updateDirectItem(key, action);
+  };
   const activeCurrency = cartItems[0]?.currency || 'USD';
   const currencySymbol = activeCurrency === 'PKR' ? 'PKR' : activeCurrency === 'INR' ? '₹' : '$';
   const isOtherCountry = formData.country.trim().toLowerCase() === 'other';
@@ -163,10 +181,10 @@ export default function CheckoutPage({
             <span className="checkout-muted-label text-[10px] font-mono uppercase tracking-widest">Loadout [{cartItems.length} pieces]</span>
             <span className="checkout-muted-label text-[10px] font-mono uppercase tracking-widest">{cartItems.reduce((sum, item) => sum + item.quantity, 0)} units</span>
           </div>
-          {cartItems.map((item) => (
+          {cartItems.length === 0 ? <div className="rounded-lg border border-dashed border-white/10 px-4 py-6 text-center"><p className="text-xs font-mono uppercase tracking-[0.2em] text-amber-100/70">LOADOUT EMPTY</p><a href="/catalog#catalog" className="liquid-ui mt-4 inline-flex rounded-full px-4 py-2 text-[10px] font-mono uppercase tracking-widest text-amber-100">BACK TO CATALOG</a></div> : cartItems.map((item) => (
             <div key={item.key} className="flex items-center gap-3 border-b border-white/5 pb-3 last:border-0 last:pb-0">
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md border border-white/10 bg-black/20">{item.imageUrl ? <img src={item.imageUrl} alt="" className="h-full w-full object-cover" /> : null}</div>
-              <div className="min-w-0 flex-1"><p className="checkout-piece-title truncate text-sm">{item.name}</p><p className="checkout-muted-label text-[10px] font-mono uppercase tracking-widest">{item.color ? `${item.color} · ` : ""}Size {item.size} · Qty {item.quantity}</p></div>
+              <div className="min-w-0 flex-1"><p className="checkout-piece-title truncate text-sm">{item.name}</p><p className="checkout-muted-label text-[10px] font-mono uppercase tracking-widest">{item.color ? `${item.color} · ` : ""}Size {item.size}</p><div className="mt-2 flex items-center gap-2"><button type="button" onClick={() => changeQuantity(item.key, 'decrement')} className="liquid-ui h-6 w-6 rounded border border-white/15 text-xs text-amber-100" aria-label={`Decrease ${item.name}`}>−</button><span className="w-5 text-center text-xs">{item.quantity}</span><button type="button" onClick={() => changeQuantity(item.key, 'increment')} disabled={item.quantity >= 20} className="liquid-ui h-6 w-6 rounded border border-white/15 text-xs text-amber-100 disabled:opacity-30" aria-label={`Increase ${item.name}`}>+</button><button type="button" onClick={() => changeQuantity(item.key, 'remove')} className="ml-1 text-[9px] font-mono uppercase tracking-widest text-white/40 hover:text-amber-100">REMOVE</button></div></div>
               <span className="checkout-piece-price shrink-0 text-sm font-mono">{item.currency === 'PKR' ? 'PKR' : item.currency === 'INR' ? '₹' : '$'} {(item.price * item.quantity).toLocaleString()}</span>
             </div>
           ))}
@@ -325,9 +343,9 @@ export default function CheckoutPage({
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || cartItems.length === 0}
               className={`liquid-ui checkout-submit relative z-[2] px-6 py-3 rounded-xl font-bold uppercase tracking-wider ${
-                isSubmitting ? 'opacity-50 cursor-wait' : ''
+                isSubmitting || cartItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
               {isSubmitting ? 'PROCESSING...' : 'EXECUTE ORDER'}

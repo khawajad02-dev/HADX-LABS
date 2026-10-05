@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Product } from "@/components/CatalogGrid";
+import ShareButton from "@/components/ShareButton";
 
 type DisplayCurrency = "USD" | "PKR" | "INR";
 
@@ -22,7 +23,11 @@ function productImage(product: Product) {
 }
 
 export default function FavoritesView() {
-  const [currency, setCurrency] = useState<DisplayCurrency>("USD");
+  const [currency, setCurrency] = useState<DisplayCurrency>(() => {
+    if (typeof document === "undefined") return "USD";
+    const stored = document.cookie.match(/(?:^|;\s*)hadx_currency=([^;]+)/)?.[1]?.toUpperCase();
+    return stored === "PKR" || stored === "INR" ? stored : "USD";
+  });
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,8 +35,6 @@ export default function FavoritesView() {
   const syncIds = useCallback(() => setFavoriteIds(readFavoriteIds()), []);
 
   useEffect(() => {
-    const requested = new URLSearchParams(window.location.search).get("currency")?.toUpperCase();
-    if (requested === "PKR" || requested === "INR" || requested === "USD") setCurrency(requested);
     syncIds();
     window.addEventListener("hadx:favorites", syncIds);
     window.addEventListener("storage", syncIds);
@@ -44,7 +47,7 @@ export default function FavoritesView() {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    fetch(`/api/products?currency=${currency}`, { headers: { Accept: "application/json" } })
+    fetch("/api/products", { headers: { Accept: "application/json" } })
       .then((response) => response.json())
       .then((data) => {
         if (!cancelled && data.success && Array.isArray(data.products)) setProducts(data.products as Product[]);
@@ -102,7 +105,7 @@ export default function FavoritesView() {
                     <span className="shrink-0 font-mono text-xs text-amber-100/75">{currency} {Number(price).toLocaleString()}</span>
                   </div>
                 </Link>
-                <button type="button" onClick={() => removeFavorite(product.id)} className="liquid-ui mt-4 w-full rounded-full bg-transparent px-4 py-2 text-[10px] font-mono uppercase tracking-[0.18em] text-white/55 transition-colors hover:text-amber-100">Remove from favorites</button>
+                <div className="mt-4 flex gap-2"><ShareButton title={product.title || product.name || "HADX LABS piece"} path={`/product/${product.sku || product.id}`} className="flex-1" /><button type="button" onClick={() => removeFavorite(product.id)} className="liquid-ui flex-1 rounded-full bg-transparent px-4 py-2 text-[10px] font-mono uppercase tracking-[0.18em] text-white/55 transition-colors hover:text-amber-100">Remove</button></div>
               </article>
             );
           })}

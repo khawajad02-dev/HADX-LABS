@@ -21,19 +21,22 @@ export default function CartDrawer({ isOpen, onClose, items, onIncrement, onDecr
 
   useEffect(() => {
     if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => {
+      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onClose]);
 
   return (
     <>
-      <div onClick={onClose} aria-hidden="true" className={`fixed inset-0 z-40 bg-transparent transition-opacity duration-200 ${isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`} />
-      <aside aria-label="Fiber Optic shopping bag" className={`fixed bottom-4 right-4 z-[100000] flex h-[min(78vh,46rem)] w-[min(92vw,25rem)] flex-col overflow-hidden rounded-2xl border border-hadx-border bg-[rgba(8,8,8,0.78)] shadow-[0_24px_80px_rgba(0,0,0,0.42),0_0_32px_rgba(212,175,55,0.1)] transition-[transform,opacity] duration-300 ease-out sm:bottom-6 sm:right-6 ${isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0"}`}>
+      <div onClick={onClose} aria-hidden="true" className={`fixed inset-0 z-40 bg-black/75 backdrop-blur-[2px] transition-opacity duration-200 ${isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`} />
+      <aside aria-label="Fiber Optic shopping bag" className={`fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-[100000] flex h-[min(78vh,46rem)] w-[min(92vw,25rem)] flex-col overflow-hidden overscroll-contain rounded-2xl border border-hadx-border bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.72),0_0_32px_rgba(212,175,55,0.1)] transition-[transform,opacity] duration-300 ease-out sm:right-6 ${isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-6 opacity-0"}`}>
         <div className="flex items-center justify-between border-b border-hadx-border px-5 py-4">
           <h2 className="text-xs font-mono uppercase tracking-[0.3em] text-hadx-gold-light">Fiber Optic [{items.length}]</h2>
           <button type="button" onClick={onClose} className="liquid-ui flex h-8 w-8 items-center justify-center rounded-full text-lg leading-none text-hadx-gold hover:text-hadx-gold-light" aria-label="Close cart">✕</button>

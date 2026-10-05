@@ -41,7 +41,7 @@ export default function LiveInventoryHero({ initialProducts, initialCurrency }: 
     if (now - lastRefreshAt.current < 10000) return;
     lastRefreshAt.current = now;
     try {
-      const response = await fetch(`/api/products?currency=${initialCurrency}&_=${now}`, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await fetch(`/api/products?_=${now}`, { cache: "no-store", headers: { Accept: "application/json" } });
       const data = await response.json();
       if (response.ok && data.success && Array.isArray(data.products)) setProducts(normalizeProducts(data.products, initialCurrency));
     } catch (error) {
