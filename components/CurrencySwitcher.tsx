@@ -7,7 +7,7 @@ const CURRENCIES: Currency[] = ["USD", "PKR", "INR"];
 
 function currentCurrency(): Currency {
   if (typeof window === "undefined") return "USD";
-  const value = new URLSearchParams(window.location.search).get("currency")?.toUpperCase();
+  const value = document.cookie.match(/(?:^|;\s*)hadx_currency=([^;]+)/)?.[1]?.toUpperCase();
   return value === "PKR" || value === "INR" ? value : "USD";
 }
 
@@ -18,9 +18,8 @@ export default function CurrencySwitcher() {
 
   const choose = (currency: Currency) => {
     setActive(currency);
-    const url = new URL(window.location.href);
-    url.searchParams.set("currency", currency);
-    window.location.assign(`${url.pathname}?${url.searchParams.toString()}${url.hash || "#catalog"}`);
+    document.cookie = `hadx_currency=${currency}; Path=/; Max-Age=${60 * 60 * 24 * 180}; SameSite=Lax`;
+    window.location.assign(`${window.location.pathname}${window.location.hash || "#catalog"}`);
   };
 
   return (

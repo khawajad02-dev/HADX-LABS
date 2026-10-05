@@ -8,42 +8,42 @@ import ProductVariantExperience from "@/components/ProductVariantExperience";
 import RelatedProducts, { type RelatedProduct } from "@/components/RelatedProducts";
 import ProductReviews from "@/components/ProductReviews";
 import VaultButton from "@/components/VaultButton";
-import { currencySymbol, regionalPrice, type DisplayCurrency } from "@/lib/currency";
+import ShareButton from "@/components/ShareButton";
+import { currencySymbol, regionalPrice } from "@/lib/currency";
+import { currencyFromServer } from "@/lib/currency-server";
 import { prisma } from "@/lib/prisma";
 import { serializeProduct } from "@/lib/product-meta";
 
 export const revalidate = 0;
-
-function detectCurrency(requested?: string): DisplayCurrency {
-  const country = (headers().get("x-hadx-geo-country") || headers().get("x-vercel-ip-country") || headers().get("cf-ipcountry") || "").toUpperCase();
-  const explicit = requested?.toUpperCase();
-  if (country !== "PK") return "USD";
-  if (explicit === "USD") return "USD";
-  if (country === "PK") return "PKR";
-  return "USD";
-}
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const product = await prisma.product.findFirst({ where: { status: "PUBLISHED", OR: [{ sku: params.slug }, { id: params.slug }] } });
   if (!product || product.status !== "PUBLISHED") return { title: "Product Not Found | HADX LABS" };
   const parsed = serializeProduct(product);
   const title = `${product.title} | HADX LABS`;
-  const description = parsed.description || `Discover ${product.title} from the HADX LABS atelier.`;
-  const image = parsed.media.find((media) => media.type === "image")?.url || product.imageUrl || undefined;
+  const description = (parsed.description || `Discover ${product.title} from the HADX LABS atelier.`).slice(0, 150);
+  const requestHeaders = headers();
+  const host = requestHeaders.get("x-forwarded-host") || requestHeaders.get("host") || "hadx-labs.com";
+  const protocol = requestHeaders.get("x-forwarded-proto") || "https";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
+  const canonical = `${baseUrl.replace(/\/$/, "")}/product/${encodeURIComponent(params.slug)}`;
+  const rawImage = parsed.media.find((media) => media.type === "image")?.url || product.imageUrl || undefined;
+  const image = rawImage ? new URL(rawImage, baseUrl).toString() : undefined;
   return {
     title,
     description,
-    openGraph: { title, description, images: image ? [{ url: image }] : [], type: "website" },
+    alternates: { canonical },
+    openGraph: { title, description, url: canonical, images: image ? [{ url: image }] : [], type: "website" },
     twitter: { card: "summary_large_image", title, description, images: image ? [image] : [] },
     keywords: `HADX LABS, ${product.title}, ${product.category || "atelier"}`,
   };
 }
 
-export default async function ProductPage({ params, searchParams }: { params: { slug: string }; searchParams?: { currency?: string } }) {
+export default async function ProductPage({ params }: { params: { slug: string }; searchParams?: { currency?: string } }) {
   const product = await prisma.product.findFirst({ where: { status: "PUBLISHED", OR: [{ sku: params.slug }, { id: params.slug }] } });
   if (!product) notFound();
   const parsed = serializeProduct(product);
-  const currency = detectCurrency(searchParams?.currency);
+  const currency = currencyFromServer();
   const amount = regionalPrice(product.priceInCents, parsed.regionalPrices, currency);
   let initialReviews: Array<{ id: string; name: string; rating: number; body: string; createdAt: Date }> = [];
   try {
@@ -97,7 +97,7 @@ export default async function ProductPage({ params, searchParams }: { params: { 
         <div className="min-w-0 space-y-4"><ProductVariantExperience productId={product.id} sku={product.sku} name={product.title} price={amount} currency={currency} imageUrl={product.imageUrl || parsed.media.find((media) => media.type === "image")?.url || null} media={parsed.media} availableSizes={parsed.availableSizes} stockBySize={parsed.stockBySize} colorVariants={parsed.colorVariants} measurementsBySize={parsed.measurementsBySize} /><div data-liquid-surface className="liquid-panel product-detail-glass flex min-w-0 flex-col rounded-2xl p-6">
           {parsed.drop ? <div className="mb-4 inline-flex w-fit items-center rounded-full border border-amber-200/30 bg-[rgba(15,15,15,0.45)] px-3 py-2 text-[10px] font-mono uppercase tracking-[0.18em] text-amber-200">{parsed.drop.text || "LIMITED DROP // LAUNCHING SOON"}</div> : null}<span className="text-[10px] font-mono tracking-[0.3em] uppercase text-zinc-500 mb-2">{product.category || "Collection"}{" // "}{product.sku}</span>
           <h1 className="text-4xl md:text-6xl font-extralight tracking-tight mb-6">{product.title}</h1>
-          <div className="flex flex-wrap items-center gap-6 mb-8"><span className="text-3xl font-mono font-semibold">{currencySymbol(currency)} {amount.toLocaleString()}</span><VaultButton productId={product.id} /></div>
+          <div className="flex flex-wrap items-center gap-3 mb-8"><span className="mr-3 text-3xl font-mono font-semibold">{currencySymbol(currency)} {amount.toLocaleString()}</span><VaultButton productId={product.id} /><ShareButton title={product.title} path={`/product/${product.sku || product.id}`} /></div>
           <div className="prose prose-invert prose-sm mb-10 text-zinc-400"><p>{parsed.description || "No description available for this drop."}</p></div>
           <div className="border-t border-white/10 pt-8 mt-auto"><div className="liquid-panel product-detail-glass p-6 rounded-2xl"><h3 className="text-sm font-mono tracking-wider uppercase text-zinc-300 mb-2">Custom Commissions</h3><p className="text-xs text-zinc-500 mb-6 leading-relaxed">Want a custom vintage graphic? Send us your idea on Instagram DM.</p><InstagramDMButton label="SEND IDEA" /></div></div>
         </div></div>

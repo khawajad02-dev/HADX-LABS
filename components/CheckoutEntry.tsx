@@ -20,7 +20,8 @@ export default function CheckoutEntry() {
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    const requestedCurrency = (query.get("currency") || "USD").toUpperCase();
+    const storedCurrency = document.cookie.match(/(?:^|;\s*)hadx_currency=([^;]+)/)?.[1]?.toUpperCase();
+    const requestedCurrency = (storedCurrency || query.get("currency") || "USD").toUpperCase();
     const currency: Currency = requestedCurrency === "PKR" || requestedCurrency === "INR" ? requestedCurrency : "USD";
     const productId = query.get("productId");
     const size = (query.get("size") || "").trim().toUpperCase();
@@ -29,7 +30,7 @@ export default function CheckoutEntry() {
     if (!productId || cartItems.length) return;
 
     setDirectLoading(true);
-    void fetch(`/api/products?currency=${currency}&_=${Date.now()}`, { cache: "no-store", headers: { Accept: "application/json" } })
+    void fetch(`/api/products?_=${Date.now()}`, { cache: "no-store", headers: { Accept: "application/json" } })
       .then(async (response) => {
         const data = await response.json();
         const item = Array.isArray(data.products) ? data.products.find((candidate: any) => candidate.id === productId) : null;
