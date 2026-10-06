@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminRequest } from "@/lib/admin-auth";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus, Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -35,13 +35,28 @@ export async function GET(req: Request) {
 
   try {
     const statusFilter = new URL(req.url).searchParams.get("status")?.toUpperCase() || "";
+    const where: Prisma.OrderWhereInput = {};
+    if (statusFilter === "ARCHIVED") {
+      where.archivedAt = { not: null };
+    } else {
+      where.archivedAt = null;
+      if (statusFilter === "HISTORY") {
+        where.orderStatus = OrderStatus.DELIVERED;
+      } else if (Object.values(OrderStatus).includes(statusFilter as OrderStatus)) {
+        where.orderStatus = statusFilter as OrderStatus;
+      } else {
+        where.orderStatus = { notIn: [OrderStatus.CANCELLED, OrderStatus.EXPIRED, OrderStatus.DELIVERED] };
+      }
+    }
     const productColorColumn = await hasProductColorColumn();
     const orders: any[] = productColorColumn
       ? await prisma.order.findMany({
+          where,
           orderBy: { createdAt: "desc" },
           include: { product: true },
         })
       : await prisma.order.findMany({
+          where,
           orderBy: { createdAt: "desc" },
           select: {
             id: true,
@@ -67,18 +82,13 @@ export async function GET(req: Request) {
             expiresAt: true,
             confirmedAt: true,
             cancelledAt: true,
+            archivedAt: true,
             createdAt: true,
             updatedAt: true,
             product: { select: { id: true, title: true, imageUrl: true, sku: true } },
           },
         });
-    const items = orders
-      .filter((order) => {
-        if (statusFilter === "HISTORY") return order.orderStatus === OrderStatus.DELIVERED;
-        if (statusFilter && Object.values(OrderStatus).includes(statusFilter as OrderStatus)) return order.orderStatus === statusFilter;
-        return order.orderStatus !== OrderStatus.CANCELLED && order.orderStatus !== OrderStatus.EXPIRED && order.orderStatus !== OrderStatus.DELIVERED;
-      })
-      .map(restoreLegacyColor);
+    const items = orders.map(restoreLegacyColor);
     return NextResponse.json({
       items,
       orders: items,
@@ -100,11 +110,23 @@ export async function PATCH(req: Request) {
   }
 
   try {
-    const { id, orderStatus } = await req.json();
-    if (!id || !orderStatus) {
+    const body = await req.json().catch(() => null);
+    const id = typeof body?.id === "string" ? body.id : "";
+    const nextStatus = String(body?.orderStatus || "").toUpperCase();
+    if (!id || !nextStatus) {
       return NextResponse.json({ error: "id and orderStatus are required" }, { status: 400 });
     }
-    const order = await prisma.order.update({ where: { id }, data: { orderStatus: orderStatus as OrderStatus } });
+    if (!Object.values(OrderStatus).includes(nextStatus as OrderStatus)) {
+      return NextResponse.json({ error: "Invalid order status." }, { status: 400 });
+    }
+    const order = await prisma.order.update({
+      where: { id },
+      data: {
+        orderStatus: nextStatus as OrderStatus,
+        ...(nextStatus === "CONFIRMED" ? { confirmedAt: new Date(), cancelledAt: null } : {}),
+        ...(nextStatus === "CANCELLED" ? { cancelledAt: new Date() } : {}),
+      },
+    });
     return NextResponse.json({ order });
   } catch (error) {
     console.error("Order update error:", error);

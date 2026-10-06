@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { decodeProductDescription, normalizeProductSizes } from "@/lib/product-meta";
+import { notifyOwnerNewOrder, type NewOrderAlert } from "@/lib/notify-owner";
 // @ts-ignore
 import type { Currency, PaymentMethod, OrderStatus, PaymentStatus } from "@prisma/client";
 import { randomUUID } from "crypto";
@@ -174,6 +175,30 @@ export async function POST(req: Request) {
       return createdOrders;
     });
 
+    const sendOwnerOrderAlert = async () => {
+      const alert: NewOrderAlert = {
+        orderNumber: groupReference,
+        customerName: String(fullName).trim(),
+        email: String(email).trim(),
+        phone: String(phone).trim(),
+        currency: orderCurrency,
+        totalAmountInCents,
+        paymentMethod: selectedPaymentMethod,
+        paymentStatus: selectedPaymentMethod === "CARD" ? "PENDING_PAYMENT" : "UNPAID_COD",
+        items: pricedLines.map((line) => ({
+          title: line.product.title,
+          quantity: line.quantity,
+          size: line.size,
+          color: line.color,
+        })),
+      };
+      const deviceTokens = await prisma.ownerDevice
+        .findMany({ select: { token: true } })
+        .then((devices) => devices.map((device) => device.token))
+        .catch(() => [] as string[]);
+      await notifyOwnerNewOrder(alert, deviceTokens);
+    };
+
     if (selectedPaymentMethod === "CARD") {
       try {
         const stripeInstance = getStripe();
@@ -205,6 +230,7 @@ export async function POST(req: Request) {
           },
         });
         await prisma.order.update({ where: { id: orders[0].id }, data: { stripeIntent: session.id } });
+        await sendOwnerOrderAlert();
         return NextResponse.json({ success: true, checkoutUrl: session.url, orderId: orders[0].id, orderIds: orders.map((order) => order.id), orderReference: groupReference, itemCount: pricedLines.length });
       } catch (stripeErr) {
         console.error("Stripe session creation failed:", stripeErr);
@@ -220,6 +246,7 @@ export async function POST(req: Request) {
       }
     }
 
+    await sendOwnerOrderAlert();
     return NextResponse.json({ success: true, message: "Order placed successfully.", orderId: orders[0].id, orderIds: orders.map((order) => order.id), orderReference: groupReference, itemCount: pricedLines.length });
   } catch (err: any) {
     console.error("Checkout error:", err);

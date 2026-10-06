@@ -64,3 +64,29 @@ export async function PUT(req: Request, { params }: RouteContext) {
     return NextResponse.json({ error: "Order status could not be updated." }, { status: 500 });
   }
 }
+
+export async function PATCH(req: Request, { params }: RouteContext) {
+  try {
+    if (!isAdminRequest(req)) {
+      return NextResponse.json({ error: "Access Denied" }, { status: 401 });
+    }
+
+    const body = await req.json().catch(() => null);
+    if (typeof body?.archived !== "boolean") {
+      return NextResponse.json({ error: "archived must be a boolean." }, { status: 400 });
+    }
+
+    const order = await prisma.order.update({
+      where: { id: params.id },
+      data: { archivedAt: body.archived ? new Date() : null },
+      select: { id: true, orderReference: true, archivedAt: true },
+    });
+    return NextResponse.json({ message: body.archived ? "Order archived" : "Order unarchived", order });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+      return NextResponse.json({ error: "Order not found." }, { status: 404 });
+    }
+    console.error("Order archive update error:", error);
+    return NextResponse.json({ error: "Order could not be archived." }, { status: 500 });
+  }
+}
